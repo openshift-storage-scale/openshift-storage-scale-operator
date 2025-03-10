@@ -11,8 +11,8 @@ export const LocalVolumeDiscoveryResultKind: K8sGroupVersionKind = {
 };
 
 export enum DeviceType {
-    disk,
-    mpath
+    disk = "disk",
+    mpath = "mpath"
 }
 
 export type Device = {
@@ -28,7 +28,7 @@ export type Device = {
     }
     serial: string // seconddisk
     property: string //Rotational
-    type: DeviceType //disk
+    type: string //disk
 }
 
 export type LocalVolumeDiscoveryResultSpec = {

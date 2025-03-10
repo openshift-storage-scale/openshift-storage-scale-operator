@@ -22,7 +22,18 @@ export const DisksModal: React.FC<DisksModalProps> = (props) => {
       >
         <h4>Disks on node {props.data.spec.nodeName}:</h4>
         <ul>
-        {props.data.status.discoveredDevices.map(device => <li>{device.WWN}</li> )}
+          {
+            props.data.status.discoveredDevices.map(device => {
+              return (
+
+              <li>
+                <p> WWN_ID: {device.WWN}</p>
+                <p> DeviceID: {device.deviceID}</p>
+              </li>
+             
+              );
+            })
+          }
         </ul>
       </Modal>
     </>
