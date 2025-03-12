@@ -4,7 +4,6 @@ metadata:
   annotations:
     alm-examples: '[]'
     capabilities: Basic Install
-    operatorframework.io/suggested-namespace: openshift-storage-scale
     features.operators.openshift.io/disconnected: "true"
     features.operators.openshift.io/fips-compliant: "false"
     features.operators.openshift.io/proxy-aware: "true"
@@ -12,6 +11,7 @@ metadata:
     features.operators.openshift.io/token-auth-aws: "false"
     features.operators.openshift.io/token-auth-azure: "false"
     features.operators.openshift.io/token-auth-gcp: "false"
+    operatorframework.io/suggested-namespace: openshift-storage-scale
   name: openshift-storage-scale-operator.v0.0.0
   namespace: placeholder
 spec:
@@ -79,7 +79,7 @@ spec:
   - gpfs
   - storage
   links:
-  - name: Storage Scale Rh Operator
+  - name: Storage Scale Operator
     url: https://openshift-storage-scale-operator.domain
   maintainers:
   - email: michele@acksyn.org
@@ -90,4 +90,7 @@ spec:
   minKubeVersion: 1.23.0
   provider:
     name: Storage Scale Team
+  # relatedImages:
+  # - image: quay.io/hybridcloudpatterns/utility-container:latest
+  #   name: discovery-image
   version: 0.0.0

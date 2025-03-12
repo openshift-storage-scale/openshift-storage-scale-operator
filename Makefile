@@ -55,6 +55,9 @@ REV=$(shell git describe --long --tags --match='v*' --dirty 2>/dev/null || git r
 CURPATH=$(PWD)
 TARGET_DIR=$(CURPATH)/_output/bin
 
+CSV ?= ./bundle/manifests/openshift-storage-scale-operator.clusterserviceversion.yaml
+
+
 # USE_IMAGE_DIGESTS defines if images are resolved via tags or digests
 # You can enable this value if you would like to use SHA Based Digests
 # To enable set flag to true
@@ -324,12 +327,11 @@ bundle: manifests kustomize operator-sdk ## Generate bundle manifests and metada
 	cd config/console-plugin && $(KUSTOMIZE) edit set image console-plugin=${CONSOLE_PLUGIN_IMAGE}
 	$(KUSTOMIZE) build config/manifests | $(OPERATOR_SDK) generate bundle $(BUNDLE_GEN_FLAGS)
 	$(OPERATOR_SDK) bundle validate ./bundle
-##	$(MAKE) add-console-plugin-annotation
+	$(MAKE) add-console-plugin-annotation
 
 .PHONY: add-console-plugin-annotation
 add-console-plugin-annotation: yq ## Add console-plugin annotation to the CSV
-	$(YQ) -i '.metadata.annotations."console.openshift.io/plugins" = "[\"openshift-storage-scale-operator-console-plugin\"]"' "./bundle/manifests/openshift-storage-scale-operator.clusterserviceversion.yaml"
-
+	$(YQ) -i '.metadata.annotations."console.openshift.io/plugins" = "[\"openshift-storage-scale-operator-console-plugin\"]"' $(CSV)
 
 .PHONY: bundle-build
 bundle-build: ## Build the bundle image.
@@ -358,7 +360,7 @@ endif
 
 # A comma-separated list of bundle images (e.g. make catalog-build BUNDLE_IMGS=example.com/operator-bundle:v0.1.0,example.com/operator-bundle:v0.2.0).
 # These images MUST exist in a registry and be pull-able.
-BUNDLE_IMGS ?= $(BUNDLE_IMG)
+BUNDLE_IMGS ?= $(BUNDLE_IMG),$(CONSOLE_PLUGIN_IMAGE)
 
 # The image tag given to the resulting catalog image (e.g. make catalog-build CATALOG_IMG=example.com/operator-catalog:v0.2.0).
 CATALOG_IMG ?= $(IMAGE_TAG_BASE)-catalog:v$(VERSION)
