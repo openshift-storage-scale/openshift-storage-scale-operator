@@ -2,7 +2,7 @@
 set -x -e -o pipefail
 
 CATALOGSOURCE="test-openshift-storage-scale-operator"
-NS="openshift-operators"
+NS="openshift-storage-scale"
 OPERATOR="openshift-storage-scale-operator"
 VERSION="${VERSION:-6.6.6}"
 REGISTRY="${REGISTRY:-kuemper.int.rhx/bandini}"
@@ -44,6 +44,22 @@ wait_for_resource() {
 }
 
 apply_subscription() {
+    oc apply -f - <<EOF
+    apiVersion: v1
+    kind: Namespace
+    metadata:
+      name: ${NS}
+    spec:
+EOF
+    oc apply -f - <<EOF
+    apiVersion: operators.coreos.com/v1
+    kind: OperatorGroup
+    metadata:
+      name: storage-scale-operator-group
+      namespace: ${NS}
+    spec:
+      upgradeStrategy: Default
+EOF
     oc apply -f - <<EOF
     apiVersion: operators.coreos.com/v1alpha1
     kind: Subscription
