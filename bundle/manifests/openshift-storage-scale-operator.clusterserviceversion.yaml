@@ -28,7 +28,7 @@ metadata:
         }
       ]
     capabilities: Basic Install
-    createdAt: "2025-03-12T20:13:49Z"
+    createdAt: "2025-03-13T07:57:50Z"
     features.operators.openshift.io/disconnected: "true"
     features.operators.openshift.io/fips-compliant: "false"
     features.operators.openshift.io/proxy-aware: "true"
@@ -654,7 +654,7 @@ spec:
                   app.kubernetes.io/component: openshift-storage-scale-operator-console-plugin
               spec:
                 containers:
-                  - image: quay.io/openshift-storage-scale/openshift-storage-scale-operator-console:v0.0.4
+                  - image: quay.io/openshift-storage-scale/openshift-storage-scale-console:v0.0.4
                     name: openshift-storage-scale-operator-console-plugin
                     ports:
                       - containerPort: 9443
@@ -710,7 +710,7 @@ spec:
                         valueFrom:
                           fieldRef:
                             fieldPath: metadata.namespace
-                    image: quay.io/openshift-storage-scale/openshift-storage-scale:0.0.4
+                    image: quay.io/openshift-storage-scale/openshift-storage-scale-operator:0.0.4
                     livenessProbe:
                       httpGet:
                         path: /healthz
@@ -853,7 +853,7 @@ spec:
       containerPort: 443
       deploymentName: storage-scale-operator-controller-manager
       failurePolicy: Fail
-      generateName: vstoragescale.kb.io
+      generateName: scale.storage.openshift.io
       rules:
         - apiGroups:
             - scale.storage.openshift.io
@@ -867,4 +867,4 @@ spec:
       sideEffects: None
       targetPort: 9443
       type: ValidatingAdmissionWebhook
-      webhookPath: /validate-scale.storage.openshift.io-v1alpha1-storagescale
+      webhookPath: /validate-scale-storage-openshift-io-v1alpha1-storagescale

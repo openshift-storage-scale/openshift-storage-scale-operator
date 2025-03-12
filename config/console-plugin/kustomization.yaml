@@ -16,5 +16,5 @@ generatorOptions:
 
 images:
 - name: console-plugin
-  newName: quay.io/openshift-storage-scale/openshift-storage-scale-operator-console
+  newName: quay.io/openshift-storage-scale/openshift-storage-scale-console
   newTag: v0.0.4

@@ -51,7 +51,7 @@ type StorageScaleValidator struct {
 
 // FIXME(bandini): This needs to be reviewed more in detail. I added sideEffects=none to get it passing but not 100% sure about it
 //nolint:lll
-// +kubebuilder:webhook:verbs=create;update,path=/validate-scale.storage.openshift.io-v1alpha1-storagescale,mutating=false,failurePolicy=fail,groups=scale.storage.openshift.io,resources=storagescales,versions=v1alpha1,name=vstoragescale.kb.io,admissionReviewVersions=v1,sideEffects=none
+// +kubebuilder:webhook:verbs=create;update,path=/validate-scale-storage-openshift-io-v1alpha1-storagescale,mutating=false,failurePolicy=fail,groups=scale.storage.openshift.io,resources=storagescales,versions=v1alpha1,name=scale.storage.openshift.io,admissionReviewVersions=v1,sideEffects=none
 
 var _ webhook.CustomValidator = &StorageScaleValidator{}
 
