@@ -34,7 +34,7 @@ BUNDLE_METADATA_OPTS ?= $(BUNDLE_CHANNELS) $(BUNDLE_DEFAULT_CHANNEL)
 #
 # For example, running 'make bundle-build bundle-push catalog-build catalog-push' will build and push both
 # scale.storage.openshift.io/openshift-storage-scale-operator-bundle:$VERSION and scale.storage.openshift.io/openshift-storage-scale-operator-catalog:$VERSION.
-IMAGE_TAG_BASE ?= quay.io/openshift-storage-scale/openshift-storage-scale-operator
+IMAGE_TAG_BASE ?= quay.io/openshift-storage-scale/openshift-storage-scale
 
 
 # always release the console with the same tag as the operator and the other way around!
