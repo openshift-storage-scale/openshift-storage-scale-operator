@@ -80,8 +80,8 @@ if [[ -n $(git status --porcelain) ]]; then
     exit 1
 fi
 
-make VERSION=${VERSION} IMAGE_TAG_BASE=${REGISTRY}/openshift-storage-scale-operator IMG=${REGISTRY}/openshift-storage-scale-operator:${VERSION} CHANNELS=fast \
-    bundle generate docker-build docker-push bundle-build bundle-push catalog-build catalog-push catalog-install
+make VERSION=${VERSION} IMAGE_TAG_BASE=${REGISTRY}/openshift-storage-scale CHANNELS=fast \
+    bundle generate docker-build docker-push bundle-build bundle-push console-build console-push catalog-build catalog-push catalog-install
 
 wait_for_resource "packagemanifest" "${OPERATOR}" "" "${CATALOGSOURCE}"
 apply_subscription
