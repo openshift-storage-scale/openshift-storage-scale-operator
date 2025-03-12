@@ -184,6 +184,14 @@ docker-build: ## Build docker image with the manager.
 docker-push: ## Push docker image with the manager.
 	$(CONTAINER_TOOL) push ${IMG}
 
+.PHONY: console-build
+console-build: ## Build the console image
+	$(MAKE) -C console VERSION=$(VERSION) IMG=$(CONSOLE_PLUGIN_IMAGE) docker-build
+
+.PHONY: console-push
+console-push: ## Push the console image
+	$(MAKE) -C console VERSION=$(VERSION) IMG=$(CONSOLE_PLUGIN_IMAGE) docker-push
+
 .PHONY: diskmaker-docker-build
 diskmaker-docker-build: ## Build docker image of the diskmaker
 	$(CONTAINER_TOOL) build -t $(DISKMAKER_IMAGE) -f $(CURPATH)/Dockerfile.diskmaker.rhel9 .
