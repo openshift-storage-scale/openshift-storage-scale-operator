@@ -17,7 +17,7 @@ type MockAPIUpdater struct {
 
 var _ ApiUpdater = &MockAPIUpdater{}
 
-func (f *MockAPIUpdater) recordEvent(obj runtime.Object, e *DiskEvent) {
+func (f *MockAPIUpdater) recordEvent(_ runtime.Object, e *DiskEvent) {
 	f.events = append(f.events, e)
 }
 

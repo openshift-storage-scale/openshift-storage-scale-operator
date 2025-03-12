@@ -76,7 +76,7 @@ func (discovery *DeviceDiscovery) Start() error {
 
 	err = discovery.discoverDevices()
 	if err != nil {
-		errors.Wrapf(err, "failed to discover devices")
+		return errors.Wrapf(err, "failed to discover devices")
 	}
 
 	// Watch udev events for continuous discovery of devices
@@ -275,13 +275,13 @@ func getDeviceStatus(dev diskutil.BlockDevice) v1alpha1.DeviceStatus {
 		return status
 	}
 
-	hasBindMounts, mountPoint, err := dev.HasBindMounts()
+	mountPoint, err := dev.HasBindMounts()
 	if err != nil {
 		status.State = v1alpha1.Unknown
 		return status
 	}
 
-	if hasBindMounts {
+	if mountPoint != "" {
 		klog.Infof("device %q with mount point %q is not available", dev.Name, mountPoint)
 		status.State = v1alpha1.NotAvailable
 		return status
