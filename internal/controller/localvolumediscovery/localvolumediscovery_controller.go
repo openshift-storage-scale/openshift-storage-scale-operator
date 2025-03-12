@@ -23,9 +23,9 @@ import (
 
 	operatorv1 "github.com/openshift/api/operator/v1"
 	"github.com/openshift/library-go/pkg/operator/resource/resourceread"
-	localv1alpha1 "github.com/validatedpatterns/purple-storage-rh-operator/api/v1alpha1"
-	"github.com/validatedpatterns/purple-storage-rh-operator/assets"
-	"github.com/validatedpatterns/purple-storage-rh-operator/internal/common"
+	localv1alpha1 "github.com/validatedpatterns/openshift-storage-scale-operator/api/v1alpha1"
+	"github.com/validatedpatterns/openshift-storage-scale-operator/assets"
+	"github.com/validatedpatterns/openshift-storage-scale-operator/internal/common"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -57,11 +57,11 @@ type LocalVolumeDiscoveryReconciler struct {
 	Scheme *runtime.Scheme
 }
 
-//+kubebuilder:rbac:groups=purple.purplestorage.com,resources=localvolumediscoveries,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=purple.purplestorage.com,resources=localvolumediscoveries/status,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=scale.storage.openshift.io,resources=localvolumediscoveries,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=scale.storage.openshift.io,resources=localvolumediscoveries/status,verbs=get;list;watch;create;update;patch;delete
 // This is needed for the binary running in the containers (daemonset) to sync the results
-//+kubebuilder:rbac:groups=purple.purplestorage.com,resources=localvolumediscoveryresults,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=purple.purplestorage.com,resources=localvolumediscoveryresults/status,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=scale.storage.openshift.io,resources=localvolumediscoveryresults,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=scale.storage.openshift.io,resources=localvolumediscoveryresults/status,verbs=get;list;watch;create;update;patch;delete
 
 // Reconcile reads that state of the cluster for a LocalVolumeDiscovery object and makes changes based on the state read
 // and what is in the LocalVolumeDiscovery.Spec

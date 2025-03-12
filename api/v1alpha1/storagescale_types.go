@@ -22,8 +22,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// PurpleStorageSpec defines the desired state of PurpleStorage
-type PurpleStorageSpec struct {
+// StorageScaleSpec defines the desired state of StorageScale
+type StorageScaleSpec struct {
 	// MachineConfig labeling for the installation of kernel-devel package
 	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=1
 	MachineConfig MachineConfig `json:"mco_config,omitempty"`
@@ -70,8 +70,8 @@ type IBMSpectrumCluster struct {
 	Daemon_nodeSelector map[string]string `json:"daemon_nodeSelector,omitempty"`
 }
 
-// PurpleStorageStatus defines the observed state of PurpleStorage
-type PurpleStorageStatus struct {
+// StorageScaleStatus defines the observed state of StorageScale
+type StorageScaleStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 	// Conditions is a list of conditions and their status.
@@ -86,26 +86,26 @@ type PurpleStorageStatus struct {
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
 
-// PurpleStorage is the Schema for the purplestorages API
-type PurpleStorage struct {
+// StorageScale is the Schema for the storagescales API
+type StorageScale struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   PurpleStorageSpec   `json:"spec,omitempty"`
-	Status PurpleStorageStatus `json:"status,omitempty"`
+	Spec   StorageScaleSpec   `json:"spec,omitempty"`
+	Status StorageScaleStatus `json:"status,omitempty"`
 }
 
 //+kubebuilder:object:root=true
 
-// PurpleStorageList contains a list of PurpleStorage
-type PurpleStorageList struct {
+// StorageScaleList contains a list of StorageScale
+type StorageScaleList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []PurpleStorage `json:"items"`
+	Items           []StorageScale `json:"items"`
 }
 
 func init() {
-	SchemeBuilder.Register(&PurpleStorage{}, &PurpleStorageList{})
+	SchemeBuilder.Register(&StorageScale{}, &StorageScaleList{})
 }
 
 // DeviceMechanicalProperty holds the device's mechanical spec. It can be rotational or nonRotational

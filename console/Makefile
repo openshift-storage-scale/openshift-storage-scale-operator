@@ -6,7 +6,7 @@ VERSION ?= $(DEFAULT_VERSION)
 export VERSION
 
 # Override this when building images for dev only!
-IMAGE_REGISTRY ?= quay.io/hybridcloudpatterns
+IMAGE_REGISTRY ?= quay.io/openshift-storage-scale
 
 # For the default version, use 'latest' image tags.
 # Otherwise version prefixed with 'v'
@@ -18,7 +18,7 @@ endif
 export IMAGE_TAG
 
 # Image pullspec to use for all building/pushing image targets
-IMG ?= $(IMAGE_REGISTRY)/purple-storage-rh-operator-console:$(IMAGE_TAG)
+IMG ?= $(IMAGE_REGISTRY)/openshift-storage-scale-operator-console:$(IMAGE_TAG)
 
 .PHONY: help
 help: ## Display this help.

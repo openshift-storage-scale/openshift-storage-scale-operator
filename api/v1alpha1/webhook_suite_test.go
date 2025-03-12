@@ -113,7 +113,7 @@ var _ = BeforeSuite(func() {
 	})
 	Expect(err).NotTo(HaveOccurred())
 
-	err = (&PurpleStorageValidator{}).SetupWebhookWithManager(mgr)
+	err = (&StorageScaleValidator{}).SetupWebhookWithManager(mgr)
 	Expect(err).NotTo(HaveOccurred())
 
 	// +kubebuilder:scaffold:webhook

@@ -32,7 +32,7 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	purplev1alpha1 "github.com/validatedpatterns/purple-storage-rh-operator/api/v1alpha1"
+	scalev1alpha "github.com/validatedpatterns/openshift-storage-scale-operator/api/v1alpha1"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -72,7 +72,7 @@ var _ = BeforeSuite(func() {
 	Expect(err).NotTo(HaveOccurred())
 	Expect(cfg).NotTo(BeNil())
 
-	err = purplev1alpha1.AddToScheme(scheme.Scheme)
+	err = scalev1alpha.AddToScheme(scheme.Scheme)
 	Expect(err).NotTo(HaveOccurred())
 
 	//+kubebuilder:scaffold:scheme

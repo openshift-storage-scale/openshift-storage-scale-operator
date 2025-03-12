@@ -1,9 +1,9 @@
 #!/bin/bash
 set -x -e -o pipefail
 
-CATALOGSOURCE="test-purplestorage-operator"
+CATALOGSOURCE="test-openshift-storage-scale-operator"
 NS="openshift-operators"
-OPERATOR="purple-storage-rh-operator"
+OPERATOR="openshift-storage-scale-operator"
 VERSION="${VERSION:-6.6.6}"
 REGISTRY="${REGISTRY:-kuemper.int.rhx/bandini}"
 
@@ -64,7 +64,7 @@ if [[ -n $(git status --porcelain) ]]; then
     exit 1
 fi
 
-make VERSION=${VERSION} IMAGE_TAG_BASE=${REGISTRY}/purplestorage-operator IMG=${REGISTRY}/purplestorage-operator:${VERSION} CHANNELS=fast \
+make VERSION=${VERSION} IMAGE_TAG_BASE=${REGISTRY}/openshift-storage-scale-operator IMG=${REGISTRY}/openshift-storage-scale-operator:${VERSION} CHANNELS=fast \
     bundle generate docker-build docker-push bundle-build bundle-push catalog-build catalog-push catalog-install
 
 wait_for_resource "packagemanifest" "${OPERATOR}" "" "${CATALOGSOURCE}"

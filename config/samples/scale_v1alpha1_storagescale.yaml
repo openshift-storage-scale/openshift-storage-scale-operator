@@ -1,7 +1,7 @@
-apiVersion: purple.purplestorage.com/v1alpha1
-kind: PurpleStorage
+apiVersion: scale.storage.openshift.io/v1alpha1
+kind: StorageScale
 metadata:
-  name: purplestorage-sample
+  name: storagescale-sample
 spec:
   ibm_cnsa_version: "v5.2.2.1"
   mco_config:

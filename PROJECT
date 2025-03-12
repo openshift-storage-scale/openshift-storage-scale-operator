@@ -2,23 +2,23 @@
 # This file is used to track the info used to scaffold your project
 # and allow the plugins properly work.
 # More info: https://book.kubebuilder.io/reference/project-config.html
-domain: purplestorage.com
+domain: scale.storage.openshift.io
 layout:
 - go.kubebuilder.io/v4
 plugins:
   manifests.sdk.operatorframework.io/v2: {}
   scorecard.sdk.operatorframework.io/v2: {}
-projectName: purple-storage-rh-operator
-repo: github.com/validatedpatterns/purple-storage-rh-operator
+projectName: openshift-storage-scale-operator
+repo: github.com/validatedpatterns/openshift-storage-scale-operator
 resources:
 - api:
     crdVersion: v1
     namespaced: true
   controller: true
-  domain: purplestorage.com
-  group: purple
-  kind: PurpleStorage
-  path: github.com/validatedpatterns/purple-storage-rh-operator/api/v1alpha1
+  domain: scale.storage.openshift.io
+  group: scale
+  kind: StorageScale
+  path: github.com/validatedpatterns/openshift-storage-scale-operator/api/v1alpha1
   version: v1alpha1
   webhooks:
     defaulting: true

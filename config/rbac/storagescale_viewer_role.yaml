@@ -1,20 +1,23 @@
+# permissions for end users to view storagescales.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
     app.kubernetes.io/name: openshift-storage-scale-operator
     app.kubernetes.io/managed-by: kustomize
-  name: proxy-role
+  name: storagescale-viewer-role
 rules:
 - apiGroups:
-  - authentication.k8s.io
+  - scale.storage.openshift.io
   resources:
-  - tokenreviews
+  - storagescales
   verbs:
-  - create
+  - get
+  - list
+  - watch
 - apiGroups:
-  - authorization.k8s.io
+  - scale.storage.openshift.io
   resources:
-  - subjectaccessreviews
+  - storagescales/status
   verbs:
-  - create
+  - get

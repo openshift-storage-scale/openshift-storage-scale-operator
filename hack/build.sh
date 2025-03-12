@@ -13,7 +13,7 @@ COMMIT=${CI_UPSTREAM_COMMIT:-${GIT_COMMIT}}
 BUILD_DATE=$(date --utc -Iseconds)
 
 LDFLAGS="-s -w "
-REPO="github.com/validatedpatterns/purple-storage-rh-operator"
+REPO="github.com/validatedpatterns/openshift-storage-scale-operator"
 LDFLAGS+="-X $REPO/version.Version=${VERSION} "
 LDFLAGS+="-X $REPO/version.GitCommit=${COMMIT} "
 LDFLAGS+="-X $REPO/version.BuildDate=${BUILD_DATE} "

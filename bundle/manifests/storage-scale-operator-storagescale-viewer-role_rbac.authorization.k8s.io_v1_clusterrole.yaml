@@ -4,20 +4,20 @@ metadata:
   creationTimestamp: null
   labels:
     app.kubernetes.io/managed-by: kustomize
-    app.kubernetes.io/name: purple-storage-rh-operator
-  name: purple-storage-rh-operator-purplestorage-viewer-role
+    app.kubernetes.io/name: openshift-storage-scale-operator
+  name: storage-scale-operator-storagescale-viewer-role
 rules:
 - apiGroups:
-  - purple.purplestorage.com
+  - scale.storage.openshift.io
   resources:
-  - purplestorages
+  - storagescales
   verbs:
   - get
   - list
   - watch
 - apiGroups:
-  - purple.purplestorage.com
+  - scale.storage.openshift.io
   resources:
-  - purplestorages/status
+  - storagescales/status
   verbs:
   - get

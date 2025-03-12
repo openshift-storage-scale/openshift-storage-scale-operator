@@ -26,7 +26,7 @@ go.work
 *.swo
 *~
 
-/config/samples/purplestorage-catalog-*.yaml
+/config/samples/storagescale-catalog-*.yaml
 /coverage.html
 
 **/pull.txt

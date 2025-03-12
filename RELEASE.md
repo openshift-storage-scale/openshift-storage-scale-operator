@@ -8,6 +8,6 @@ This is totally temporary for now. We'll automate this later
 4. Run `git commit -a -m "Release new version ${NEW_VERSION}"`
 5. Run `git tag v${NEW_VERSION}; git push origin v${NEW_VERSION}`
 6. Tag new catalog:
-   `podman tag quay.io/hybridcloudpatterns/purple-storage-rh-operator-catalog:v0.0.4 quay.io/hybridcloudpatterns/purple-storage-rh-operator-catalog:latest`
+   `podman tag quay.io/openshift-storage-scale/openshift-storage-scale-operator-catalog:v0.0.4 quay.io/openshift-storage-scale/openshift-storage-scale-operator-catalog:latest`
 7. Push new latest catalog:
-   `podman push quay.io/hybridcloudpatterns/purple-storage-rh-operator-catalog:latest`
+   `podman push quay.io/openshift-storage-scale/openshift-storage-scale-operator-catalog:latest`

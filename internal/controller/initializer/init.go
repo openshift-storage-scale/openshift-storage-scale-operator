@@ -9,8 +9,8 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/validatedpatterns/purple-storage-rh-operator/internal/controller/console"
-	"github.com/validatedpatterns/purple-storage-rh-operator/internal/utils"
+	"github.com/validatedpatterns/openshift-storage-scale-operator/internal/controller/console"
+	"github.com/validatedpatterns/openshift-storage-scale-operator/internal/utils"
 )
 
 // Initializer runs some bootstrapping code:

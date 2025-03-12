@@ -5,13 +5,13 @@ import (
 )
 
 const (
-	defaultDiskMakerImageVersion = "quay.io/hybridcloudpatterns/purple-storage-rh-operator-diskmaker"
+	defaultDiskMakerImageVersion = "quay.io/openshift-storage-scale/openshift-storage-scale-operator-diskmaker"
 	defaultKubeProxyImage        = "quay.io/openshift/origin-kube-rbac-proxy:latest"
 
 	// OwnerNamespaceLabel references the owning object's namespace
-	OwnerNamespaceLabel = "purple.purplestorage.com/owner-namespace"
+	OwnerNamespaceLabel = "scale.storage.openshift.io/owner-namespace"
 	// OwnerNameLabel references the owning object
-	OwnerNameLabel = "purple.purplestorage.com/owner-name"
+	OwnerNameLabel = "scale.storage.openshift.io/owner-name"
 
 	// DiskMakerImageEnv is used by the operator to read the DISKMAKER_IMAGE from the environment
 	DiskMakerImageEnv = "DISKMAKER_IMAGE"

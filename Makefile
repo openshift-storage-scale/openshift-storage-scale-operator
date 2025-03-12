@@ -33,13 +33,13 @@ BUNDLE_METADATA_OPTS ?= $(BUNDLE_CHANNELS) $(BUNDLE_DEFAULT_CHANNEL)
 # This variable is used to construct full image tags for bundle and catalog images.
 #
 # For example, running 'make bundle-build bundle-push catalog-build catalog-push' will build and push both
-# purplestorage.com/purple-storage-rh-operator-bundle:$VERSION and purplestorage.com/purple-storage-rh-operator-catalog:$VERSION.
-IMAGE_TAG_BASE ?= quay.io/hybridcloudpatterns/purple-storage-rh-operator
+# scale.storage.openshift.io/openshift-storage-scale-operator-bundle:$VERSION and scale.storage.openshift.io/openshift-storage-scale-operator-catalog:$VERSION.
+IMAGE_TAG_BASE ?= quay.io/openshift-storage-scale/openshift-storage-scale-operator
 
 
 # always release the console with the same tag as the operator and the other way around!
 # Image base URL of the console plugin
-CONSOLE_PLUGIN_IMAGE_BASE ?= quay.io/hybridcloudpatterns/purple-storage-rh-operator-console
+CONSOLE_PLUGIN_IMAGE_BASE ?= quay.io/openshift-storage-scale/openshift-storage-scale-operator-console
 CONSOLE_PLUGIN_IMAGE ?= $(CONSOLE_PLUGIN_IMAGE_BASE):v$(VERSION)
 
 
@@ -328,7 +328,7 @@ bundle: manifests kustomize operator-sdk ## Generate bundle manifests and metada
 
 .PHONY: add-console-plugin-annotation
 add-console-plugin-annotation: yq ## Add console-plugin annotation to the CSV
-	$(YQ) -i '.metadata.annotations."console.openshift.io/plugins" = "[\"purple-storage-rh-operator-console-plugin\"]"' "./bundle/manifests/purple-storage-rh-operator.clusterserviceversion.yaml"
+	$(YQ) -i '.metadata.annotations."console.openshift.io/plugins" = "[\"openshift-storage-scale-operator-console-plugin\"]"' "./bundle/manifests/openshift-storage-scale-operator.clusterserviceversion.yaml"
 
 
 .PHONY: bundle-build
@@ -381,14 +381,14 @@ catalog-push: ## Push a catalog image.
 	$(MAKE) docker-push IMG=$(CATALOG_IMG)
 
 .PHONY: catalog-install
-catalog-install: config/samples/purplestorage-catalog-$(VERSION).yaml ## Install the OLM catalog on a cluster (for testing).
-	-oc delete -f config/samples/purplestorage-catalog-$(VERSION).yaml
-	oc create -f config/samples/purplestorage-catalog-$(VERSION).yaml
+catalog-install: config/samples/storagescale-catalog-$(VERSION).yaml ## Install the OLM catalog on a cluster (for testing).
+	-oc delete -f config/samples/storagescale-catalog-$(VERSION).yaml
+	oc create -f config/samples/storagescale-catalog-$(VERSION).yaml
 
-.PHONY: config/samples/purplestorage-catalog-$(VERSION).yaml
-config/samples/purplestorage-catalog-$(VERSION).yaml:
-	cp config/samples/purplestorage-catalog.yaml config/samples/purplestorage-catalog-$(VERSION).yaml
-	sed -i -e "s@CATALOG_IMG@$(CATALOG_IMG)@g" config/samples/purplestorage-catalog-$(VERSION).yaml
+.PHONY: config/samples/storagescale-catalog-$(VERSION).yaml
+config/samples/storagescale-catalog-$(VERSION).yaml:
+	cp config/samples/storagescale-catalog.yaml config/samples/storagescale-catalog-$(VERSION).yaml
+	sed -i -e "s@CATALOG_IMG@$(CATALOG_IMG)@g" config/samples/storagescale-catalog-$(VERSION).yaml
 
 .PHONY: fetchyaml
 fetchyaml: ## Fetches install yaml files
@@ -397,5 +397,5 @@ fetchyaml: ## Fetches install yaml files
 .PHONY: rbacs-generates
 rbacs-generate: ## Generates RBACs and injects them in .go file
 	CMD_OUTPUT=$$(go run scripts/create-rbacs.go "files/$(RBAC_VERSION)/install.yaml"); \
-	sed -i '/IBM_RBAC_MARKER_START/,/IBM_RBAC_MARKER_END/{//!d}' internal/controller/purplestorage_controller.go; \
-	sed -i "/IBM_RBAC_MARKER_START/ r /dev/stdin" internal/controller/purplestorage_controller.go <<< "$$CMD_OUTPUT"
+	sed -i '/IBM_RBAC_MARKER_START/,/IBM_RBAC_MARKER_END/{//!d}' internal/controller/storagescale_controller.go; \
+	sed -i "/IBM_RBAC_MARKER_START/ r /dev/stdin" internal/controller/storagescale_controller.go <<< "$$CMD_OUTPUT"

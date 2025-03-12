@@ -6,7 +6,7 @@ import {
 
 export const LocalVolumeDiscoveryResultKind: K8sGroupVersionKind = {
     version: 'v1alpha1',
-    group: 'purple.purplestorage.com',
+    group: 'scale.storage.openshift.io',
     kind: 'LocalVolumeDiscoveryResult',
 };
 

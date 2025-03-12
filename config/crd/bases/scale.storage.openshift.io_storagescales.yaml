@@ -1,33 +1,23 @@
+---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.17.2
-  creationTimestamp: null
-  name: purplestorages.purple.purplestorage.com
+  name: storagescales.scale.storage.openshift.io
 spec:
-  conversion:
-    strategy: Webhook
-    webhook:
-      clientConfig:
-        service:
-          name: purple-storage-rh-operator-webhook-service
-          namespace: purple-storage-rh-operator-system
-          path: /convert
-      conversionReviewVersions:
-      - v1
-  group: purple.purplestorage.com
+  group: scale.storage.openshift.io
   names:
-    kind: PurpleStorage
-    listKind: PurpleStorageList
-    plural: purplestorages
-    singular: purplestorage
+    kind: StorageScale
+    listKind: StorageScaleList
+    plural: storagescales
+    singular: storagescale
   scope: Namespaced
   versions:
   - name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: PurpleStorage is the Schema for the purplestorages API
+        description: StorageScale is the Schema for the storagescales API
         properties:
           apiVersion:
             description: |-
@@ -47,7 +37,7 @@ spec:
           metadata:
             type: object
           spec:
-            description: PurpleStorageSpec defines the desired state of PurpleStorage
+            description: StorageScaleSpec defines the desired state of StorageScale
             properties:
               ibm_cnsa_cluster:
                 properties:
@@ -215,7 +205,7 @@ spec:
                 type: object
             type: object
           status:
-            description: PurpleStorageStatus defines the observed state of PurpleStorage
+            description: StorageScaleStatus defines the observed state of StorageScale
             properties:
               conditions:
                 description: |-
@@ -269,9 +259,3 @@ spec:
     storage: true
     subresources:
       status: {}
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: null
-  storedVersions: null

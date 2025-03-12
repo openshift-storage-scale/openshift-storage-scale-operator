@@ -34,7 +34,7 @@ const (
 	// this has to be the same as in the package.json in the plugin
 	PluginName = "console-plugin-template"
 	// ServiceName is the name of the console plugin Service and must match the name of the Service in /bundle/manifests!
-	ServiceName = "purple-storage-rh-operator-console-plugin"
+	ServiceName = "openshift-storage-scale-operator-console-plugin"
 	// ServicePort is the port of the console plugin Service and must match the port of the Service in /bundle/manifests!
 	ServicePort = 9443
 )

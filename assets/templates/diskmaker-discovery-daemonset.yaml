@@ -58,7 +58,7 @@ spec:
           name: run-udev
       hostPID: true
       priorityClassName: ${PRIORITY_CLASS_NAME}
-      serviceAccountName: purple-storage-rh-operator-controller-manager
+      serviceAccountName: openshift-storage-scale-operator-controller-manager
       volumes:
       - hostPath:
           path: /mnt/local-storage

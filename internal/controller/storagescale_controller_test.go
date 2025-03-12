@@ -27,10 +27,10 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	purplev1alpha1 "github.com/validatedpatterns/purple-storage-rh-operator/api/v1alpha1"
+	scalev1alpha "github.com/validatedpatterns/openshift-storage-scale-operator/api/v1alpha1"
 )
 
-var _ = Describe("PurpleStorage Controller", func() {
+var _ = Describe("StorageScale Controller", func() {
 	Context("When reconciling a resource", func() {
 		const resourceName = "test-resource"
 
@@ -40,13 +40,13 @@ var _ = Describe("PurpleStorage Controller", func() {
 			Name:      resourceName,
 			Namespace: "default", // TODO(user):Modify as needed
 		}
-		purplestorage := &purplev1alpha1.PurpleStorage{}
+		storagescale := &scalev1alpha.StorageScale{}
 
 		BeforeEach(func() {
-			By("creating the custom resource for the Kind PurpleStorage")
-			err := k8sClient.Get(ctx, typeNamespacedName, purplestorage)
+			By("creating the custom resource for the Kind StorageScale")
+			err := k8sClient.Get(ctx, typeNamespacedName, storagescale)
 			if err != nil && errors.IsNotFound(err) {
-				resource := &purplev1alpha1.PurpleStorage{
+				resource := &scalev1alpha.StorageScale{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      resourceName,
 						Namespace: "default",
@@ -59,16 +59,16 @@ var _ = Describe("PurpleStorage Controller", func() {
 
 		AfterEach(func() {
 			// TODO(user): Cleanup logic after each test, like removing the resource instance.
-			resource := &purplev1alpha1.PurpleStorage{}
+			resource := &scalev1alpha.StorageScale{}
 			err := k8sClient.Get(ctx, typeNamespacedName, resource)
 			Expect(err).NotTo(HaveOccurred())
 
-			By("Cleanup the specific resource instance PurpleStorage")
+			By("Cleanup the specific resource instance StorageScale")
 			Expect(k8sClient.Delete(ctx, resource)).To(Succeed())
 		})
 		It("should successfully reconcile the resource", func() {
 			By("Reconciling the created resource")
-			controllerReconciler := &PurpleStorageReconciler{
+			controllerReconciler := &StorageScaleReconciler{
 				Client: k8sClient,
 				Scheme: k8sClient.Scheme(),
 			}

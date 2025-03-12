@@ -38,11 +38,11 @@ import (
 
 	mfc "github.com/manifestival/controller-runtime-client"
 	"github.com/manifestival/manifestival"
-	purplev1alpha1 "github.com/validatedpatterns/purple-storage-rh-operator/api/v1alpha1"
+	scalev1alpha "github.com/validatedpatterns/openshift-storage-scale-operator/api/v1alpha1"
 )
 
-// PurpleStorageReconciler reconciles a PurpleStorage object
-type PurpleStorageReconciler struct {
+// StorageScaleReconciler reconciles a StorageScale object
+type StorageScaleReconciler struct {
 	client.Client
 	Scheme        *runtime.Scheme
 	config        *rest.Config
@@ -51,9 +51,9 @@ type PurpleStorageReconciler struct {
 }
 
 // Basic Operator RBACs
-//+kubebuilder:rbac:groups=purple.purplestorage.com,resources=purplestorages,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=purple.purplestorage.com,resources=purplestorages/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=purple.purplestorage.com,resources=purplestorages/finalizers,verbs=update
+//+kubebuilder:rbac:groups=scale.storage.openshift.io,resources=storagescales,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=scale.storage.openshift.io,resources=storagescales/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=scale.storage.openshift.io,resources=storagescales/finalizers,verbs=update
 
 // Operator needs to create some machine configs
 //+kubebuilder:rbac:groups=machineconfiguration.openshift.io,resources=machineconfigs,verbs=get;list;watch;create;update;patch;delete
@@ -234,18 +234,18 @@ type PurpleStorageReconciler struct {
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
 // TODO(user): Modify the Reconcile function to compare the state specified by
-// the PurpleStorage object against the actual cluster state, and then
+// the StorageScale object against the actual cluster state, and then
 // perform operations to make the cluster state reflect the state specified by
 // the user.
 //
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.17.3/pkg/reconcile
-func (r *PurpleStorageReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+func (r *StorageScaleReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	_ = log.FromContext(ctx)
 
 	// TODO(user): your logic here
-	purplestorage := &purplev1alpha1.PurpleStorage{}
-	err := r.Get(ctx, req.NamespacedName, purplestorage)
+	storagescale := &scalev1alpha.StorageScale{}
+	err := r.Get(ctx, req.NamespacedName, storagescale)
 	if err != nil {
 		if kerrors.IsNotFound(err) {
 			return ctrl.Result{}, nil
@@ -254,8 +254,8 @@ func (r *PurpleStorageReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 	}
 
 	// Create machineconfig to enable kernel modules if needed
-	if purplestorage.Spec.MachineConfig.Create {
-		new_mc := NewMachineConfig(purplestorage.Spec.MachineConfig.Labels)
+	if storagescale.Spec.MachineConfig.Create {
+		new_mc := NewMachineConfig(storagescale.Spec.MachineConfig.Labels)
 		gvr := schema.GroupVersionResource{
 			Group:    "machineconfiguration.openshift.io",
 			Version:  "v1",
@@ -286,7 +286,7 @@ func (r *PurpleStorageReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 	}
 
 	// Load and install manifests from ibm
-	install_path := fmt.Sprintf("files/%s/install.yaml", purplestorage.Spec.IbmCnsaVersion)
+	install_path := fmt.Sprintf("files/%s/install.yaml", storagescale.Spec.IbmCnsaVersion)
 	_, err = os.Stat(install_path)
 	if os.IsNotExist(err) {
 		install_path = fmt.Sprintf("/%s", install_path)
@@ -335,9 +335,9 @@ func (r *PurpleStorageReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 			continue
 		}
 	}
-	if purplestorage.Spec.Cluster.Create {
+	if storagescale.Spec.Cluster.Create {
 		// Create IBM storage cluster
-		cluster := NewSpectrumCluster(purplestorage.Spec.Cluster.Daemon_nodeSelector)
+		cluster := NewSpectrumCluster(storagescale.Spec.Cluster.Daemon_nodeSelector)
 		gvr := schema.GroupVersionResource{
 			Group:    "scale.spectrum.ibm.com",
 			Version:  "v1beta1",
@@ -361,7 +361,7 @@ func (r *PurpleStorageReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 }
 
 // SetupWithManager sets up the controller with the Manager.
-func (r *PurpleStorageReconciler) SetupWithManager(mgr ctrl.Manager) error {
+func (r *StorageScaleReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	var err error
 	r.config = mgr.GetConfig()
 	if r.dynamicClient, err = dynamic.NewForConfig(r.config); err != nil {
@@ -371,6 +371,6 @@ func (r *PurpleStorageReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		return err
 	}
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&purplev1alpha1.PurpleStorage{}).
+		For(&scalev1alpha.StorageScale{}).
 		Complete(r)
 }

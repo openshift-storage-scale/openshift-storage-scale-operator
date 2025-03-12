@@ -5,7 +5,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-	"github.com/validatedpatterns/purple-storage-rh-operator/internal/diskmaker/discovery"
+	"github.com/validatedpatterns/openshift-storage-scale-operator/internal/diskmaker/discovery"
 	"k8s.io/klog/v2"
 )
 
