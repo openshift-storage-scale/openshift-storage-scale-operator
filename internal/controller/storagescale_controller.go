@@ -39,6 +39,8 @@ import (
 	mfc "github.com/manifestival/controller-runtime-client"
 	"github.com/manifestival/manifestival"
 	scalev1alpha "github.com/openshift-storage-scale/openshift-storage-scale-operator/api/v1alpha1"
+	"github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/controller/localvolumediscovery"
+	"github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/utils"
 )
 
 // StorageScaleReconciler reconciles a StorageScale object
@@ -334,6 +336,15 @@ func (r *StorageScaleReconciler) Reconcile(ctx context.Context, req ctrl.Request
 			log.Log.Info(fmt.Sprintf("Updated Secret %s in ns %s", destSecretName, destNamespace))
 			continue
 		}
+	}
+	if storagescale.Spec.LocalVolumeDiscovery.Create {
+		// Create Device discovery
+		ns, err := utils.GetDeploymentNamespace()
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+		lvd := localvolumediscovery.NewLocalVolumeDiscovery(ns)
+		return ctrl.Result{}, localvolumediscovery.CreateOrUpdateLocalVolumeDiscovery(ctx, lvd, r.Client)
 	}
 	if storagescale.Spec.Cluster.Create {
 		// Create IBM storage cluster
