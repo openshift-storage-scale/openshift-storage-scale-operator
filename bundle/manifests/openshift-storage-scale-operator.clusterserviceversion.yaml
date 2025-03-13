@@ -1,0 +1,870 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: |-
+      [
+        {
+          "apiVersion": "scale.storage.openshift.io/v1alpha1",
+          "kind": "StorageScale",
+          "metadata": {
+            "name": "storagescale-sample"
+          },
+          "spec": {
+            "ibm_cnsa_cluster": {
+              "create": true,
+              "daemon_nodeSelector": {
+                "node-role.kubernetes.io/worker": ""
+              }
+            },
+            "ibm_cnsa_version": "v5.2.2.1",
+            "mco_config": {
+              "create": true,
+              "labels": {
+                "machineconfiguration.openshift.io/role": "worker"
+              }
+            }
+          }
+        }
+      ]
+    capabilities: Basic Install
+    createdAt: "2025-03-13T08:54:12Z"
+    features.operators.openshift.io/disconnected: "true"
+    features.operators.openshift.io/fips-compliant: "false"
+    features.operators.openshift.io/proxy-aware: "true"
+    features.operators.openshift.io/tls-profiles: "false"
+    features.operators.openshift.io/token-auth-aws: "false"
+    features.operators.openshift.io/token-auth-azure: "false"
+    features.operators.openshift.io/token-auth-gcp: "false"
+    operatorframework.io/suggested-namespace: openshift-storage-scale
+    operators.operatorframework.io/builder: operator-sdk-v1.39.1
+    operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
+    console.openshift.io/plugins: '["openshift-storage-scale-operator-console-plugin"]'
+  name: openshift-storage-scale-operator.v0.0.5
+  namespace: placeholder
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions:
+    owned:
+      - kind: LocalVolumeDiscovery
+        name: localvolumediscoveries.scale.storage.openshift.io
+        version: v1alpha1
+      - kind: LocalVolumeDiscoveryResult
+        name: localvolumediscoveryresults.scale.storage.openshift.io
+        version: v1alpha1
+      - description: StorageScale is the Schema for the storagescales API
+        displayName: Storage Scale
+        kind: StorageScale
+        name: storagescales.scale.storage.openshift.io
+        specDescriptors:
+          - description: MachineConfig labeling for the installation of kernel-devel package
+            displayName: Machine Config
+            path: mco_config
+          - description: Version of IBMs installation manifests found at https://github.com/IBM/ibm-spectrum-scale-container-native
+            displayName: Ibm Cnsa Version
+            path: ibm_cnsa_version
+          - displayName: Cluster
+            path: ibm_cnsa_cluster
+          - description: Boolean to create the MachinConfig objects
+            displayName: Create
+            path: mco_config.create
+            x-descriptors:
+              - urn:alm:descriptor:com.tectonic.ui:booleanSwitch
+          - description: Inherited from LVSet to provide control over node selector and device filtering capabilities
+            displayName: Node Spec
+            path: node_spec
+          - description: Labels to be used for the machineconfigpool
+            displayName: Labels
+            path: mco_config.labels
+            x-descriptors:
+              - urn:alm:descriptor:com.tectonic.ui:fieldDependency:mco_config.create:true
+          - description: Boolean to create the CNSA cluster object
+            displayName: Create
+            path: ibm_cnsa_cluster.create
+            x-descriptors:
+              - urn:alm:descriptor:com.tectonic.ui:booleanSwitch
+          - description: Nodes with this label will be part of the cluster, must have at least 3 nodes with this
+            displayName: Daemon Node Selector
+            path: ibm_cnsa_cluster.daemon_nodeSelector
+            x-descriptors:
+              - urn:alm:descriptor:com.tectonic.ui:fieldDependency:ibm_cnsa_cluster.create:true
+        version: v1alpha1
+  description: Storage Scale Setup
+  displayName: Storage Scale
+  icon:
+    - base64data: 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
+      mediatype: image/png
+  install:
+    spec:
+      clusterPermissions:
+        - rules:
+            - apiGroups:
+                - ""
+              resources:
+                - PersistentVolume
+              verbs:
+                - get
+                - list
+            - apiGroups:
+                - ""
+              resources:
+                - configmap
+                - endpoints/restricted
+              verbs:
+                - create
+                - get
+                - list
+                - patch
+                - update
+                - watch
+            - apiGroups:
+                - ""
+              resources:
+                - configmaps
+                - persistentvolumeclaims
+                - pods
+                - secrets
+                - serviceaccounts
+                - services
+              verbs:
+                - '*'
+            - apiGroups:
+                - ""
+              resources:
+                - endpoints
+              verbs:
+                - '*'
+            - apiGroups:
+                - ""
+              resources:
+                - events
+              verbs:
+                - '*'
+            - apiGroups:
+                - ""
+              resources:
+                - leases
+                - namespaces
+                - persistentvolumes
+              verbs:
+                - create
+                - delete
+                - get
+                - list
+                - patch
+                - update
+                - watch
+            - apiGroups:
+                - ""
+              resources:
+                - nodes
+              verbs:
+                - get
+                - list
+                - patch
+                - watch
+            - apiGroups:
+                - ""
+              resources:
+                - persistentvolumeclaims/finalizers
+              verbs:
+                - update
+            - apiGroups:
+                - ""
+              resources:
+                - persistentvolumeclaims/status
+              verbs:
+                - get
+            - apiGroups:
+                - ""
+              resources:
+                - pods/eviction
+                - pods/exec
+              verbs:
+                - create
+            - apiGroups:
+                - ""
+              resources:
+                - pods/status
+              verbs:
+                - get
+                - list
+                - patch
+                - update
+                - watch
+            - apiGroups:
+                - ""
+              resources:
+                - secrets/status
+              verbs:
+                - '*'
+            - apiGroups:
+                - ""
+              resources:
+                - services/finalizers
+              verbs:
+                - '*'
+            - apiGroups:
+                - admissionregistration.k8s.io
+              resources:
+                - mutatingwebhookconfigurations
+                - validatingwebhookconfigurations
+              verbs:
+                - create
+                - delete
+                - get
+                - list
+                - patch
+                - update
+                - watch
+            - apiGroups:
+                - apiextensions.k8s.io
+              resources:
+                - customresourcedefinitions
+              verbs:
+                - create
+                - delete
+                - get
+                - list
+                - patch
+                - update
+                - watch
+            - apiGroups:
+                - apps
+              resources:
+                - daemonsets
+                - deployments
+                - statefulsets
+              verbs:
+                - create
+                - delete
+                - get
+                - list
+                - patch
+                - update
+                - watch
+            - apiGroups:
+                - apps
+              resources:
+                - deployments/finalizers
+              verbs:
+                - get
+                - update
+            - apiGroups:
+                - apps
+              resources:
+                - replicasets
+              verbs:
+                - create
+                - delete
+                - get
+                - list
+                - update
+                - watch
+            - apiGroups:
+                - config.openshift.io
+              resources:
+                - clusterversions
+                - dnses
+                - infrastructures
+                - networks
+              verbs:
+                - get
+                - list
+                - watch
+            - apiGroups:
+                - console.openshift.io
+              resources:
+                - consoleplugins
+              verbs:
+                - create
+                - delete
+                - get
+                - list
+                - patch
+                - update
+                - watch
+            - apiGroups:
+                - coordination.k8s.io
+              resources:
+                - configmaps
+                - leases
+              verbs:
+                - create
+                - delete
+                - get
+                - list
+                - patch
+                - update
+                - watch
+            - apiGroups:
+                - csi.ibm.com
+              resources:
+                - '*'
+              verbs:
+                - '*'
+            - apiGroups:
+                - csi.ibm.com
+              resources:
+                - csiscaleoperators
+              verbs:
+                - create
+                - delete
+                - get
+                - list
+                - patch
+                - update
+                - watch
+            - apiGroups:
+                - csi.ibm.com
+              resources:
+                - csiscaleoperators/finalizers
+              verbs:
+                - update
+            - apiGroups:
+                - csi.ibm.com
+              resources:
+                - csiscaleoperators/status
+              verbs:
+                - get
+                - patch
+                - update
+            - apiGroups:
+                - discovery.k8s.io
+              resources:
+                - endpointslices
+              verbs:
+                - get
+                - list
+                - watch
+            - apiGroups:
+                - machineconfiguration.openshift.io
+              resources:
+                - machineconfigpools
+              verbs:
+                - get
+                - list
+                - watch
+            - apiGroups:
+                - machineconfiguration.openshift.io
+              resources:
+                - machineconfigs
+              verbs:
+                - create
+                - delete
+                - get
+                - list
+                - patch
+                - update
+                - watch
+            - apiGroups:
+                - monitoring.coreos.com
+              resources:
+                - servicemonitors
+              verbs:
+                - create
+                - get
+            - apiGroups:
+                - networking.k8s.io
+              resources:
+                - networkpolicies
+              verbs:
+                - create
+                - delete
+                - get
+                - list
+                - patch
+                - update
+                - watch
+            - apiGroups:
+                - networking.k8s.io
+              resources:
+                - networkpolicies/finalizers
+              verbs:
+                - update
+            - apiGroups:
+                - networking.k8s.io
+              resources:
+                - networkpolicies/status
+              verbs:
+                - get
+                - patch
+                - update
+            - apiGroups:
+                - oauth.openshift.io
+              resources:
+                - oauthclients
+              verbs:
+                - create
+                - get
+                - list
+                - patch
+                - watch
+            - apiGroups:
+                - policy
+              resources:
+                - poddisruptionbudgets
+              verbs:
+                - create
+                - delete
+                - get
+                - list
+                - patch
+                - watch
+            - apiGroups:
+                - rbac.authorization.k8s.io
+              resources:
+                - clusterrolebindings
+                - clusterroles
+              verbs:
+                - '*'
+            - apiGroups:
+                - rbac.authorization.k8s.io
+              resources:
+                - rolebindings
+                - roles
+              verbs:
+                - create
+                - delete
+                - get
+                - list
+                - patch
+                - update
+                - watch
+            - apiGroups:
+                - route.openshift.io
+              resources:
+                - routes
+              verbs:
+                - create
+                - get
+                - list
+                - patch
+                - update
+                - watch
+            - apiGroups:
+                - scale.spectrum.ibm.com
+              resources:
+                - '*'
+                - approvalrequests
+                - asyncreplications
+                - callhomes
+                - cloudcsidisks
+                - clusters
+                - compressionjobs
+                - consistencygroups
+                - daemons
+                - diskjobs
+                - dnss
+                - encryptionconfigs
+                - filesystems
+                - grafanabridges
+                - guis
+                - localdisks
+                - pmcollectors
+                - recoverygroups
+                - remoteclusters
+                - restripefsjobs
+                - stretchclusterinitnodes
+                - stretchclusters
+                - stretchclustertiebreaker
+                - upgradeapprovals
+              verbs:
+                - create
+                - delete
+                - get
+                - list
+                - patch
+                - update
+                - watch
+            - apiGroups:
+                - scale.spectrum.ibm.com
+              resources:
+                - '*/finalizers'
+                - asyncreplications/finalizers
+                - callhomes/finalizers
+                - cloudcsidisks/finalizers
+                - clusters/finalizers
+                - compressionjobs/finalizers
+                - daemons/finalizers
+                - diskjobs/finalizers
+                - dnss/finalizers
+                - encryptionconfigs/finalizers
+                - filesystems/finalizers
+                - grafanabridges/finalizers
+                - guis/finalizers
+                - localdisks/finalizers
+                - pmcollectors/finalizers
+                - recoverygroups/finalizers
+                - regionaldrexports/finalizers
+                - remoteclusters/finalizers
+                - restripefsjobs/finalizers
+                - stretchclusterinitnodes/finalizers
+                - stretchclusters/finalizers
+                - stretchclustertiebreaker/finalizers
+              verbs:
+                - update
+            - apiGroups:
+                - scale.spectrum.ibm.com
+              resources:
+                - '*/status'
+                - approvalrequests/status
+                - asyncreplications/status
+                - callhomes/status
+                - cloudcsidisks/status
+                - clusters/status
+                - compressionjobs/status
+                - consistencygroups/status
+                - daemons/status
+                - diskjobs/status
+                - dnss/status
+                - encryptionconfigs/status
+                - guis/status
+                - localdisks/status
+                - pmcollectors/status
+                - recoverygroups/status
+                - regionaldrexports/status
+                - regionaldrs/finalizers
+                - regionaldrs/status
+                - remoteclusters/status
+                - restripefsjobs/status
+                - stretchclusterinitnodes/status
+                - stretchclusters/status
+                - stretchclustertiebreaker/status
+                - upgradeapprovals/status
+              verbs:
+                - get
+                - patch
+                - update
+            - apiGroups:
+                - scale.spectrum.ibm.com
+              resources:
+                - clusterinterconnects
+              verbs:
+                - get
+                - list
+                - watch
+            - apiGroups:
+                - scale.spectrum.ibm.com
+              resources:
+                - filesystems/status
+                - regionaldrs
+              verbs:
+                - get
+                - list
+                - patch
+                - update
+                - watch
+            - apiGroups:
+                - scale.spectrum.ibm.com
+              resources:
+                - grafanabridges/status
+              verbs:
+                - delete
+                - get
+                - patch
+                - update
+            - apiGroups:
+                - scale.spectrum.ibm.com
+              resources:
+                - regionaldrexports
+              verbs:
+                - create
+                - get
+                - list
+                - patch
+                - update
+                - watch
+            - apiGroups:
+                - scale.storage.openshift.io
+              resources:
+                - localvolumediscoveries
+                - localvolumediscoveries/status
+                - localvolumediscoveryresults
+                - localvolumediscoveryresults/status
+                - storagescales
+              verbs:
+                - create
+                - delete
+                - get
+                - list
+                - patch
+                - update
+                - watch
+            - apiGroups:
+                - scale.storage.openshift.io
+              resources:
+                - storagescales/finalizers
+              verbs:
+                - update
+            - apiGroups:
+                - scale.storage.openshift.io
+              resources:
+                - storagescales/status
+              verbs:
+                - get
+                - patch
+                - update
+            - apiGroups:
+                - security.openshift.io
+              resources:
+                - securitycontextconstraints
+              verbs:
+                - '*'
+            - apiGroups:
+                - storage.k8s.io
+              resources:
+                - csidrivers
+                - storageclasses
+                - volumeattachments
+              verbs:
+                - create
+                - delete
+                - get
+                - list
+                - patch
+                - update
+                - watch
+            - apiGroups:
+                - authentication.k8s.io
+              resources:
+                - tokenreviews
+              verbs:
+                - create
+            - apiGroups:
+                - authorization.k8s.io
+              resources:
+                - subjectaccessreviews
+              verbs:
+                - create
+          serviceAccountName: storage-scale-operator-controller-manager
+      deployments:
+        - label:
+            app.kubernetes.io/component: openshift-storage-scale-operator-console-plugin
+          name: openshift-storage-scale-operator-console-plugin
+          spec:
+            replicas: 1
+            selector:
+              matchLabels:
+                app.kubernetes.io/component: openshift-storage-scale-operator-console-plugin
+            strategy: {}
+            template:
+              metadata:
+                labels:
+                  app.kubernetes.io/component: openshift-storage-scale-operator-console-plugin
+              spec:
+                containers:
+                  - image: quay.io/openshift-storage-scale/openshift-storage-scale-console:0.0.5
+                    name: openshift-storage-scale-operator-console-plugin
+                    ports:
+                      - containerPort: 9443
+                        name: pscp-server
+                        protocol: TCP
+                    resources:
+                      requests:
+                        cpu: 10m
+                        memory: 50Mi
+                    securityContext:
+                      allowPrivilegeEscalation: false
+                      capabilities:
+                        drop:
+                          - ALL
+                    volumeMounts:
+                      - mountPath: /var/serving-cert
+                        name: storage-scale-plugin-cert
+                        readOnly: true
+                securityContext:
+                  runAsNonRoot: true
+                volumes:
+                  - name: storage-scale-plugin-cert
+                    secret:
+                      defaultMode: 420
+                      secretName: storage-scale-plugin-cert
+        - label:
+            app.kubernetes.io/managed-by: kustomize
+            app.kubernetes.io/name: openshift-storage-scale-operator
+            control-plane: controller-manager
+          name: storage-scale-operator-controller-manager
+          spec:
+            replicas: 1
+            selector:
+              matchLabels:
+                control-plane: controller-manager
+            strategy: {}
+            template:
+              metadata:
+                annotations:
+                  kubectl.kubernetes.io/default-container: manager
+                labels:
+                  control-plane: controller-manager
+              spec:
+                containers:
+                  - args:
+                      - --health-probe-bind-address=:8081
+                      - --metrics-bind-address=127.0.0.1:8080
+                      - --leader-elect
+                    command:
+                      - /manager
+                    env:
+                      - name: DEPLOYMENT_NAMESPACE
+                        valueFrom:
+                          fieldRef:
+                            fieldPath: metadata.namespace
+                    image: quay.io/openshift-storage-scale/openshift-storage-scale-operator:0.0.5
+                    livenessProbe:
+                      httpGet:
+                        path: /healthz
+                        port: 8081
+                      initialDelaySeconds: 15
+                      periodSeconds: 20
+                    name: manager
+                    ports:
+                      - containerPort: 9443
+                        name: webhook-server
+                        protocol: TCP
+                    readinessProbe:
+                      httpGet:
+                        path: /readyz
+                        port: 8081
+                      initialDelaySeconds: 5
+                      periodSeconds: 10
+                    resources:
+                      limits:
+                        cpu: 500m
+                        memory: 128Mi
+                      requests:
+                        cpu: 10m
+                        memory: 64Mi
+                    securityContext:
+                      allowPrivilegeEscalation: false
+                      capabilities:
+                        drop:
+                          - ALL
+                    volumeMounts:
+                      - mountPath: /tmp/k8s-webhook-server/serving-certs
+                        name: cert
+                        readOnly: true
+                  - args:
+                      - --secure-listen-address=0.0.0.0:8443
+                      - --upstream=http://127.0.0.1:8080/
+                      - --logtostderr=true
+                      - --v=0
+                    image: gcr.io/kubebuilder/kube-rbac-proxy:v0.16.0
+                    name: kube-rbac-proxy
+                    ports:
+                      - containerPort: 8443
+                        name: https
+                        protocol: TCP
+                    resources:
+                      limits:
+                        cpu: 500m
+                        memory: 128Mi
+                      requests:
+                        cpu: 5m
+                        memory: 64Mi
+                    securityContext:
+                      allowPrivilegeEscalation: false
+                      capabilities:
+                        drop:
+                          - ALL
+                securityContext:
+                  runAsNonRoot: true
+                serviceAccountName: storage-scale-operator-controller-manager
+                terminationGracePeriodSeconds: 10
+                volumes:
+                  - name: cert
+                    secret:
+                      defaultMode: 420
+                      secretName: webhook-server-cert
+      permissions:
+        - rules:
+            - apiGroups:
+                - ""
+              resources:
+                - configmaps
+              verbs:
+                - get
+                - list
+                - watch
+                - create
+                - update
+                - patch
+                - delete
+            - apiGroups:
+                - coordination.k8s.io
+              resources:
+                - leases
+              verbs:
+                - get
+                - list
+                - watch
+                - create
+                - update
+                - patch
+                - delete
+            - apiGroups:
+                - ""
+              resources:
+                - events
+              verbs:
+                - create
+                - patch
+          serviceAccountName: storage-scale-operator-controller-manager
+    strategy: deployment
+  installModes:
+    - supported: false
+      type: OwnNamespace
+    - supported: false
+      type: SingleNamespace
+    - supported: false
+      type: MultiNamespace
+    - supported: true
+      type: AllNamespaces
+  keywords:
+    - gpfs
+    - storage
+  links:
+    - name: Storage Scale Operator
+      url: https://openshift-storage-scale-operator.domain
+  maintainers:
+    - email: michele@acksyn.org
+      name: mbaldessari
+    - email: aeros@redhat.com
+      name: darkdoc
+  maturity: alpha
+  minKubeVersion: 1.23.0
+  provider:
+    name: Storage Scale Team
+  version: 0.0.5
+  webhookdefinitions:
+    - admissionReviewVersions:
+        - v1
+      containerPort: 443
+      conversionCRDs:
+        - storagescales.scale.storage.openshift.io
+      deploymentName: storage-scale-operator-controller-manager
+      generateName: cstoragescales.kb.io
+      sideEffects: None
+      targetPort: 9443
+      type: ConversionWebhook
+      webhookPath: /convert
+    - admissionReviewVersions:
+        - v1
+      containerPort: 443
+      deploymentName: storage-scale-operator-controller-manager
+      failurePolicy: Fail
+      generateName: scale.storage.openshift.io
+      rules:
+        - apiGroups:
+            - scale.storage.openshift.io
+          apiVersions:
+            - v1alpha1
+          operations:
+            - CREATE
+            - UPDATE
+          resources:
+            - storagescales
+      sideEffects: None
+      targetPort: 9443
+      type: ValidatingAdmissionWebhook
+      webhookPath: /validate-scale-storage-openshift-io-v1alpha1-storagescale

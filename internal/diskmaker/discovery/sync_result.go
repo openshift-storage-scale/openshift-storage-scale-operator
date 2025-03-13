@@ -7,9 +7,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/validatedpatterns/purple-storage-rh-operator/api/v1alpha1"
-	"github.com/validatedpatterns/purple-storage-rh-operator/internal/common"
-	"github.com/validatedpatterns/purple-storage-rh-operator/internal/diskmaker"
+	"github.com/openshift-storage-scale/openshift-storage-scale-operator/api/v1alpha1"
+	"github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/common"
+	"github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/diskmaker"
 
 	"github.com/pkg/errors"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"

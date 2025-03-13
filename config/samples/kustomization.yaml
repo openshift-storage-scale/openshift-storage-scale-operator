@@ -1,4 +1,4 @@
 ## Append samples of your project ##
 resources:
-- purple_v1alpha1_purplestorage.yaml
+- scale_v1alpha1_storagescale.yaml
 #+kubebuilder:scaffold:manifestskustomizesamples

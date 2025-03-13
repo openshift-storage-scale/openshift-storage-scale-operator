@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	internal "github.com/validatedpatterns/purple-storage-rh-operator/internal/diskutils"
+	internal "github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/diskutils"
 
 	"golang.org/x/sys/unix"
 )

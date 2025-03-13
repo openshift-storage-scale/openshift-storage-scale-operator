@@ -10,17 +10,17 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
-      path: /validate-purple-purplestorage-com-v1alpha1-purplestorage
+      path: /validate-scale-storage-openshift-io-v1alpha1-storagescale
   failurePolicy: Fail
-  name: vpurplestorage.kb.io
+  name: scale.storage.openshift.io
   rules:
   - apiGroups:
-    - purple.purplestorage.com
+    - scale.storage.openshift.io
     apiVersions:
     - v1alpha1
     operations:
     - CREATE
     - UPDATE
     resources:
-    - purplestorages
+    - storagescales
   sideEffects: None

@@ -1,1 +1,1 @@
-# purple-storage-rh-operator
+# openshift-storage-scale-operator

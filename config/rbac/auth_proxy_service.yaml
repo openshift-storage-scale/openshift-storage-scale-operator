@@ -3,7 +3,7 @@ kind: Service
 metadata:
   labels:
     control-plane: controller-manager
-    app.kubernetes.io/name: purple-storage-rh-operator
+    app.kubernetes.io/name: openshift-storage-scale-operator
     app.kubernetes.io/managed-by: kustomize
   name: controller-manager-metrics-service
   namespace: system

@@ -1,12 +1,12 @@
 # Adds namespace to all resources.
-namespace: purple-storage-rh-operator-system
+namespace: openshift-storage-scale-operator-system
 
 # Value of this field is prepended to the
 # names of all resources, e.g. a deployment named
 # "wordpress" becomes "alices-wordpress".
 # Note that it should also match with the prefix (text before '-') of the namespace
 # field above.
-namePrefix: purple-storage-rh-operator-
+namePrefix: storage-scale-operator-
 
 # Labels to add to all resources and selectors.
 #labels:

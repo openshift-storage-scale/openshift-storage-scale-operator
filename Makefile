@@ -3,7 +3,7 @@
 # To re-generate a bundle for another specific version without changing the standard setup, you can:
 # - use the VERSION as arg of the bundle target (e.g make bundle VERSION=0.0.2)
 # - use environment variables to overwrite this value (e.g export VERSION=0.0.2)
-VERSION ?= 0.0.4
+VERSION ?= $(shell cat VERSION)
 
 # Version of yaml file to generate rbacs from
 RBAC_VERSION ?= v5.2.2.0
@@ -33,27 +33,30 @@ BUNDLE_METADATA_OPTS ?= $(BUNDLE_CHANNELS) $(BUNDLE_DEFAULT_CHANNEL)
 # This variable is used to construct full image tags for bundle and catalog images.
 #
 # For example, running 'make bundle-build bundle-push catalog-build catalog-push' will build and push both
-# purplestorage.com/purple-storage-rh-operator-bundle:$VERSION and purplestorage.com/purple-storage-rh-operator-catalog:$VERSION.
-IMAGE_TAG_BASE ?= quay.io/hybridcloudpatterns/purple-storage-rh-operator
+# scale.storage.openshift.io/openshift-storage-scale-operator-bundle:$VERSION and scale.storage.openshift.io/openshift-storage-scale-operator-catalog:$VERSION.
+IMAGE_TAG_BASE ?= quay.io/openshift-storage-scale/openshift-storage-scale
 
 
 # always release the console with the same tag as the operator and the other way around!
 # Image base URL of the console plugin
-CONSOLE_PLUGIN_IMAGE_BASE ?= quay.io/hybridcloudpatterns/purple-storage-rh-operator-console
-CONSOLE_PLUGIN_IMAGE ?= $(CONSOLE_PLUGIN_IMAGE_BASE):v$(VERSION)
+CONSOLE_PLUGIN_IMAGE_BASE ?= $(IMAGE_TAG_BASE)-console
+CONSOLE_PLUGIN_IMAGE ?= $(CONSOLE_PLUGIN_IMAGE_BASE):$(VERSION)
 
 
 # BUNDLE_IMG defines the image:tag used for the bundle.
 # You can use it as an arg. (E.g make bundle-build BUNDLE_IMG=<some-registry>/<project-name-bundle>:<tag>)
-BUNDLE_IMG ?= $(IMAGE_TAG_BASE)-bundle:v$(VERSION)
+BUNDLE_IMG ?= $(IMAGE_TAG_BASE)-bundle:$(VERSION)
 
 # BUNDLE_GEN_FLAGS are the flags passed to the operator-sdk generate bundle command
 BUNDLE_GEN_FLAGS ?= -q --overwrite --version $(VERSION) $(BUNDLE_METADATA_OPTS)
 
-DISKMAKER_IMAGE ?= $(IMAGE_TAG_BASE)-diskmaker:v$(VERSION)
+DISKMAKER_IMAGE ?= $(IMAGE_TAG_BASE)-diskmaker:$(VERSION)
 REV=$(shell git describe --long --tags --match='v*' --dirty 2>/dev/null || git rev-list -n1 HEAD)
 CURPATH=$(PWD)
 TARGET_DIR=$(CURPATH)/_output/bin
+
+CSV ?= ./bundle/manifests/openshift-storage-scale-operator.clusterserviceversion.yaml
+
 
 # USE_IMAGE_DIGESTS defines if images are resolved via tags or digests
 # You can enable this value if you would like to use SHA Based Digests
@@ -67,7 +70,7 @@ endif
 # This is useful for CI or a project to utilize a specific version of the operator-sdk toolkit.
 OPERATOR_SDK_VERSION ?= v1.39.1
 # Image URL to use all building/pushing image targets
-IMG ?= $(IMAGE_TAG_BASE):$(VERSION)
+OPERATOR_IMG ?= $(IMAGE_TAG_BASE)-operator:$(VERSION)
 # ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
 ENVTEST_K8S_VERSION = 1.29.0
 
@@ -175,11 +178,19 @@ clean: ## Remove build artifacts and downloaded tools
 TARGETARCH ?= amd64
 .PHONY: docker-build
 docker-build: ## Build docker image with the manager.
-	$(CONTAINER_TOOL) build --secret id=pull,src=$(PULLFILE) --build-arg TARGETARCH=$(TARGETARCH) -t ${IMG} .
+	$(CONTAINER_TOOL) build --secret id=pull,src=$(PULLFILE) --build-arg TARGETARCH=$(TARGETARCH) -t $(OPERATOR_IMG) .
 
 .PHONY: docker-push
 docker-push: ## Push docker image with the manager.
-	$(CONTAINER_TOOL) push ${IMG}
+	$(CONTAINER_TOOL) push $(OPERATOR_IMG)
+
+.PHONY: console-build
+console-build: ## Build the console image
+	$(MAKE) -C console VERSION=$(VERSION) IMG=$(CONSOLE_PLUGIN_IMAGE) docker-build
+
+.PHONY: console-push
+console-push: ## Push the console image
+	$(MAKE) -C console VERSION=$(VERSION) IMG=$(CONSOLE_PLUGIN_IMAGE) docker-push
 
 .PHONY: diskmaker-docker-build
 diskmaker-docker-build: ## Build docker image of the diskmaker
@@ -202,14 +213,14 @@ docker-buildx: ## Build and push docker image for the manager for cross-platform
 	sed -e '1 s/\(^FROM\)/FROM --platform=\$$\{BUILDPLATFORM\}/; t' -e ' 1,// s//FROM --platform=\$$\{BUILDPLATFORM\}/' Dockerfile > Dockerfile.cross
 	- $(CONTAINER_TOOL) buildx create --name project-v3-builder
 	$(CONTAINER_TOOL) buildx use project-v3-builder
-	- $(CONTAINER_TOOL) buildx build --push --platform=$(PLATFORMS) --tag ${IMG} -f Dockerfile.cross .
+	- $(CONTAINER_TOOL) buildx build --push --platform=$(PLATFORMS) --tag $(OPERATOR_IMG) -f Dockerfile.cross .
 	- $(CONTAINER_TOOL) buildx rm project-v3-builder
 	rm Dockerfile.cross
 
 .PHONY: build-installer
 build-installer: manifests generate kustomize ## Generate a consolidated YAML with CRDs and deployment.
 	mkdir -p dist
-	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
+	cd config/manager && $(KUSTOMIZE) edit set image controller=$(OPERATOR_IMG)
 	$(KUSTOMIZE) build config/default > dist/install.yaml
 
 ##@ Deployment
@@ -228,7 +239,7 @@ uninstall: manifests kustomize ## Uninstall CRDs from the K8s cluster specified 
 
 .PHONY: deploy
 deploy: manifests kustomize ## Deploy controller to the K8s cluster specified in ~/.kube/config.
-	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
+	cd config/manager && $(KUSTOMIZE) edit set image controller=$(OPERATOR_IMG)
 	cd config/console-plugin && $(KUSTOMIZE) edit set image console-plugin=${CONSOLE_PLUGIN_IMAGE}
 	$(KUSTOMIZE) build config/default | $(KUBECTL) apply -f -
 
@@ -320,16 +331,15 @@ endif
 .PHONY: bundle
 bundle: manifests kustomize operator-sdk ## Generate bundle manifests and metadata, then validate generated files.
 	$(OPERATOR_SDK) generate kustomize manifests -q
-	cd config/manager && $(KUSTOMIZE) edit set image controller=$(IMG)
+	cd config/manager && $(KUSTOMIZE) edit set image controller=$(OPERATOR_IMG)
 	cd config/console-plugin && $(KUSTOMIZE) edit set image console-plugin=${CONSOLE_PLUGIN_IMAGE}
 	$(KUSTOMIZE) build config/manifests | $(OPERATOR_SDK) generate bundle $(BUNDLE_GEN_FLAGS)
 	$(OPERATOR_SDK) bundle validate ./bundle
-##	$(MAKE) add-console-plugin-annotation
+	$(MAKE) add-console-plugin-annotation
 
 .PHONY: add-console-plugin-annotation
 add-console-plugin-annotation: yq ## Add console-plugin annotation to the CSV
-	$(YQ) -i '.metadata.annotations."console.openshift.io/plugins" = "[\"purple-storage-rh-operator-console-plugin\"]"' "./bundle/manifests/purple-storage-rh-operator.clusterserviceversion.yaml"
-
+	$(YQ) -i '.metadata.annotations."console.openshift.io/plugins" = "[\"openshift-storage-scale-operator-console-plugin\"]"' $(CSV)
 
 .PHONY: bundle-build
 bundle-build: ## Build the bundle image.
@@ -337,7 +347,7 @@ bundle-build: ## Build the bundle image.
 
 .PHONY: bundle-push
 bundle-push: ## Push the bundle image.
-	$(MAKE) docker-push IMG=$(BUNDLE_IMG)
+	$(CONTAINER_TOOL) push $(BUNDLE_IMG)
 
 .PHONY: opm
 OPM = $(LOCALBIN)/opm
@@ -361,7 +371,7 @@ endif
 BUNDLE_IMGS ?= $(BUNDLE_IMG)
 
 # The image tag given to the resulting catalog image (e.g. make catalog-build CATALOG_IMG=example.com/operator-catalog:v0.2.0).
-CATALOG_IMG ?= $(IMAGE_TAG_BASE)-catalog:v$(VERSION)
+CATALOG_IMG ?= $(IMAGE_TAG_BASE)-catalog:$(VERSION)
 
 # Set CATALOG_BASE_IMG to an existing catalog image tag to add $BUNDLE_IMGS to that image.
 ifneq ($(origin CATALOG_BASE_IMG), undefined)
@@ -378,17 +388,17 @@ catalog-build: opm ## Build a catalog image.
 # Push the catalog image.
 .PHONY: catalog-push
 catalog-push: ## Push a catalog image.
-	$(MAKE) docker-push IMG=$(CATALOG_IMG)
+	$(CONTAINER_TOOL) push $(CATALOG_IMG)
 
 .PHONY: catalog-install
-catalog-install: config/samples/purplestorage-catalog-$(VERSION).yaml ## Install the OLM catalog on a cluster (for testing).
-	-oc delete -f config/samples/purplestorage-catalog-$(VERSION).yaml
-	oc create -f config/samples/purplestorage-catalog-$(VERSION).yaml
+catalog-install: config/samples/storagescale-catalog-$(VERSION).yaml ## Install the OLM catalog on a cluster (for testing).
+	-oc delete -f config/samples/storagescale-catalog-$(VERSION).yaml
+	oc create -f config/samples/storagescale-catalog-$(VERSION).yaml
 
-.PHONY: config/samples/purplestorage-catalog-$(VERSION).yaml
-config/samples/purplestorage-catalog-$(VERSION).yaml:
-	cp config/samples/purplestorage-catalog.yaml config/samples/purplestorage-catalog-$(VERSION).yaml
-	sed -i -e "s@CATALOG_IMG@$(CATALOG_IMG)@g" config/samples/purplestorage-catalog-$(VERSION).yaml
+.PHONY: config/samples/storagescale-catalog-$(VERSION).yaml
+config/samples/storagescale-catalog-$(VERSION).yaml:
+	cp config/samples/storagescale-catalog.yaml config/samples/storagescale-catalog-$(VERSION).yaml
+	sed -i -e "s@CATALOG_IMG@$(CATALOG_IMG)@g" config/samples/storagescale-catalog-$(VERSION).yaml
 
 .PHONY: fetchyaml
 fetchyaml: ## Fetches install yaml files
@@ -397,5 +407,5 @@ fetchyaml: ## Fetches install yaml files
 .PHONY: rbacs-generates
 rbacs-generate: ## Generates RBACs and injects them in .go file
 	CMD_OUTPUT=$$(go run scripts/create-rbacs.go "files/$(RBAC_VERSION)/install.yaml"); \
-	sed -i '/IBM_RBAC_MARKER_START/,/IBM_RBAC_MARKER_END/{//!d}' internal/controller/purplestorage_controller.go; \
-	sed -i "/IBM_RBAC_MARKER_START/ r /dev/stdin" internal/controller/purplestorage_controller.go <<< "$$CMD_OUTPUT"
+	sed -i '/IBM_RBAC_MARKER_START/,/IBM_RBAC_MARKER_END/{//!d}' internal/controller/storagescale_controller.go; \
+	sed -i "/IBM_RBAC_MARKER_START/ r /dev/stdin" internal/controller/storagescale_controller.go <<< "$$CMD_OUTPUT"

@@ -2,22 +2,22 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app.kubernetes.io/component: purple-storage-rh-operator-console-plugin
-  name: purple-storage-rh-operator-console-plugin
+    app.kubernetes.io/component: openshift-storage-scale-operator-console-plugin
+  name: openshift-storage-scale-operator-console-plugin
   namespace: openshift-operators
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/component: purple-storage-rh-operator-console-plugin
+      app.kubernetes.io/component: openshift-storage-scale-operator-console-plugin
   template:
     metadata:
       labels:
-        app.kubernetes.io/component: purple-storage-rh-operator-console-plugin
+        app.kubernetes.io/component: openshift-storage-scale-operator-console-plugin
     spec:
       containers:
       - image: console-plugin:latest
-        name: purple-storage-rh-operator-console-plugin
+        name: openshift-storage-scale-operator-console-plugin
         ports:
         - containerPort: 9443
           name: pscp-server
@@ -33,12 +33,12 @@ spec:
             - ALL
         volumeMounts:
         - mountPath: /var/serving-cert
-          name: purplestorage-plugin-cert
+          name: storage-scale-plugin-cert
           readOnly: true
       securityContext:
         runAsNonRoot: true
       volumes:
-      - name: purplestorage-plugin-cert
+      - name: storage-scale-plugin-cert
         secret:
           defaultMode: 420
-          secretName: purplestorage-plugin-cert
+          secretName: storage-scale-plugin-cert

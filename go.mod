@@ -1,4 +1,4 @@
-module github.com/validatedpatterns/purple-storage-rh-operator
+module github.com/openshift-storage-scale/openshift-storage-scale-operator
 
 go 1.23.0
 

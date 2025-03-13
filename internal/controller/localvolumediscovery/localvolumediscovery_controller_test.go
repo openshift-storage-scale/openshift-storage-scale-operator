@@ -4,10 +4,10 @@ import (
 	"context"
 	"testing"
 
+	localv1alpha1 "github.com/openshift-storage-scale/openshift-storage-scale-operator/api/v1alpha1"
 	operatorv1 "github.com/openshift/api/operator/v1"
 	monitoringv1 "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
 	"github.com/stretchr/testify/assert"
-	localv1alpha1 "github.com/validatedpatterns/purple-storage-rh-operator/api/v1alpha1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

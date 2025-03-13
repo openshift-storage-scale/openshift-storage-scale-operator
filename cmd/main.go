@@ -38,14 +38,14 @@ import (
 
 	machineconfigv1 "github.com/openshift/api/machineconfiguration/v1"
 
+	"github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/controller/initializer"
 	consolev1 "github.com/openshift/api/console/v1"
-	"github.com/validatedpatterns/purple-storage-rh-operator/internal/controller/initializer"
 
-	lvdcontroller "github.com/validatedpatterns/purple-storage-rh-operator/internal/controller/localvolumediscovery"
+	lvdcontroller "github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/controller/localvolumediscovery"
 
-	purplev1alpha1 "github.com/validatedpatterns/purple-storage-rh-operator/api/v1alpha1"
-	"github.com/validatedpatterns/purple-storage-rh-operator/internal/controller"
-	"github.com/validatedpatterns/purple-storage-rh-operator/version"
+	scalev1alpha "github.com/openshift-storage-scale/openshift-storage-scale-operator/api/v1alpha1"
+	"github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/controller"
+	"github.com/openshift-storage-scale/openshift-storage-scale-operator/version"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -57,7 +57,7 @@ var (
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
-	utilruntime.Must(purplev1alpha1.AddToScheme(scheme))
+	utilruntime.Must(scalev1alpha.AddToScheme(scheme))
 
 	utilruntime.Must(machineconfigv1.AddToScheme(scheme))
 
@@ -120,7 +120,7 @@ func main() {
 		WebhookServer:          webhookServer,
 		HealthProbeBindAddress: probeAddr,
 		LeaderElection:         enableLeaderElection,
-		LeaderElectionID:       "769abcff.purplestorage.com",
+		LeaderElectionID:       "769abcff.scale.storage.openshift.io",
 		// LeaderElectionReleaseOnCancel defines if the leader should step down voluntarily
 		// when the Manager ends. This requires the binary to immediately end when the
 		// Manager is stopped, otherwise, this setting is unsafe. Setting this significantly
@@ -146,16 +146,16 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err = (&controller.PurpleStorageReconciler{
+	if err = (&controller.StorageScaleReconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "PurpleStorage")
+		setupLog.Error(err, "unable to create controller", "controller", "StorageScale")
 		os.Exit(1)
 	}
 	if os.Getenv("ENABLE_WEBHOOKS") != "false" {
-		if err = (&purplev1alpha1.PurpleStorageValidator{}).SetupWebhookWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create webhook", "webhook", "PurpleStorage")
+		if err = (&scalev1alpha.StorageScaleValidator{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "StorageScale")
 			os.Exit(1)
 		}
 	}

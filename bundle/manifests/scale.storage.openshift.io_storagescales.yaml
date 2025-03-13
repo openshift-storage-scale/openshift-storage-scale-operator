@@ -1,23 +1,33 @@
----
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.17.2
-  name: purplestorages.purple.purplestorage.com
+  creationTimestamp: null
+  name: storagescales.scale.storage.openshift.io
 spec:
-  group: purple.purplestorage.com
+  conversion:
+    strategy: Webhook
+    webhook:
+      clientConfig:
+        service:
+          name: storage-scale-operator-webhook-service
+          namespace: openshift-storage-scale-operator-system
+          path: /convert
+      conversionReviewVersions:
+      - v1
+  group: scale.storage.openshift.io
   names:
-    kind: PurpleStorage
-    listKind: PurpleStorageList
-    plural: purplestorages
-    singular: purplestorage
+    kind: StorageScale
+    listKind: StorageScaleList
+    plural: storagescales
+    singular: storagescale
   scope: Namespaced
   versions:
   - name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: PurpleStorage is the Schema for the purplestorages API
+        description: StorageScale is the Schema for the storagescales API
         properties:
           apiVersion:
             description: |-
@@ -37,7 +47,7 @@ spec:
           metadata:
             type: object
           spec:
-            description: PurpleStorageSpec defines the desired state of PurpleStorage
+            description: StorageScaleSpec defines the desired state of StorageScale
             properties:
               ibm_cnsa_cluster:
                 properties:
@@ -205,7 +215,7 @@ spec:
                 type: object
             type: object
           status:
-            description: PurpleStorageStatus defines the observed state of PurpleStorage
+            description: StorageScaleStatus defines the observed state of StorageScale
             properties:
               conditions:
                 description: |-
@@ -259,3 +269,9 @@ spec:
     storage: true
     subresources:
       status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: null
+  storedVersions: null

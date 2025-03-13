@@ -4,8 +4,8 @@ metadata:
   creationTimestamp: null
   labels:
     app.kubernetes.io/managed-by: kustomize
-    app.kubernetes.io/name: purple-storage-rh-operator
-  name: purple-storage-rh-operator-webhook-service
+    app.kubernetes.io/name: openshift-storage-scale-operator
+  name: storage-scale-operator-webhook-service
 spec:
   ports:
   - port: 443

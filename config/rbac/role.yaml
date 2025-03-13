@@ -318,36 +318,6 @@ rules:
   - patch
   - watch
 - apiGroups:
-  - purple.purplestorage.com
-  resources:
-  - localvolumediscoveries
-  - localvolumediscoveries/status
-  - localvolumediscoveryresults
-  - localvolumediscoveryresults/status
-  - purplestorages
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - purple.purplestorage.com
-  resources:
-  - purplestorages/finalizers
-  verbs:
-  - update
-- apiGroups:
-  - purple.purplestorage.com
-  resources:
-  - purplestorages/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
   - rbac.authorization.k8s.io
   resources:
   - clusterrolebindings
@@ -511,6 +481,36 @@ rules:
   - patch
   - update
   - watch
+- apiGroups:
+  - scale.storage.openshift.io
+  resources:
+  - localvolumediscoveries
+  - localvolumediscoveries/status
+  - localvolumediscoveryresults
+  - localvolumediscoveryresults/status
+  - storagescales
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - scale.storage.openshift.io
+  resources:
+  - storagescales/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - scale.storage.openshift.io
+  resources:
+  - storagescales/status
+  verbs:
+  - get
+  - patch
+  - update
 - apiGroups:
   - security.openshift.io
   resources:

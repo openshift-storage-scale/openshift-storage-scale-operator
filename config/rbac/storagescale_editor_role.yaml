@@ -1,16 +1,16 @@
+# permissions for end users to edit storagescales.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  creationTimestamp: null
   labels:
+    app.kubernetes.io/name: openshift-storage-scale-operator
     app.kubernetes.io/managed-by: kustomize
-    app.kubernetes.io/name: purple-storage-rh-operator
-  name: purple-storage-rh-operator-purplestorage-editor-role
+  name: storagescale-editor-role
 rules:
 - apiGroups:
-  - purple.purplestorage.com
+  - scale.storage.openshift.io
   resources:
-  - purplestorages
+  - storagescales
   verbs:
   - create
   - delete
@@ -20,8 +20,8 @@ rules:
   - update
   - watch
 - apiGroups:
-  - purple.purplestorage.com
+  - scale.storage.openshift.io
   resources:
-  - purplestorages/status
+  - storagescales/status
   verbs:
   - get
