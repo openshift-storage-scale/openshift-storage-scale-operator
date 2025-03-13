@@ -18,7 +18,6 @@ package v1alpha1
 
 import (
 	operatorv1 "github.com/openshift/api/operator/v1"
-	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -35,19 +34,12 @@ type StorageScaleSpec struct {
 	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=3
 	Cluster IBMSpectrumCluster `json:"ibm_cnsa_cluster,omitempty"`
 
-	// Inherited from LVSet to provide control over node selector and device filtering capabilities
 	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=4
-	NodeSpec NodeSpec `json:"node_spec,omitempty"`
+	LocalVolumeDiscovery StorageDeviceDiscovery `json:"storagedevicediscovery,omitempty"`
 }
-
-type NodeSpec struct {
-	// Nodes on which the automatic detection policies must run.
-	// +optional
-	Selector *corev1.NodeSelector `json:"selector,omitempty"`
-
-	// If specified, a list of tolerations to pass to the discovery daemons.
-	// +optional
-	Tolerations []corev1.Toleration `json:"tolerations,omitempty"`
+type StorageDeviceDiscovery struct {
+	// +kubebuilder:default:=true
+	Create bool `json:"create,omitempty"`
 }
 
 type MachineConfig struct {
