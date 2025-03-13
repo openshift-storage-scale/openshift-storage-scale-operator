@@ -28,7 +28,7 @@ metadata:
         }
       ]
     capabilities: Basic Install
-    createdAt: "2025-03-13T07:57:50Z"
+    createdAt: "2025-03-13T08:08:02Z"
     features.operators.openshift.io/disconnected: "true"
     features.operators.openshift.io/fips-compliant: "false"
     features.operators.openshift.io/proxy-aware: "true"
@@ -40,7 +40,7 @@ metadata:
     operators.operatorframework.io/builder: operator-sdk-v1.39.1
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
     console.openshift.io/plugins: '["openshift-storage-scale-operator-console-plugin"]'
-  name: openshift-storage-scale-operator.v0.0.4
+  name: openshift-storage-scale-operator.v0.0.5
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -654,7 +654,7 @@ spec:
                   app.kubernetes.io/component: openshift-storage-scale-operator-console-plugin
               spec:
                 containers:
-                  - image: quay.io/openshift-storage-scale/openshift-storage-scale-console:v0.0.4
+                  - image: quay.io/openshift-storage-scale/openshift-storage-scale-console:v0.0.5
                     name: openshift-storage-scale-operator-console-plugin
                     ports:
                       - containerPort: 9443
@@ -710,7 +710,7 @@ spec:
                         valueFrom:
                           fieldRef:
                             fieldPath: metadata.namespace
-                    image: quay.io/openshift-storage-scale/openshift-storage-scale-operator:0.0.4
+                    image: quay.io/openshift-storage-scale/openshift-storage-scale-operator:0.0.5
                     livenessProbe:
                       httpGet:
                         path: /healthz
@@ -835,7 +835,7 @@ spec:
   minKubeVersion: 1.23.0
   provider:
     name: Storage Scale Team
-  version: 0.0.4
+  version: 0.0.5
   webhookdefinitions:
     - admissionReviewVersions:
         - v1

@@ -5,4 +5,4 @@ kind: Kustomization
 images:
 - name: controller
   newName: quay.io/openshift-storage-scale/openshift-storage-scale-operator
-  newTag: 0.0.4
+  newTag: 0.0.5
