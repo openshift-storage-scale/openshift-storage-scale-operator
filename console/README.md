@@ -1,5 +1,20 @@
 # OpenShift Console Plugin Template
 
+## TLDR
+
+1. Go in the aws-playground repo and run `make install`
+   The credentials will be under ~/aws-gpfs-playground/ocp_install_files/auth
+
+2. git clone https://github.com/openshift-storage-scale/openshift-storage-scale-operator
+
+3. Have two terminals both in the console/ folder, you need to oc login on both
+From one console/ run `yarn install` and then `yarn run start`
+And from the other console/ terminal run `yarn run --verbose start-console`
+
+4. Go to http://localhost:9000
+
+## More
+
 This project is a minimal template for writing a new OpenShift Console dynamic
 plugin.
 
