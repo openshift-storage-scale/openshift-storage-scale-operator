@@ -347,7 +347,7 @@ bundle-build: ## Build the bundle image.
 
 .PHONY: bundle-push
 bundle-push: ## Push the bundle image.
-	$(MAKE) docker-push IMG=$(BUNDLE_IMG)
+	$(CONTAINER_TOOL) push $(BUNDLE_IMG)
 
 .PHONY: opm
 OPM = $(LOCALBIN)/opm
@@ -388,7 +388,7 @@ catalog-build: opm ## Build a catalog image.
 # Push the catalog image.
 .PHONY: catalog-push
 catalog-push: ## Push a catalog image.
-	$(MAKE) docker-push IMG=$(CATALOG_IMG)
+	$(CONTAINER_TOOL) push $(CATALOG_IMG)
 
 .PHONY: catalog-install
 catalog-install: config/samples/storagescale-catalog-$(VERSION).yaml ## Install the OLM catalog on a cluster (for testing).
