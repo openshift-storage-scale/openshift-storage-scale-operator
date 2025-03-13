@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	defaultDiskMakerImageVersion = "quay.io/openshift-storage-scale/openshift-storage-scale-operator-diskmaker"
+	defaultDiskMakerImageVersion = "quay.io/openshift-storage-scale/openshift-storage-scale-diskmaker"
 	defaultKubeProxyImage        = "quay.io/openshift/origin-kube-rbac-proxy:latest"
 
 	// OwnerNamespaceLabel references the owning object's namespace
