@@ -151,6 +151,11 @@ lint-fix: golangci-lint ## Run golangci-lint linter and perform fixes
 
 ##@ Build
 
+# Override GOOS and GOARCH to build for a different OS and architecture. For
+# example, MacOS M series (arm64) should be: GOOS=darwin GOARCH=arm64 make build
+GOOS ?= linux
+GOARCH ?= amd64
+
 .PHONY: build-diskmaker
 build-diskmaker: ## Build diskmaker binary.
 	env GOOS=$(GOOS) GOARCH=$(GOARCH) go build -mod=vendor -ldflags '-X main.version=$(REV)' -o $(TARGET_DIR)/diskmaker $(CURPATH)/cmd/diskmaker-manager
