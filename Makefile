@@ -70,7 +70,7 @@ endif
 # This is useful for CI or a project to utilize a specific version of the operator-sdk toolkit.
 OPERATOR_SDK_VERSION ?= v1.39.1
 # Image URL to use all building/pushing image targets
-IMG ?= $(IMAGE_TAG_BASE)-operator:$(VERSION)
+OPERATOR_IMG ?= $(IMAGE_TAG_BASE)-operator:v$(VERSION)
 # ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
 ENVTEST_K8S_VERSION = 1.29.0
 
@@ -178,11 +178,11 @@ clean: ## Remove build artifacts and downloaded tools
 TARGETARCH ?= amd64
 .PHONY: docker-build
 docker-build: ## Build docker image with the manager.
-	$(CONTAINER_TOOL) build --secret id=pull,src=$(PULLFILE) --build-arg TARGETARCH=$(TARGETARCH) -t ${IMG} .
+	$(CONTAINER_TOOL) build --secret id=pull,src=$(PULLFILE) --build-arg TARGETARCH=$(TARGETARCH) -t $(OPERATOR_IMG) .
 
 .PHONY: docker-push
 docker-push: ## Push docker image with the manager.
-	$(CONTAINER_TOOL) push ${IMG}
+	$(CONTAINER_TOOL) push $(OPERATOR_IMG)
 
 .PHONY: console-build
 console-build: ## Build the console image
@@ -213,14 +213,14 @@ docker-buildx: ## Build and push docker image for the manager for cross-platform
 	sed -e '1 s/\(^FROM\)/FROM --platform=\$$\{BUILDPLATFORM\}/; t' -e ' 1,// s//FROM --platform=\$$\{BUILDPLATFORM\}/' Dockerfile > Dockerfile.cross
 	- $(CONTAINER_TOOL) buildx create --name project-v3-builder
 	$(CONTAINER_TOOL) buildx use project-v3-builder
-	- $(CONTAINER_TOOL) buildx build --push --platform=$(PLATFORMS) --tag ${IMG} -f Dockerfile.cross .
+	- $(CONTAINER_TOOL) buildx build --push --platform=$(PLATFORMS) --tag $(OPERATOR_IMG) -f Dockerfile.cross .
 	- $(CONTAINER_TOOL) buildx rm project-v3-builder
 	rm Dockerfile.cross
 
 .PHONY: build-installer
 build-installer: manifests generate kustomize ## Generate a consolidated YAML with CRDs and deployment.
 	mkdir -p dist
-	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
+	cd config/manager && $(KUSTOMIZE) edit set image controller=$(OPERATOR_IMG)
 	$(KUSTOMIZE) build config/default > dist/install.yaml
 
 ##@ Deployment
@@ -239,7 +239,7 @@ uninstall: manifests kustomize ## Uninstall CRDs from the K8s cluster specified 
 
 .PHONY: deploy
 deploy: manifests kustomize ## Deploy controller to the K8s cluster specified in ~/.kube/config.
-	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
+	cd config/manager && $(KUSTOMIZE) edit set image controller=$(OPERATOR_IMG)
 	cd config/console-plugin && $(KUSTOMIZE) edit set image console-plugin=${CONSOLE_PLUGIN_IMAGE}
 	$(KUSTOMIZE) build config/default | $(KUBECTL) apply -f -
 
@@ -331,7 +331,7 @@ endif
 .PHONY: bundle
 bundle: manifests kustomize operator-sdk ## Generate bundle manifests and metadata, then validate generated files.
 	$(OPERATOR_SDK) generate kustomize manifests -q
-	cd config/manager && $(KUSTOMIZE) edit set image controller=$(IMG)
+	cd config/manager && $(KUSTOMIZE) edit set image controller=$(OPERATOR_IMG)
 	cd config/console-plugin && $(KUSTOMIZE) edit set image console-plugin=${CONSOLE_PLUGIN_IMAGE}
 	$(KUSTOMIZE) build config/manifests | $(OPERATOR_SDK) generate bundle $(BUNDLE_GEN_FLAGS)
 	$(OPERATOR_SDK) bundle validate ./bundle
