@@ -4,7 +4,7 @@ package discovery
 import (
 	"testing"
 
-	internal "github.com/validatedpatterns/openshift-storage-scale-operator/internal/diskutils"
+	internal "github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/diskutils"
 
 	"github.com/stretchr/testify/assert"
 )

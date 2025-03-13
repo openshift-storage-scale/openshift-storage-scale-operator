@@ -1,4 +1,4 @@
-module github.com/validatedpatterns/openshift-storage-scale-operator
+module github.com/openshift-storage-scale/openshift-storage-scale-operator
 
 go 1.23.0
 

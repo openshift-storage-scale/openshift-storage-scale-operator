@@ -1,7 +1,7 @@
 package api
 
 import (
-	scalev1alpha "github.com/validatedpatterns/openshift-storage-scale-operator/api/v1alpha1"
+	scalev1alpha "github.com/openshift-storage-scale/openshift-storage-scale-operator/api/v1alpha1"
 )
 
 func init() {

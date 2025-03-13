@@ -32,7 +32,7 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	scalev1alpha "github.com/validatedpatterns/openshift-storage-scale-operator/api/v1alpha1"
+	scalev1alpha "github.com/openshift-storage-scale/openshift-storage-scale-operator/api/v1alpha1"
 	//+kubebuilder:scaffold:imports
 )
 

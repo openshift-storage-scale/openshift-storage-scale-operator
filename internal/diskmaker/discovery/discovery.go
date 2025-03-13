@@ -9,9 +9,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/validatedpatterns/openshift-storage-scale-operator/api/v1alpha1"
-	"github.com/validatedpatterns/openshift-storage-scale-operator/internal/diskmaker"
-	diskutil "github.com/validatedpatterns/openshift-storage-scale-operator/internal/diskutils"
+	"github.com/openshift-storage-scale/openshift-storage-scale-operator/api/v1alpha1"
+	"github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/diskmaker"
+	diskutil "github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/diskutils"
 
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/util/sets"

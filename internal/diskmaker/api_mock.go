@@ -1,7 +1,7 @@
 package diskmaker
 
 import (
-	"github.com/validatedpatterns/openshift-storage-scale-operator/api/v1alpha1"
+	"github.com/openshift-storage-scale/openshift-storage-scale-operator/api/v1alpha1"
 	"k8s.io/apimachinery/pkg/runtime"
 )
 

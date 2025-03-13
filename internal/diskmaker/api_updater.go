@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/validatedpatterns/openshift-storage-scale-operator/api/v1alpha1"
+	"github.com/openshift-storage-scale/openshift-storage-scale-operator/api/v1alpha1"
 
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"

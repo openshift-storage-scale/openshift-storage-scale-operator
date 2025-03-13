@@ -38,14 +38,14 @@ import (
 
 	machineconfigv1 "github.com/openshift/api/machineconfiguration/v1"
 
+	"github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/controller/initializer"
 	consolev1 "github.com/openshift/api/console/v1"
-	"github.com/validatedpatterns/openshift-storage-scale-operator/internal/controller/initializer"
 
-	lvdcontroller "github.com/validatedpatterns/openshift-storage-scale-operator/internal/controller/localvolumediscovery"
+	lvdcontroller "github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/controller/localvolumediscovery"
 
-	scalev1alpha "github.com/validatedpatterns/openshift-storage-scale-operator/api/v1alpha1"
-	"github.com/validatedpatterns/openshift-storage-scale-operator/internal/controller"
-	"github.com/validatedpatterns/openshift-storage-scale-operator/version"
+	scalev1alpha "github.com/openshift-storage-scale/openshift-storage-scale-operator/api/v1alpha1"
+	"github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/controller"
+	"github.com/openshift-storage-scale/openshift-storage-scale-operator/version"
 	//+kubebuilder:scaffold:imports
 )
 

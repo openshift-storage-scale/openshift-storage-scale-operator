@@ -27,7 +27,7 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	scalev1alpha "github.com/validatedpatterns/openshift-storage-scale-operator/api/v1alpha1"
+	scalev1alpha "github.com/openshift-storage-scale/openshift-storage-scale-operator/api/v1alpha1"
 )
 
 var _ = Describe("StorageScale Controller", func() {

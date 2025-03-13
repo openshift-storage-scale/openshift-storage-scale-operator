@@ -7,11 +7,11 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/validatedpatterns/openshift-storage-scale-operator/api/v1alpha1"
-	"github.com/validatedpatterns/openshift-storage-scale-operator/internal/diskutils"
+	"github.com/openshift-storage-scale/openshift-storage-scale-operator/api/v1alpha1"
+	"github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/diskutils"
 
+	"github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/diskmaker"
 	"github.com/stretchr/testify/assert"
-	"github.com/validatedpatterns/openshift-storage-scale-operator/internal/diskmaker"
 )
 
 var lsblkOut string
