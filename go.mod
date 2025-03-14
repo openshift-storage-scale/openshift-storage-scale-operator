@@ -1,8 +1,6 @@
 module github.com/openshift-storage-scale/openshift-storage-scale-operator
 
-go 1.22.0
-
-toolchain go1.22.9
+go 1.22.9
 
 require (
 	github.com/Masterminds/semver/v3 v3.3.1

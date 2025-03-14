@@ -12,7 +12,6 @@ COPY go.mod go.mod
 COPY go.sum go.sum
 
 # use latest Go z release
-ENV GOTOOLCHAIN=go1.22.9
 
 # Ensure correct Go version
 
