@@ -50,8 +50,11 @@ var filterMap = map[string]func(internal.BlockDevice) (bool, error){
 		return dev.FSType == "", nil
 	},
 	noBindMounts: func(dev internal.BlockDevice) (bool, error) {
-		hasBindMounts, _, err := dev.HasBindMounts()
-		return !hasBindMounts, err
+		mountPoint, err := dev.HasBindMounts()
+		if mountPoint != "" {
+			return false, err
+		}
+		return true, err
 	},
 
 	noChildren: func(dev internal.BlockDevice) (bool, error) {

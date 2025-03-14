@@ -246,9 +246,9 @@ func (r *LocalVolumeDiscoveryReconciler) updateStatus(ctx context.Context, lvd *
 	return nil
 }
 
-func (r *LocalVolumeDiscoveryReconciler) getDaemonSetStatus(ctx context.Context, namespace string) (int32, int32, error) {
+func (r *LocalVolumeDiscoveryReconciler) getDaemonSetStatus(ctx context.Context, namespace string) (desiredNumberScheduled, numberReady int32, err error) {
 	existingDS := &appsv1.DaemonSet{}
-	err := r.Client.Get(ctx, types.NamespacedName{Name: DiskMakerDiscovery, Namespace: namespace}, existingDS)
+	err = r.Client.Get(ctx, types.NamespacedName{Name: DiskMakerDiscovery, Namespace: namespace}, existingDS)
 	if err != nil {
 		return 0, 0, err
 	}

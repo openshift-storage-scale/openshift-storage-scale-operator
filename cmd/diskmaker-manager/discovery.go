@@ -9,7 +9,7 @@ import (
 	"k8s.io/klog/v2"
 )
 
-func startDeviceDiscovery(cmd *cobra.Command, args []string) error {
+func startDeviceDiscovery(_ *cobra.Command, _ []string) error {
 	printVersion()
 
 	discoveryObj, err := discovery.NewDeviceDiscovery()

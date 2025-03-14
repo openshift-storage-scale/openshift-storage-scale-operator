@@ -32,7 +32,7 @@ func CreateOrUpdateDaemonset(
 	mutateFn := func() error {
 		return daemonSetMutateFn(ds)
 	}
-	opResult, err := controllerutil.CreateOrUpdate(context.TODO(), c, ds, mutateFn)
+	opResult, err := controllerutil.CreateOrUpdate(ctx, c, ds, mutateFn)
 	return ds, opResult, err
 }
 
@@ -124,7 +124,7 @@ func MutateAggregatedSpec(
 	ds.Spec.Template.Spec.HostPID = dsTemplate.Spec.Template.Spec.HostPID
 }
 
-func initMapIfNil(m *map[string]string) {
+func initMapIfNil(m *map[string]string) { //nolint:gocritic
 	if len(*m) > 1 {
 		return
 	}

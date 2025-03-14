@@ -85,10 +85,10 @@ type BlockDevice struct {
 
 // HasBindMounts checks for bind mounts and returns mount point for a device by parsing `proc/1/mountinfo`.
 // HostPID should be set to true inside the POD spec to get details of host's mount points inside `proc/1/mountinfo`.
-func (b *BlockDevice) HasBindMounts() (bool, string, error) {
+func (b *BlockDevice) HasBindMounts() (mountpoint string, err error) {
 	data, err := os.ReadFile(mountFile)
 	if err != nil {
-		return false, "", fmt.Errorf("failed to read file %s: %v", mountFile, err)
+		return "", fmt.Errorf("failed to read file %s: %v", mountFile, err)
 	}
 
 	mountString := string(data)
@@ -98,38 +98,34 @@ func (b *BlockDevice) HasBindMounts() (bool, string, error) {
 			if len(mountInfoList) >= 10 {
 				// device source is 4th field for bind mounts and 10th for regular mounts
 				if mountInfoList[3] == fmt.Sprintf("/%s", b.KName) || mountInfoList[9] == fmt.Sprintf("/dev/%s", b.KName) {
-					return true, mountInfoList[4], nil
+					return mountInfoList[4], nil
 				}
 			}
 		}
 	}
 
-	return false, "", nil
+	return "", nil
 }
 
 // GetDevPath for block device (/dev/sdx)
 func (b BlockDevice) GetDevPath() (path string, err error) {
 	if b.KName == "" {
-		path = ""
-		err = fmt.Errorf("empty KNAME")
+		return "", fmt.Errorf("empty KNAME")
 	}
-
-	path = filepath.Join("/dev/", b.KName)
-
-	return
+	return fmt.Sprintf("/dev/%s", b.KName), nil
 }
 
 // GetPathByID check on BlockDevice
 func (b *BlockDevice) GetPathByID(existingDeviceID string) (string, error) {
 	// return if previously populated value is valid
-	if len(b.PathByID) > 0 && strings.HasPrefix(b.PathByID, DiskByIDDir) {
+	if b.PathByID != "" && strings.HasPrefix(b.PathByID, DiskByIDDir) {
 		evalsCorrectly, err := PathEvalsToDiskLabel(b.PathByID, b.KName)
 		if err == nil && evalsCorrectly {
 			return b.PathByID, nil
 		}
 	}
 	b.PathByID = ""
-	allDisks, err := FilePathGlob(filepath.Join(DiskByIDDir, "/*"))
+	allDisks, err := FilePathGlob(filepath.Join(DiskByIDDir, "*"))
 	if err != nil {
 		return "", fmt.Errorf("error listing files in %s: %v", DiskByIDDir, err)
 	}
@@ -200,10 +196,7 @@ func PathEvalsToDiskLabel(path, devName string) (bool, error) {
 }
 
 // ListBlockDevices using the lsblk command
-func ListBlockDevices(devices []string) ([]BlockDevice, []BlockDevice, error) {
-	// var output bytes.Buffer
-	var blockDevices []BlockDevice
-
+func ListBlockDevices(devices []string) (blockDevices, badRows []BlockDevice, err error) {
 	deviceFSMap, err := GetDeviceFSMap(devices)
 	if err != nil {
 		return []BlockDevice{}, []BlockDevice{}, errors.Wrap(err, "failed to list block devices")
@@ -217,7 +210,7 @@ func ListBlockDevices(devices []string) ([]BlockDevice, []BlockDevice, error) {
 	if err != nil {
 		return []BlockDevice{}, []BlockDevice{}, fmt.Errorf("failed to run command: %s", err)
 	}
-	if len(output) == 0 {
+	if output == "" {
 		return []BlockDevice{}, []BlockDevice{}, nil
 	}
 	lDevices := BlockDeviceList{}
@@ -226,10 +219,9 @@ func ListBlockDevices(devices []string) ([]BlockDevice, []BlockDevice, error) {
 		return []BlockDevice{}, []BlockDevice{}, fmt.Errorf("failed to unmarshal JSON %s: %s", output, err)
 	}
 
-	badRows := []BlockDevice{}
 	for _, row := range lDevices.BlockDevices {
 		// only use device if name is populated, and non-empty
-		if len(strings.Trim(row.Name, " ")) == 0 {
+		if strings.Trim(row.Name, " ") == "" {
 			badRows = append(badRows, row)
 			e, err := json.Marshal(badRows)
 			m := fmt.Sprintf("Found an entry with empty name: %s.", e)
@@ -278,7 +270,7 @@ func GetDeviceFSMap(devices []string) (map[string]string, error) {
 	}
 	lines := strings.Split(output, "\n")
 	for _, l := range lines {
-		if len(l) <= 0 {
+		if l == "" {
 			// Ignore empty line.
 			continue
 		}

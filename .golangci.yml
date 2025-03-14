@@ -143,6 +143,11 @@ issues:
     - path: _test\.go
       linters:
         - mnd
+        - gocritic
+        - revive
+        - goconst
+        - ineffassign
+        - staticcheck
 
     - path: pkg/golinters/errcheck.go
       text: "SA1019: errCfg.Exclude is deprecated: use ExcludeFunctions instead"
