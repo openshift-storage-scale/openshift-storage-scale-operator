@@ -3,7 +3,11 @@
 # To re-generate a bundle for another specific version without changing the standard setup, you can:
 # - use the VERSION as arg of the bundle target (e.g make bundle VERSION=0.0.2)
 # - use environment variables to overwrite this value (e.g export VERSION=0.0.2)
+<<<<<<< HEAD
 VERSION ?= $(shell cat VERSION.txt)
+=======
+VERSION ?= $(shell cat _VERSION)
+>>>>>>> 83a89bc3 (When building an image with the docker-build and bundle-build targets, tag to latest the image created and push them as well when pushing for the created images so that the quay.io's latest image pushed points to the latest tag)
 
 # Version of yaml file to generate rbacs from
 RBAC_VERSION ?= v5.2.2.0
@@ -29,6 +33,7 @@ BUNDLE_DEFAULT_CHANNEL := --default-channel=$(DEFAULT_CHANNEL)
 endif
 BUNDLE_METADATA_OPTS ?= $(BUNDLE_CHANNELS) $(BUNDLE_DEFAULT_CHANNEL)
 
+BUNDLE_CONTAINERFILE_TEMPLATE ?= new-bundle.Dockerfile
 # IMAGE_TAG_BASE defines the docker.io namespace and part of the image name for remote images.
 # This variable is used to construct full image tags for bundle and catalog images.
 #
@@ -184,10 +189,12 @@ TARGETARCH ?= amd64
 .PHONY: docker-build
 docker-build: ## Build docker image with the manager.
 	$(CONTAINER_TOOL) build --secret id=pull,src=$(PULLFILE) --build-arg TARGETARCH=$(TARGETARCH) -t $(OPERATOR_IMG) .
+	$(CONTAINER_TOOL) tag $(OPERATOR_IMG) $(IMAGE_TAG_BASE)-operator:latest
 
 .PHONY: docker-push
 docker-push: ## Push docker image with the manager.
 	$(CONTAINER_TOOL) push $(OPERATOR_IMG)
+	$(CONTAINER_TOOL) push $(IMAGE_TAG_BASE)-operator:latest
 
 .PHONY: console-build
 console-build: ## Build the console image
@@ -335,10 +342,9 @@ endif
 
 .PHONY: bundle
 bundle: manifests kustomize operator-sdk ## Generate bundle manifests and metadata, then validate generated files.
+	cd hack && source declare-variables.sh
 	$(OPERATOR_SDK) generate kustomize manifests -q
-	cd config/manager && $(KUSTOMIZE) edit set image controller=$(OPERATOR_IMG)
-	cd config/console-plugin && $(KUSTOMIZE) edit set image console-plugin=${CONSOLE_PLUGIN_IMAGE}
-	$(KUSTOMIZE) build config/manifests | $(OPERATOR_SDK) generate bundle $(BUNDLE_GEN_FLAGS)
+	$(KUSTOMIZE) build config/manifests | envsubst | $(OPERATOR_SDK) generate bundle $(BUNDLE_GEN_FLAGS)
 	$(OPERATOR_SDK) bundle validate ./bundle
 	$(MAKE) add-console-plugin-annotation
 
@@ -348,11 +354,13 @@ add-console-plugin-annotation: yq ## Add console-plugin annotation to the CSV
 
 .PHONY: bundle-build
 bundle-build: ## Build the bundle image.
-	docker build -f bundle.Dockerfile -t $(BUNDLE_IMG) .
+	$(CONTAINER_TOOL) build -f bundle.Dockerfile -t $(BUNDLE_IMG) .
+	$(CONTAINER_TOOL) tag $(BUNDLE_IMG) $(IMAGE_TAG_BASE)-bundle:latest
 
 .PHONY: bundle-push
 bundle-push: ## Push the bundle image.
 	$(CONTAINER_TOOL) push $(BUNDLE_IMG)
+	$(CONTAINER_TOOL) push $(IMAGE_TAG_BASE)-bundle:latest
 
 .PHONY: opm
 OPM = $(LOCALBIN)/opm
