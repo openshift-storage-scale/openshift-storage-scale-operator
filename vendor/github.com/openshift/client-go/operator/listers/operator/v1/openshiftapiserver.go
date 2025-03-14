@@ -3,10 +3,10 @@
 package v1
 
 import (
-	operatorv1 "github.com/openshift/api/operator/v1"
-	labels "k8s.io/apimachinery/pkg/labels"
-	listers "k8s.io/client-go/listers"
-	cache "k8s.io/client-go/tools/cache"
+	v1 "github.com/openshift/api/operator/v1"
+	"k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/client-go/tools/cache"
 )
 
 // OpenShiftAPIServerLister helps list OpenShiftAPIServers.
@@ -14,19 +14,39 @@ import (
 type OpenShiftAPIServerLister interface {
 	// List lists all OpenShiftAPIServers in the indexer.
 	// Objects returned here must be treated as read-only.
-	List(selector labels.Selector) (ret []*operatorv1.OpenShiftAPIServer, err error)
+	List(selector labels.Selector) (ret []*v1.OpenShiftAPIServer, err error)
 	// Get retrieves the OpenShiftAPIServer from the index for a given name.
 	// Objects returned here must be treated as read-only.
-	Get(name string) (*operatorv1.OpenShiftAPIServer, error)
+	Get(name string) (*v1.OpenShiftAPIServer, error)
 	OpenShiftAPIServerListerExpansion
 }
 
 // openShiftAPIServerLister implements the OpenShiftAPIServerLister interface.
 type openShiftAPIServerLister struct {
-	listers.ResourceIndexer[*operatorv1.OpenShiftAPIServer]
+	indexer cache.Indexer
 }
 
 // NewOpenShiftAPIServerLister returns a new OpenShiftAPIServerLister.
 func NewOpenShiftAPIServerLister(indexer cache.Indexer) OpenShiftAPIServerLister {
-	return &openShiftAPIServerLister{listers.New[*operatorv1.OpenShiftAPIServer](indexer, operatorv1.Resource("openshiftapiserver"))}
+	return &openShiftAPIServerLister{indexer: indexer}
+}
+
+// List lists all OpenShiftAPIServers in the indexer.
+func (s *openShiftAPIServerLister) List(selector labels.Selector) (ret []*v1.OpenShiftAPIServer, err error) {
+	err = cache.ListAll(s.indexer, selector, func(m interface{}) {
+		ret = append(ret, m.(*v1.OpenShiftAPIServer))
+	})
+	return ret, err
+}
+
+// Get retrieves the OpenShiftAPIServer from the index for a given name.
+func (s *openShiftAPIServerLister) Get(name string) (*v1.OpenShiftAPIServer, error) {
+	obj, exists, err := s.indexer.GetByKey(name)
+	if err != nil {
+		return nil, err
+	}
+	if !exists {
+		return nil, errors.NewNotFound(v1.Resource("openshiftapiserver"), name)
+	}
+	return obj.(*v1.OpenShiftAPIServer), nil
 }

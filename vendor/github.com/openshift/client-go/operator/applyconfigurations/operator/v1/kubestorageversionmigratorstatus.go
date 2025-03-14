@@ -2,13 +2,13 @@
 
 package v1
 
-// KubeStorageVersionMigratorStatusApplyConfiguration represents a declarative configuration of the KubeStorageVersionMigratorStatus type for use
+// KubeStorageVersionMigratorStatusApplyConfiguration represents an declarative configuration of the KubeStorageVersionMigratorStatus type for use
 // with apply.
 type KubeStorageVersionMigratorStatusApplyConfiguration struct {
 	OperatorStatusApplyConfiguration `json:",inline"`
 }
 
-// KubeStorageVersionMigratorStatusApplyConfiguration constructs a declarative configuration of the KubeStorageVersionMigratorStatus type for use with
+// KubeStorageVersionMigratorStatusApplyConfiguration constructs an declarative configuration of the KubeStorageVersionMigratorStatus type for use with
 // apply.
 func KubeStorageVersionMigratorStatus() *KubeStorageVersionMigratorStatusApplyConfiguration {
 	return &KubeStorageVersionMigratorStatusApplyConfiguration{}
@@ -18,7 +18,7 @@ func KubeStorageVersionMigratorStatus() *KubeStorageVersionMigratorStatusApplyCo
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the ObservedGeneration field is set to the value of the last call.
 func (b *KubeStorageVersionMigratorStatusApplyConfiguration) WithObservedGeneration(value int64) *KubeStorageVersionMigratorStatusApplyConfiguration {
-	b.OperatorStatusApplyConfiguration.ObservedGeneration = &value
+	b.ObservedGeneration = &value
 	return b
 }
 
@@ -30,7 +30,7 @@ func (b *KubeStorageVersionMigratorStatusApplyConfiguration) WithConditions(valu
 		if values[i] == nil {
 			panic("nil value passed to WithConditions")
 		}
-		b.OperatorStatusApplyConfiguration.Conditions = append(b.OperatorStatusApplyConfiguration.Conditions, *values[i])
+		b.Conditions = append(b.Conditions, *values[i])
 	}
 	return b
 }
@@ -39,7 +39,7 @@ func (b *KubeStorageVersionMigratorStatusApplyConfiguration) WithConditions(valu
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Version field is set to the value of the last call.
 func (b *KubeStorageVersionMigratorStatusApplyConfiguration) WithVersion(value string) *KubeStorageVersionMigratorStatusApplyConfiguration {
-	b.OperatorStatusApplyConfiguration.Version = &value
+	b.Version = &value
 	return b
 }
 
@@ -47,15 +47,7 @@ func (b *KubeStorageVersionMigratorStatusApplyConfiguration) WithVersion(value s
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the ReadyReplicas field is set to the value of the last call.
 func (b *KubeStorageVersionMigratorStatusApplyConfiguration) WithReadyReplicas(value int32) *KubeStorageVersionMigratorStatusApplyConfiguration {
-	b.OperatorStatusApplyConfiguration.ReadyReplicas = &value
-	return b
-}
-
-// WithLatestAvailableRevision sets the LatestAvailableRevision field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the LatestAvailableRevision field is set to the value of the last call.
-func (b *KubeStorageVersionMigratorStatusApplyConfiguration) WithLatestAvailableRevision(value int32) *KubeStorageVersionMigratorStatusApplyConfiguration {
-	b.OperatorStatusApplyConfiguration.LatestAvailableRevision = &value
+	b.ReadyReplicas = &value
 	return b
 }
 
@@ -67,7 +59,7 @@ func (b *KubeStorageVersionMigratorStatusApplyConfiguration) WithGenerations(val
 		if values[i] == nil {
 			panic("nil value passed to WithGenerations")
 		}
-		b.OperatorStatusApplyConfiguration.Generations = append(b.OperatorStatusApplyConfiguration.Generations, *values[i])
+		b.Generations = append(b.Generations, *values[i])
 	}
 	return b
 }

@@ -3,7 +3,7 @@
 # To re-generate a bundle for another specific version without changing the standard setup, you can:
 # - use the VERSION as arg of the bundle target (e.g make bundle VERSION=0.0.2)
 # - use environment variables to overwrite this value (e.g export VERSION=0.0.2)
-VERSION ?= $(shell cat _VERSION)
+VERSION ?= $(shell cat VERSION.txt)
 
 # Version of yaml file to generate rbacs from
 RBAC_VERSION ?= v5.2.2.0
@@ -262,7 +262,7 @@ $(LOCALBIN):
 
 ## Tool Versions
 KUSTOMIZE_VERSION ?= v5.3.0
-CONTROLLER_TOOLS_VERSION ?= v0.17.2
+CONTROLLER_TOOLS_VERSION ?= v0.16.5
 ENVTEST_VERSION ?= release-0.17
 GOLANGCI_LINT_VERSION ?= v1.64.6
 # update for major version updates to YQ_VERSION!
