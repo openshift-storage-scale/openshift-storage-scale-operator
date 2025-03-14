@@ -2,14 +2,14 @@
 
 package v1
 
-// KubeAPIServerStatusApplyConfiguration represents a declarative configuration of the KubeAPIServerStatus type for use
+// KubeAPIServerStatusApplyConfiguration represents an declarative configuration of the KubeAPIServerStatus type for use
 // with apply.
 type KubeAPIServerStatusApplyConfiguration struct {
 	StaticPodOperatorStatusApplyConfiguration `json:",inline"`
 	ServiceAccountIssuers                     []ServiceAccountIssuerStatusApplyConfiguration `json:"serviceAccountIssuers,omitempty"`
 }
 
-// KubeAPIServerStatusApplyConfiguration constructs a declarative configuration of the KubeAPIServerStatus type for use with
+// KubeAPIServerStatusApplyConfiguration constructs an declarative configuration of the KubeAPIServerStatus type for use with
 // apply.
 func KubeAPIServerStatus() *KubeAPIServerStatusApplyConfiguration {
 	return &KubeAPIServerStatusApplyConfiguration{}
@@ -19,7 +19,7 @@ func KubeAPIServerStatus() *KubeAPIServerStatusApplyConfiguration {
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the ObservedGeneration field is set to the value of the last call.
 func (b *KubeAPIServerStatusApplyConfiguration) WithObservedGeneration(value int64) *KubeAPIServerStatusApplyConfiguration {
-	b.OperatorStatusApplyConfiguration.ObservedGeneration = &value
+	b.ObservedGeneration = &value
 	return b
 }
 
@@ -31,7 +31,7 @@ func (b *KubeAPIServerStatusApplyConfiguration) WithConditions(values ...*Operat
 		if values[i] == nil {
 			panic("nil value passed to WithConditions")
 		}
-		b.OperatorStatusApplyConfiguration.Conditions = append(b.OperatorStatusApplyConfiguration.Conditions, *values[i])
+		b.Conditions = append(b.Conditions, *values[i])
 	}
 	return b
 }
@@ -40,7 +40,7 @@ func (b *KubeAPIServerStatusApplyConfiguration) WithConditions(values ...*Operat
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Version field is set to the value of the last call.
 func (b *KubeAPIServerStatusApplyConfiguration) WithVersion(value string) *KubeAPIServerStatusApplyConfiguration {
-	b.OperatorStatusApplyConfiguration.Version = &value
+	b.Version = &value
 	return b
 }
 
@@ -48,15 +48,7 @@ func (b *KubeAPIServerStatusApplyConfiguration) WithVersion(value string) *KubeA
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the ReadyReplicas field is set to the value of the last call.
 func (b *KubeAPIServerStatusApplyConfiguration) WithReadyReplicas(value int32) *KubeAPIServerStatusApplyConfiguration {
-	b.OperatorStatusApplyConfiguration.ReadyReplicas = &value
-	return b
-}
-
-// WithLatestAvailableRevision sets the LatestAvailableRevision field in the declarative configuration to the given value
-// and returns the receiver, so that objects can be built by chaining "With" function invocations.
-// If called multiple times, the LatestAvailableRevision field is set to the value of the last call.
-func (b *KubeAPIServerStatusApplyConfiguration) WithLatestAvailableRevision(value int32) *KubeAPIServerStatusApplyConfiguration {
-	b.OperatorStatusApplyConfiguration.LatestAvailableRevision = &value
+	b.ReadyReplicas = &value
 	return b
 }
 
@@ -68,8 +60,16 @@ func (b *KubeAPIServerStatusApplyConfiguration) WithGenerations(values ...*Gener
 		if values[i] == nil {
 			panic("nil value passed to WithGenerations")
 		}
-		b.OperatorStatusApplyConfiguration.Generations = append(b.OperatorStatusApplyConfiguration.Generations, *values[i])
+		b.Generations = append(b.Generations, *values[i])
 	}
+	return b
+}
+
+// WithLatestAvailableRevision sets the LatestAvailableRevision field in the declarative configuration to the given value
+// and returns the receiver, so that objects can be built by chaining "With" function invocations.
+// If called multiple times, the LatestAvailableRevision field is set to the value of the last call.
+func (b *KubeAPIServerStatusApplyConfiguration) WithLatestAvailableRevision(value int32) *KubeAPIServerStatusApplyConfiguration {
+	b.LatestAvailableRevision = &value
 	return b
 }
 
@@ -77,7 +77,7 @@ func (b *KubeAPIServerStatusApplyConfiguration) WithGenerations(values ...*Gener
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the LatestAvailableRevisionReason field is set to the value of the last call.
 func (b *KubeAPIServerStatusApplyConfiguration) WithLatestAvailableRevisionReason(value string) *KubeAPIServerStatusApplyConfiguration {
-	b.StaticPodOperatorStatusApplyConfiguration.LatestAvailableRevisionReason = &value
+	b.LatestAvailableRevisionReason = &value
 	return b
 }
 
@@ -89,7 +89,7 @@ func (b *KubeAPIServerStatusApplyConfiguration) WithNodeStatuses(values ...*Node
 		if values[i] == nil {
 			panic("nil value passed to WithNodeStatuses")
 		}
-		b.StaticPodOperatorStatusApplyConfiguration.NodeStatuses = append(b.StaticPodOperatorStatusApplyConfiguration.NodeStatuses, *values[i])
+		b.NodeStatuses = append(b.NodeStatuses, *values[i])
 	}
 	return b
 }
