@@ -2,6 +2,7 @@ FROM quay.io/konflux-ci/operator-sdk-builder:latest as builder
 
 ARG CONTROLLER_IMAGE="quay.io/redhat-user-workloads/storage-scale-releng-tenant/controller-rhel9-operator@sha256:22a6e6a593a3e92ac3951405832708f04237d32937209e378a25d54e6b69e512"
 ARG DISKMAKER_IMAGE="quay.io/redhat-user-workloads/storage-scale-releng-tenant/diskmaker-rhel9-operator@sha256:22a6e6a593a3e92ac3951405832708f04237d32937209e378a25d54e6b69e512"
+ARG CONSOLE_IMAGE="quay.io/redhat-user-workloads/storage-scale-releng-tenant/openshift-storage-scale-console@sha256:22a6e6a593a3e92ac3951405832708f04237d32937209e378a25d54e6b69e512"
 
 COPY ./ /repo
 WORKDIR /repo
@@ -20,6 +21,7 @@ RUN \
 FROM scratch
 
 LABEL controller="quay.io/redhat-user-workloads/storage-scale-releng-tenant/controller-rhel9-operator@sha256:22a6e6a593a3e92ac3951405832708f04237d32937209e378a25d54e6b69e512"
+LABEL console="quay.io/redhat-user-workloads/storage-scale-releng-tenant/openshift-storage-scale-console@sha256:22a6e6a593a3e92ac3951405832708f04237d32937209e378a25d54e6b69e512"
 
 COPY --from=builder /repo/build/manifests /manifests/
 COPY --from=builder /repo/build/metadata /metadata/
