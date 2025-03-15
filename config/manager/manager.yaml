@@ -62,13 +62,15 @@ spec:
         - /manager
         args:
         - --leader-elect
-        image: controller:latest
+        image: ${CONTROLLER_IMAGE}
         name: manager
         env:
           - name: DEPLOYMENT_NAMESPACE
             valueFrom:
               fieldRef:
                 fieldPath: metadata.namespace
+          - name: DISKMAKER_IMAGE
+            value: ${DISKMAKER_IMAGE}
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
