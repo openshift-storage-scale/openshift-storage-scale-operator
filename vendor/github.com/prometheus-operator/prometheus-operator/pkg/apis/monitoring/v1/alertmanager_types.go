@@ -15,7 +15,6 @@
 package v1
 
 import (
-	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -153,13 +152,6 @@ type AlertmanagerSpec struct {
 	// VolumeMounts specified will be appended to other VolumeMounts in the alertmanager container,
 	// that are generated as a result of StorageSpec objects.
 	VolumeMounts []v1.VolumeMount `json:"volumeMounts,omitempty"`
-	// The field controls if and how PVCs are deleted during the lifecycle of a StatefulSet.
-	// The default behavior is all PVCs are retained.
-	// This is an alpha field from kubernetes 1.23 until 1.26 and a beta field from 1.26.
-	// It requires enabling the StatefulSetAutoDeletePVC feature gate.
-	//
-	// +optional
-	PersistentVolumeClaimRetentionPolicy *appsv1.StatefulSetPersistentVolumeClaimRetentionPolicy `json:"persistentVolumeClaimRetentionPolicy,omitempty"`
 	// The external URL the Alertmanager instances will be available under. This is
 	// necessary to generate correct URLs. This is necessary if Alertmanager is not
 	// served from root of a DNS name.
@@ -185,14 +177,6 @@ type AlertmanagerSpec struct {
 	// SecurityContext holds pod-level security attributes and common container settings.
 	// This defaults to the default PodSecurityContext.
 	SecurityContext *v1.PodSecurityContext `json:"securityContext,omitempty"`
-	// Defines the DNS policy for the pods.
-	//
-	// +optional
-	DNSPolicy *DNSPolicy `json:"dnsPolicy,omitempty"`
-	// Defines the DNS configuration for the pods.
-	//
-	// +optional
-	DNSConfig *PodDNSConfig `json:"dnsConfig,omitempty"`
 	// ServiceAccountName is the name of the ServiceAccount to use to run the
 	// Prometheus Pods.
 	ServiceAccountName string `json:"serviceAccountName,omitempty"`
@@ -481,9 +465,9 @@ type HTTPConfig struct {
 	// TLS configuration for the client.
 	// +optional
 	TLSConfig *SafeTLSConfig `json:"tlsConfig,omitempty"`
-
-	ProxyConfig `json:",inline"`
-
+	// Optional proxy URL.
+	// +optional
+	ProxyURL string `json:"proxyURL,omitempty"`
 	// FollowRedirects specifies whether the client should follow HTTP 3xx redirects.
 	// +optional
 	FollowRedirects *bool `json:"followRedirects,omitempty"`
