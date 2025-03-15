@@ -12,7 +12,7 @@ RUN \
     | operator-sdk generate bundle \
         -q \
         --overwrite \
-        --version $(cat _VERSION) \
+        --version $(cat VERSION.txt) \
         --output-dir build \
         --channels development \
         --default-channel development && \
