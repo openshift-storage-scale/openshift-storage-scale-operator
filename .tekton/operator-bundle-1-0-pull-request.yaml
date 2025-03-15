@@ -347,6 +347,8 @@ spec:
           value: quay.io/konflux-ci/tekton-catalog/task-ecosystem-cert-preflight-checks:0.1@sha256:df8a25a3431a70544172ed4844f9d0c6229d39130633960729f825a031a7dea9
         - name: kind
           value: task
+        - name: artifact-type
+          value: operatorbundle
         resolver: bundles
       when:
       - input: $(params.skip-checks)
