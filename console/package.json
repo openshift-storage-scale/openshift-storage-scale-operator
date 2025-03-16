@@ -89,5 +89,6 @@
   },
   "dependencies": {
     "@patternfly/react-catalog-view-extension": "^4.95.1"
-  }
+  },
+  "packageManager": "yarn@4.7.0"
 }
