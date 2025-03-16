@@ -1,4 +1,4 @@
-ARG TARGETARCH
+ARG TARGETARCH=amd64
 
 FROM --platform=linux/$TARGETARCH brew.registry.redhat.io/rh-osbs/openshift-golang-builder:v1.23 AS builder
 
