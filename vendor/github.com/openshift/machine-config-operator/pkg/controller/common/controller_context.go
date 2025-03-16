@@ -1,21 +1,28 @@
 package common
 
 import (
+	"context"
 	"math/rand"
 	"time"
 
-	"github.com/golang/glog"
 	configinformers "github.com/openshift/client-go/config/informers/externalversions"
+	machineinformersv1beta1 "github.com/openshift/client-go/machine/informers/externalversions"
+	mcfginformers "github.com/openshift/client-go/machineconfiguration/informers/externalversions"
+
 	operatorinformers "github.com/openshift/client-go/operator/informers/externalversions"
+	"github.com/openshift/library-go/pkg/operator/configobserver/featuregates"
+	"github.com/openshift/library-go/pkg/operator/events"
 	"github.com/openshift/machine-config-operator/internal/clients"
 	daemonconsts "github.com/openshift/machine-config-operator/pkg/daemon/constants"
-	mcfginformers "github.com/openshift/machine-config-operator/pkg/generated/informers/externalversions"
+	"github.com/openshift/machine-config-operator/pkg/version"
 	apiextinformers "k8s.io/apiextensions-apiserver/pkg/client/informers/externalversions"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/informers"
+	"k8s.io/klog/v2"
+	"k8s.io/utils/clock"
 )
 
 const (
@@ -24,9 +31,17 @@ const (
 
 func resyncPeriod() func() time.Duration {
 	return func() time.Duration {
+		// Disable gosec here to avoid throwing
+		// G404: Use of weak random number generator (math/rand instead of crypto/rand)
+		// #nosec
 		factor := rand.Float64() + 1
 		return time.Duration(float64(minResyncPeriod.Nanoseconds()) * factor)
 	}
+}
+
+// DefaultResyncPeriod returns a function which generates a random resync period
+func DefaultResyncPeriod() func() time.Duration {
+	return resyncPeriod()
 }
 
 // ControllerContext stores all the informers for a variety of kubernetes objects.
@@ -35,14 +50,19 @@ type ControllerContext struct {
 
 	NamespacedInformerFactory                           mcfginformers.SharedInformerFactory
 	InformerFactory                                     mcfginformers.SharedInformerFactory
+	OCLInformerFactory                                  mcfginformers.SharedInformerFactory
 	KubeInformerFactory                                 informers.SharedInformerFactory
 	KubeNamespacedInformerFactory                       informers.SharedInformerFactory
 	OpenShiftConfigKubeNamespacedInformerFactory        informers.SharedInformerFactory
+	OpenShiftConfigManagedKubeNamespacedInformerFactory informers.SharedInformerFactory
 	OpenShiftKubeAPIServerKubeNamespacedInformerFactory informers.SharedInformerFactory
 	APIExtInformerFactory                               apiextinformers.SharedInformerFactory
 	ConfigInformerFactory                               configinformers.SharedInformerFactory
 	OperatorInformerFactory                             operatorinformers.SharedInformerFactory
 	KubeMAOSharedInformer                               informers.SharedInformerFactory
+	MachineInformerFactory                              machineinformersv1beta1.SharedInformerFactory
+
+	FeatureGateAccess featuregates.FeatureGateAccess
 
 	AvailableResources map[schema.GroupVersionResource]bool
 
@@ -54,17 +74,20 @@ type ControllerContext struct {
 }
 
 // CreateControllerContext creates the ControllerContext with the ClientBuilder.
-func CreateControllerContext(cb *clients.Builder, stop <-chan struct{}, targetNamespace string) *ControllerContext {
+func CreateControllerContext(ctx context.Context, cb *clients.Builder) *ControllerContext {
 	client := cb.MachineConfigClientOrDie("machine-config-shared-informer")
 	kubeClient := cb.KubeClientOrDie("kube-shared-informer")
 	apiExtClient := cb.APIExtClientOrDie("apiext-shared-informer")
 	configClient := cb.ConfigClientOrDie("config-shared-informer")
 	operatorClient := cb.OperatorClientOrDie("operator-shared-informer")
+	machineClient := cb.MachineClientOrDie("machine-shared-informer")
 	sharedInformers := mcfginformers.NewSharedInformerFactory(client, resyncPeriod()())
-	sharedNamespacedInformers := mcfginformers.NewFilteredSharedInformerFactory(client, resyncPeriod()(), targetNamespace, nil)
+	sharedTechPreviewInformers := mcfginformers.NewSharedInformerFactory(client, resyncPeriod()())
+	sharedNamespacedInformers := mcfginformers.NewFilteredSharedInformerFactory(client, resyncPeriod()(), MCONamespace, nil)
 	kubeSharedInformer := informers.NewSharedInformerFactory(kubeClient, resyncPeriod()())
-	kubeNamespacedSharedInformer := informers.NewFilteredSharedInformerFactory(kubeClient, resyncPeriod()(), targetNamespace, nil)
+	kubeNamespacedSharedInformer := informers.NewFilteredSharedInformerFactory(kubeClient, resyncPeriod()(), MCONamespace, nil)
 	openShiftConfigKubeNamespacedSharedInformer := informers.NewFilteredSharedInformerFactory(kubeClient, resyncPeriod()(), "openshift-config", nil)
+	openShiftConfigManagedKubeNamespacedSharedInformer := informers.NewFilteredSharedInformerFactory(kubeClient, resyncPeriod()(), OpenshiftConfigManagedNamespace, nil)
 	openShiftKubeAPIServerKubeNamespacedSharedInformer := informers.NewFilteredSharedInformerFactory(kubeClient,
 		resyncPeriod()(),
 		"openshift-kube-apiserver-operator",
@@ -79,30 +102,54 @@ func CreateControllerContext(cb *clients.Builder, stop <-chan struct{}, targetNa
 	assignFilterLabels := func(opts *metav1.ListOptions) {
 		labelsMap, err := labels.ConvertSelectorToLabelsMap(opts.LabelSelector)
 		if err != nil {
-			glog.Warningf("unable to convert selector %q to map: %v", opts.LabelSelector, err)
+			klog.Warningf("unable to convert selector %q to map: %v", opts.LabelSelector, err)
 			return
 		}
 		opts.LabelSelector = labels.Merge(labelsMap, map[string]string{daemonconsts.OpenShiftOperatorManagedLabel: ""}).String()
 	}
 	apiExtSharedInformer := apiextinformers.NewSharedInformerFactoryWithOptions(apiExtClient, resyncPeriod()(),
-		apiextinformers.WithNamespace(targetNamespace), apiextinformers.WithTweakListOptions(assignFilterLabels))
+		apiextinformers.WithNamespace(MCONamespace), apiextinformers.WithTweakListOptions(assignFilterLabels))
 	configSharedInformer := configinformers.NewSharedInformerFactory(configClient, resyncPeriod()())
 	operatorSharedInformer := operatorinformers.NewSharedInformerFactory(operatorClient, resyncPeriod()())
+	machineSharedInformer := machineinformersv1beta1.NewSharedInformerFactoryWithOptions(machineClient, resyncPeriod()(), machineinformersv1beta1.WithNamespace("openshift-machine-api"))
+
+	desiredVersion := version.ReleaseVersion
+	missingVersion := "0.0.1-snapshot"
+
+	controllerRef, err := events.GetControllerReferenceForCurrentPod(ctx, kubeClient, MCONamespace, nil)
+	if err != nil {
+		klog.Warningf("unable to get owner reference (falling back to namespace): %v", err)
+	}
+
+	recorder := events.NewKubeRecorder(kubeClient.CoreV1().Events(MCONamespace), "machine-config-operator", controllerRef, clock.RealClock{})
+
+	// By default, this will exit(0) the process if the featuregates ever change to a different set of values.
+	featureGateAccessor := featuregates.NewFeatureGateAccess(
+		desiredVersion, missingVersion,
+		configSharedInformer.Config().V1().ClusterVersions(), configSharedInformer.Config().V1().FeatureGates(),
+		recorder,
+	)
+
+	go featureGateAccessor.Run(ctx)
 
 	return &ControllerContext{
 		ClientBuilder:                                       cb,
 		NamespacedInformerFactory:                           sharedNamespacedInformers,
 		InformerFactory:                                     sharedInformers,
+		OCLInformerFactory:                                  sharedTechPreviewInformers,
 		KubeInformerFactory:                                 kubeSharedInformer,
 		KubeNamespacedInformerFactory:                       kubeNamespacedSharedInformer,
 		OpenShiftConfigKubeNamespacedInformerFactory:        openShiftConfigKubeNamespacedSharedInformer,
 		OpenShiftKubeAPIServerKubeNamespacedInformerFactory: openShiftKubeAPIServerKubeNamespacedSharedInformer,
+		OpenShiftConfigManagedKubeNamespacedInformerFactory: openShiftConfigManagedKubeNamespacedSharedInformer,
 		APIExtInformerFactory:                               apiExtSharedInformer,
 		ConfigInformerFactory:                               configSharedInformer,
 		OperatorInformerFactory:                             operatorSharedInformer,
-		Stop:                                                stop,
+		MachineInformerFactory:                              machineSharedInformer,
+		Stop:                                                ctx.Done(),
 		InformersStarted:                                    make(chan struct{}),
 		ResyncPeriod:                                        resyncPeriod(),
 		KubeMAOSharedInformer:                               kubeMAOSharedInformer,
+		FeatureGateAccess:                                   featureGateAccessor,
 	}
 }
