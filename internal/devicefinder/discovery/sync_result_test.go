@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/openshift-storage-scale/openshift-storage-scale-operator/api/v1alpha1"
-	"github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/diskmaker"
+	"github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/devicefinder"
 
 	"github.com/stretchr/testify/assert"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -29,7 +29,7 @@ func TestEnsureDiscoveryResultNoEnv(t *testing.T) {
 
 func TestEnsureDiscoveryResultFail(t *testing.T) {
 	// failed to get existing discovery result object
-	mockClient := &diskmaker.MockAPIUpdater{
+	mockClient := &devicefinder.MockAPIUpdater{
 		MockGetDiscoveryResult: func(name, namespace string) (*v1alpha1.LocalVolumeDiscoveryResult, error) {
 			return nil, fmt.Errorf("failed to get result object")
 		},
@@ -54,7 +54,7 @@ func TestUpdateStatus(t *testing.T) {
 
 func TestUpdateStatusFail(t *testing.T) {
 	// failed to get discovery result
-	mockClient := &diskmaker.MockAPIUpdater{
+	mockClient := &devicefinder.MockAPIUpdater{
 		MockGetDiscoveryResult: func(name, namespace string) (*v1alpha1.LocalVolumeDiscoveryResult, error) {
 			return nil, fmt.Errorf("failed to get result object")
 		},
@@ -67,7 +67,7 @@ func TestUpdateStatusFail(t *testing.T) {
 	assert.Error(t, err)
 
 	// failed to update discovery result status
-	mockClient = &diskmaker.MockAPIUpdater{
+	mockClient = &devicefinder.MockAPIUpdater{
 		MockUpdateDiscoveryResultStatus: func(lvdr *v1alpha1.LocalVolumeDiscoveryResult) error {
 			return fmt.Errorf("failed to update status")
 		},

@@ -1,4 +1,4 @@
-package diskmaker
+package devicefinder
 
 import (
 	"context"

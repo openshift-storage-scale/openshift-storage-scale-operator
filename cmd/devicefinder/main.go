@@ -8,13 +8,13 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "diskmaker",
-	Short: "Used to start the diskmaker daemon for the local-storage-operator",
+	Use:   "devicefinder",
+	Short: "Used to start the devicefinder daemon for the storage-scale-operator",
 }
 
 var discoveryDaemonCmd = &cobra.Command{
 	Use:   "discover",
-	Short: "Used to start device discovery for the LocalVolumeDiscovery CR",
+	Short: "Used to start device discovery to generate the StorageScaleDiscoveryResult CR",
 	RunE:  startDeviceDiscovery,
 }
 

@@ -1,4 +1,4 @@
-package diskmaker
+package devicefinder
 
 import (
 	"github.com/openshift-storage-scale/openshift-storage-scale-operator/api/v1alpha1"

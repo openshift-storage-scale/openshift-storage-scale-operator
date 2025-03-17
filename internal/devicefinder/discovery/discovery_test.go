@@ -10,7 +10,7 @@ import (
 	"github.com/openshift-storage-scale/openshift-storage-scale-operator/api/v1alpha1"
 	"github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/diskutils"
 
-	"github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/diskmaker"
+	"github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/devicefinder"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -658,8 +658,8 @@ func TestParseDeviceProperty(t *testing.T) {
 
 func getFakeDeviceDiscovery() *DeviceDiscovery {
 	dd := &DeviceDiscovery{}
-	dd.apiClient = &diskmaker.MockAPIUpdater{}
-	dd.eventSync = diskmaker.NewEventReporter(dd.apiClient)
+	dd.apiClient = &devicefinder.MockAPIUpdater{}
+	dd.eventSync = devicefinder.NewEventReporter(dd.apiClient)
 	dd.disks = []v1alpha1.DiscoveredDevice{}
 	dd.localVolumeDiscovery = &v1alpha1.LocalVolumeDiscovery{}
 
