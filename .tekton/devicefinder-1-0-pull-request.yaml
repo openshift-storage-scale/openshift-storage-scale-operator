@@ -12,7 +12,7 @@ metadata:
       "internal/devicefinder/***".pathChanged()  ||
       "internal/diskutils/***".pathChanged()  ||
       "cmd/devicefinder/***".pathChanged() ||
-      ".tekton/devicefinder-1-0-pull-request".pathChanged())
+      ".tekton/devicefinder-1-0-pull-request.yaml".pathChanged())
   creationTimestamp: null
   labels:
     appstudio.openshift.io/application: operator-1-0
