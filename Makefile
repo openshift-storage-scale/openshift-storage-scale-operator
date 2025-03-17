@@ -50,7 +50,7 @@ BUNDLE_IMG ?= $(IMAGE_TAG_BASE)-bundle:$(VERSION)
 # BUNDLE_GEN_FLAGS are the flags passed to the operator-sdk generate bundle command
 BUNDLE_GEN_FLAGS ?= -q --overwrite --version $(VERSION) $(BUNDLE_METADATA_OPTS)
 
-DISKMAKER_IMAGE ?= $(IMAGE_TAG_BASE)-diskmaker:$(VERSION)
+DEVICEFINDER_IMAGE ?= $(IMAGE_TAG_BASE)-devicefinder:$(VERSION)
 REV=$(shell git describe --long --tags --match='v*' --dirty 2>/dev/null || git rev-list -n1 HEAD)
 CURPATH=$(PWD)
 TARGET_DIR=$(CURPATH)/_output/bin
@@ -156,9 +156,9 @@ lint-fix: golangci-lint ## Run golangci-lint linter and perform fixes
 GOOS ?= linux
 GOARCH ?= amd64
 
-.PHONY: build-diskmaker
-build-diskmaker: ## Build diskmaker binary.
-	env GOOS=$(GOOS) GOARCH=$(GOARCH) go build -mod=vendor -ldflags '-X main.version=$(REV)' -o $(TARGET_DIR)/diskmaker $(CURPATH)/cmd/diskmaker-manager
+.PHONY: build-devicefinder
+build-devicefinder: ## Build devicefinder binary.
+	env GOOS=$(GOOS) GOARCH=$(GOARCH) go build -mod=vendor -ldflags '-X main.version=$(REV)' -o $(TARGET_DIR)/devicefinder $(CURPATH)/cmd/devicefinder
 
 .PHONY: pull
 pull:
@@ -199,11 +199,11 @@ console-push: ## Push the console image
 
 .PHONY: diskmaker-docker-build
 diskmaker-docker-build: ## Build docker image of the diskmaker
-	$(CONTAINER_TOOL) build -t $(DISKMAKER_IMAGE) -f $(CURPATH)/Dockerfile.diskmaker.rhel9 .
+	$(CONTAINER_TOOL) build -t $(DEVICEFINDER_IMAGE) -f $(CURPATH)/Dockerfile.diskmaker.rhel9 .
 
 .PHONY: diskmaker-docker-push
 diskmaker-docker-push: ## Push docker image of the diskmaker
-	$(CONTAINER_TOOL) push $(DISKMAKER_IMAGE)
+	$(CONTAINER_TOOL) push $(DEVICEFINDER_IMAGE)
 
 # PLATFORMS defines the target platforms for the manager image be built to provide support to multiple
 # architectures. (i.e. make docker-buildx IMG=myregistry/mypoperator:0.0.1). To use this option you need to:

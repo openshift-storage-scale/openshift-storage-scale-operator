@@ -9,7 +9,7 @@ import (
 
 	"github.com/openshift-storage-scale/openshift-storage-scale-operator/api/v1alpha1"
 	"github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/common"
-	"github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/diskmaker"
+	"github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/devicefinder"
 
 	"github.com/pkg/errors"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
@@ -64,7 +64,7 @@ func (discovery *DeviceDiscovery) ensureDiscoveryResultCR() error {
 			return errors.Wrapf(err, "failed to create LocalVolumeDiscoveryResult resource")
 		}
 		message := "successfully created LocalVolumeDiscoveryResult resource"
-		e := diskmaker.NewSuccessEvent(diskmaker.CreatedDiscoveryResultObject, message, "")
+		e := devicefinder.NewSuccessEvent(devicefinder.CreatedDiscoveryResultObject, message, "")
 		discovery.eventSync.Report(e, discovery.localVolumeDiscovery)
 		klog.Info(message)
 		return nil

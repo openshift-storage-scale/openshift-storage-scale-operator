@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/openshift-storage-scale/openshift-storage-scale-operator/api/v1alpha1"
-	"github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/diskmaker"
+	"github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/devicefinder"
 	diskutil "github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/diskutils"
 
 	"github.com/pkg/errors"
@@ -30,8 +30,8 @@ var supportedDeviceTypes = sets.NewString("mpath", "disk")
 
 // DeviceDiscovery instance
 type DeviceDiscovery struct {
-	apiClient            diskmaker.ApiUpdater
-	eventSync            *diskmaker.EventReporter
+	apiClient            devicefinder.ApiUpdater
+	eventSync            *devicefinder.EventReporter
 	disks                []v1alpha1.DiscoveredDevice
 	localVolumeDiscovery *v1alpha1.LocalVolumeDiscovery
 }
@@ -45,7 +45,7 @@ func NewDeviceDiscovery() (*DeviceDiscovery, error) {
 		return nil, err
 	}
 
-	apiUpdater, err := diskmaker.NewAPIUpdater(scheme)
+	apiUpdater, err := devicefinder.NewAPIUpdater(scheme)
 	if err != nil {
 		klog.Error(err, "failed to create new APIUpdater")
 		return &DeviceDiscovery{}, err
@@ -53,7 +53,7 @@ func NewDeviceDiscovery() (*DeviceDiscovery, error) {
 
 	dd := &DeviceDiscovery{}
 	dd.apiClient = apiUpdater
-	dd.eventSync = diskmaker.NewEventReporter(dd.apiClient)
+	dd.eventSync = devicefinder.NewEventReporter(dd.apiClient)
 	lvd, err := dd.apiClient.GetLocalVolumeDiscovery(localVolumeDiscoveryComponent, os.Getenv("WATCH_NAMESPACE"))
 	if err != nil {
 		klog.Error(err, "failed to get LocalVolumeDiscovery object")
@@ -69,7 +69,7 @@ func (discovery *DeviceDiscovery) Start() error {
 	err := discovery.ensureDiscoveryResultCR()
 	if err != nil {
 		message := "failed to start device discovery"
-		e := diskmaker.NewEvent(diskmaker.ErrorCreatingDiscoveryResultObject, fmt.Sprintf("%s. Error: %+v", message, err), "")
+		e := devicefinder.NewEvent(devicefinder.ErrorCreatingDiscoveryResultObject, fmt.Sprintf("%s. Error: %+v", message, err), "")
 		discovery.eventSync.Report(e, discovery.localVolumeDiscovery)
 		return errors.Wrapf(err, message)
 	}
@@ -114,7 +114,7 @@ func (discovery *DeviceDiscovery) discoverDevices() error {
 	validDevices, err := getValidBlockDevices()
 	if err != nil {
 		message := "failed to discover devices"
-		e := diskmaker.NewEvent(diskmaker.ErrorListingBlockDevices, fmt.Sprintf("%s. Error: %+v", message, err), "")
+		e := devicefinder.NewEvent(devicefinder.ErrorListingBlockDevices, fmt.Sprintf("%s. Error: %+v", message, err), "")
 		discovery.eventSync.Report(e, discovery.localVolumeDiscovery)
 		return errors.Wrapf(err, message)
 	}
@@ -131,12 +131,12 @@ func (discovery *DeviceDiscovery) discoverDevices() error {
 		err = discovery.updateStatus()
 		if err != nil {
 			message := "failed to update LocalVolumeDiscoveryResult status"
-			e := diskmaker.NewEvent(diskmaker.ErrorUpdatingDiscoveryResultObject, fmt.Sprintf("%s. Error: %+v", message, err), "")
+			e := devicefinder.NewEvent(devicefinder.ErrorUpdatingDiscoveryResultObject, fmt.Sprintf("%s. Error: %+v", message, err), "")
 			discovery.eventSync.Report(e, discovery.localVolumeDiscovery)
 			return errors.Wrapf(err, message)
 		}
 		message := "successfully updated discovered device details in the LocalVolumeDiscoveryResult resource"
-		e := diskmaker.NewSuccessEvent(diskmaker.UpdatedDiscoveredDeviceList, message, "")
+		e := devicefinder.NewSuccessEvent(devicefinder.UpdatedDiscoveredDeviceList, message, "")
 		discovery.eventSync.Report(e, discovery.localVolumeDiscovery)
 	}
 
