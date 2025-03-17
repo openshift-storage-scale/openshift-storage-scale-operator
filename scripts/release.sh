@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e -o pipefail
 
-VERSION=$(cat _VERSION)
+VERSION=$(cat VERSION.txt)
 
 make bundle generate manifests docker-build docker-push \
     bundle-build bundle-push catalog-build catalog-push \

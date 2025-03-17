@@ -16,7 +16,7 @@ spec:
         app.kubernetes.io/component: openshift-storage-scale-operator-console-plugin
     spec:
       containers:
-      - image: console-plugin:latest
+      - image: ${CONSOLE_IMAGE}
         name: openshift-storage-scale-operator-console-plugin
         ports:
         - containerPort: 9443
