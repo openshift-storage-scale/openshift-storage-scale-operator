@@ -1,4 +1,4 @@
-package controller
+package machineconfig
 
 import "testing"
 
