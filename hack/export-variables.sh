@@ -18,4 +18,4 @@ for k in "${!images[@]}"; do
     export "$k=$image"
 done
 
-export VERSION=$(cat ../_VERSION)
+export VERSION=$(cat ../VERSION.txt)

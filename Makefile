@@ -3,11 +3,7 @@
 # To re-generate a bundle for another specific version without changing the standard setup, you can:
 # - use the VERSION as arg of the bundle target (e.g make bundle VERSION=0.0.2)
 # - use environment variables to overwrite this value (e.g export VERSION=0.0.2)
-<<<<<<< HEAD
 VERSION ?= $(shell cat VERSION.txt)
-=======
-VERSION ?= $(shell cat _VERSION)
->>>>>>> 83a89bc3 (When building an image with the docker-build and bundle-build targets, tag to latest the image created and push them as well when pushing for the created images so that the quay.io's latest image pushed points to the latest tag)
 
 # Version of yaml file to generate rbacs from
 RBAC_VERSION ?= v5.2.2.0
