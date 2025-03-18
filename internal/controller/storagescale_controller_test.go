@@ -21,8 +21,14 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"k8s.io/apimachinery/pkg/api/errors"
+	configv1 "github.com/openshift/api/config/v1"
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+
+	kubeclient "k8s.io/client-go/kubernetes/fake"
+	"sigs.k8s.io/controller-runtime/pkg/client/fake"
+
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -30,7 +36,18 @@ import (
 	scalev1alpha "github.com/openshift-storage-scale/openshift-storage-scale-operator/api/v1alpha1"
 )
 
+const (
+	resourceName   = "test-resource"
+	oscinitVersion = "v4.17.0"
+)
+
 var _ = Describe("StorageScale Controller", func() {
+	var (
+		fakeClientBuilder *fake.ClientBuilder
+		scheme            = createFakeScheme()
+		os                = newNamespace("openshift-storage-scale-operator")
+		version           = newOCPVersion(oscinitVersion)
+	)
 	Context("When reconciling a resource", func() {
 		const resourceName = "test-resource"
 
@@ -40,37 +57,55 @@ var _ = Describe("StorageScale Controller", func() {
 			Name:      resourceName,
 			Namespace: "default", // TODO(user):Modify as needed
 		}
-		storagescale := &scalev1alpha.StorageScale{}
+		// storagescale := &scalev1alpha.StorageScale{}
 
 		BeforeEach(func() {
 			By("creating the custom resource for the Kind StorageScale")
-			err := k8sClient.Get(ctx, typeNamespacedName, storagescale)
-			if err != nil && errors.IsNotFound(err) {
-				resource := &scalev1alpha.StorageScale{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      resourceName,
-						Namespace: "default",
-					},
-					// TODO(user): Specify other spec details if needed.
-				}
-				Expect(k8sClient.Create(ctx, resource)).To(Succeed())
-			}
+			fakeClientBuilder = fake.NewClientBuilder().
+				WithScheme(scheme).
+				WithRuntimeObjects(version, os).
+				WithStatusSubresource(&scalev1alpha.StorageScale{})
+
 		})
 
 		AfterEach(func() {
-			// TODO(user): Cleanup logic after each test, like removing the resource instance.
-			resource := &scalev1alpha.StorageScale{}
-			err := k8sClient.Get(ctx, typeNamespacedName, resource)
-			Expect(err).NotTo(HaveOccurred())
-
-			By("Cleanup the specific resource instance StorageScale")
-			Expect(k8sClient.Delete(ctx, resource)).To(Succeed())
+			// // TODO(user): Cleanup logic after each test, like removing the resource instance.
 		})
+
 		It("should successfully reconcile the resource", func() {
-			By("Reconciling the created resource")
-			controllerReconciler := &StorageScaleReconciler{
-				Client: k8sClient,
-				Scheme: k8sClient.Scheme(),
+			resource := &scalev1alpha.StorageScale{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      resourceName,
+					Namespace: "default",
+				},
+				Spec: scalev1alpha.StorageScaleSpec{
+					IbmCnsaVersion: "v5.2.2.1",
+					MachineConfig: scalev1alpha.MachineConfig{
+						Create: false,
+						// Labels: map[string]string{
+						// 	"machineconfiguration.openshift.io/role": "worker",
+						// },
+					},
+					Cluster: scalev1alpha.IBMSpectrumCluster{
+						Create: false,
+						// Daemon_nodeSelector: map[string]string{
+						// 	"node-role.kubernetes.io/worker": "",
+						// },
+					},
+					LocalVolumeDiscovery: scalev1alpha.StorageDeviceDiscovery{
+						Create: false,
+					},
+				},
+			}
+			k8sClient = fakeClientBuilder.WithRuntimeObjects(resource).Build()
+			Expect(k8sClient).NotTo(BeNil())
+
+			By("Reconciling the custom resource created")
+			StorageScaleReconciler := &StorageScaleReconciler{
+				Client:     k8sClient,
+				Scheme:     k8sClient.Scheme(),
+				fullClient: kubeclient.NewSimpleClientset(),
+				// dynamicClient: k8sClient,
 			}
 
 			_, err := controllerReconciler.Reconcile(ctx, reconcile.Request{
@@ -82,3 +117,19 @@ var _ = Describe("StorageScale Controller", func() {
 		})
 	})
 })
+
+func newNamespace(name string) *corev1.Namespace {
+	return &corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: name}}
+}
+
+func newOCPVersion(version string) *configv1.ClusterVersion {
+	return &configv1.ClusterVersion{
+		ObjectMeta: metav1.ObjectMeta{Name: "version"},
+		Status: configv1.ClusterVersionStatus{
+			History: []configv1.UpdateHistory{
+				{State: configv1.CompletedUpdate,
+					Version: version},
+			},
+		},
+	}
+}

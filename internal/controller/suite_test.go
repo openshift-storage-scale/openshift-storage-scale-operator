@@ -25,6 +25,11 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
+	configv1 "github.com/openshift/api/config/v1"
+	machineconfigv1 "github.com/openshift/api/machineconfiguration/v1"
+	corev1 "k8s.io/api/core/v1"
+
+	kruntime "k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -72,14 +77,14 @@ var _ = BeforeSuite(func() {
 	Expect(err).NotTo(HaveOccurred())
 	Expect(cfg).NotTo(BeNil())
 
-	err = scalev1alpha.AddToScheme(scheme.Scheme)
-	Expect(err).NotTo(HaveOccurred())
+	// err = scalev1alpha.AddToScheme(scheme.Scheme)
+	// Expect(err).NotTo(HaveOccurred())
 
-	//+kubebuilder:scaffold:scheme
+	// //+kubebuilder:scaffold:scheme
 
-	k8sClient, err = client.New(cfg, client.Options{Scheme: scheme.Scheme})
-	Expect(err).NotTo(HaveOccurred())
-	Expect(k8sClient).NotTo(BeNil())
+	// k8sClient, err = client.New(cfg, client.Options{Scheme: scheme.Scheme})
+	// Expect(err).NotTo(HaveOccurred())
+	// Expect(k8sClient).NotTo(BeNil())
 
 })
 
@@ -88,3 +93,15 @@ var _ = AfterSuite(func() {
 	err := testEnv.Stop()
 	Expect(err).NotTo(HaveOccurred())
 })
+
+func createFakeScheme() *kruntime.Scheme {
+	s := scheme.Scheme
+	builder := append(kruntime.SchemeBuilder{},
+		machineconfigv1.AddToScheme,
+		scalev1alpha.AddToScheme,
+		corev1.AddToScheme,
+		configv1.AddToScheme,
+	)
+	Expect(builder.AddToScheme(s)).To(Succeed())
+	return s
+}

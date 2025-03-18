@@ -288,15 +288,11 @@ func (r *StorageScaleReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	}
 
 	// Load and install manifests from ibm
-	install_path := fmt.Sprintf("files/%s/install.yaml", storagescale.Spec.IbmCnsaVersion)
-	_, err = os.Stat(install_path)
-	if os.IsNotExist(err) {
-		install_path = fmt.Sprintf("/%s", install_path)
-		_, err = os.Stat(install_path)
-		if os.IsNotExist(err) {
-			return ctrl.Result{}, err
-		}
+	install_path, err := getInstallPath(storagescale.Spec.IbmCnsaVersion)
+	if err != nil {
+		return ctrl.Result{}, err
 	}
+
 	installManifest, err := manifestival.NewManifest(install_path, manifestival.UseClient(mfc.NewClient(r.Client)))
 	if err != nil {
 		return ctrl.Result{}, err
@@ -369,6 +365,26 @@ func (r *StorageScaleReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		log.Log.Info("Cluster aleardy exists, considering immutable")
 	}
 	return ctrl.Result{}, err
+}
+
+func getInstallPath(cnsaVersion string) (install_path string, err error) {
+	// Install path when running tests
+	install_path = fmt.Sprintf("../../files/%s/install.yaml", cnsaVersion)
+	if _, err := os.Stat(install_path); err == nil {
+		return install_path, nil
+	}
+	// Install path when running locally
+	install_path = fmt.Sprintf("files/%s/install.yaml", cnsaVersion)
+	if _, err := os.Stat(install_path); err == nil {
+		return install_path, nil
+	}
+	// Install path when running in container
+	install_path = fmt.Sprintf("/files/%s/install.yaml", cnsaVersion)
+	if _, err := os.Stat(install_path); err == nil {
+		return install_path, nil
+	}
+
+	return "", fmt.Errorf("Could not find/open install file with version %s: %w", cnsaVersion, err)
 }
 
 // SetupWithManager sets up the controller with the Manager.
