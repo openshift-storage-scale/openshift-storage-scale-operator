@@ -10,4 +10,4 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Build discovery container
-      run: make diskmaker-docker-build
+      run: make devicefinder-docker-build

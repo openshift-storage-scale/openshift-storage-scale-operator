@@ -6,7 +6,7 @@ declare -A images
 
 images[CONTROLLER_IMAGE]=quay.io/openshift-storage-scale/openshift-storage-scale-operator:latest
 
-images[DISKMAKER_IMAGE]=quay.io/openshift-storage-scale/openshift-storage-scale-diskmaker:latest
+images[DEVICEFINDER_IMAGE]=quay.io/openshift-storage-scale/openshift-storage-scale-devicefinder:latest
 
 images[CONSOLE_IMAGE]=quay.io/openshift-storage-scale/openshift-storage-scale-console:latest
 

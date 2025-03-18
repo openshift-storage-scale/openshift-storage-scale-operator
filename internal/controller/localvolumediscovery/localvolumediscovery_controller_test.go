@@ -27,7 +27,7 @@ const (
 
 var discoveryDaemonSet = &appsv1.DaemonSet{
 	ObjectMeta: metav1.ObjectMeta{
-		Name:      DiskMakerDiscovery,
+		Name:      DeviceFinderDiscovery,
 		Namespace: namespace,
 	},
 	Status: appsv1.DaemonSetStatus{

@@ -93,7 +93,7 @@ func TestNewDiscoveryResultInstance(t *testing.T) {
 			label:            "Case 1: node name less than 253 characters",
 			nodeName:         "node1",
 			namespace:        "local-storage",
-			parentObjectName: "diskmaker-discvoery-123",
+			parentObjectName: "devicefinder-discovery-123",
 			parentObjectUID:  "f288b336-434e-4939-b742-9d8fd232a56c",
 			expected: v1alpha1.LocalVolumeDiscoveryResult{
 				ObjectMeta: metav1.ObjectMeta{
@@ -102,7 +102,7 @@ func TestNewDiscoveryResultInstance(t *testing.T) {
 					Labels:    map[string]string{"discovery-result-node": "node1"},
 					OwnerReferences: []metav1.OwnerReference{
 						{
-							Name: "diskmaker-discvoery-123",
+							Name: "devicefinder-discovery-123",
 							UID:  "f288b336-434e-4939-b742-9d8fd232a56c",
 						},
 					},
@@ -116,7 +116,7 @@ func TestNewDiscoveryResultInstance(t *testing.T) {
 			label:            "Case 2: node name greater than 253 characters",
 			nodeName:         "192.168.1.27.ec2.internal.node-name-greater-than-253-characters-1234567890.1234567890.1234567890.1234567890.1234567890.1234567890.1234567890.1234567890.1234567890.1234567890.1234567890.1234567890.1234567890.1234567890.1234567890.1234567890.1234567890.1234567890.1234567890",
 			namespace:        "default",
-			parentObjectName: "diskmaker-discvoery-456",
+			parentObjectName: "devicefinder-discovery-456",
 			parentObjectUID:  "f288b336-434e-4939-b742-9d8fd232a56c",
 			expected: v1alpha1.LocalVolumeDiscoveryResult{
 				ObjectMeta: metav1.ObjectMeta{
@@ -125,7 +125,7 @@ func TestNewDiscoveryResultInstance(t *testing.T) {
 					Labels:    map[string]string{"discovery-result-node": "192.168.1.27.ec2.internal.node-name-greater-than-253-characters-1234567890.1234567890.1234567890.1234567890.1234567890.1234567890.1234567890.1234567890.1234567890.1234567890.1234567890.1234567890.1234567890.1234567890.1234567890.1234567890.1234567890.1234567890.1234567890"},
 					OwnerReferences: []metav1.OwnerReference{
 						{
-							Name: "diskmaker-discvoery-456",
+							Name: "devicefinder-discovery-456",
 							UID:  "f288b336-434e-4939-b742-9d8fd232a56c",
 						},
 					},
