@@ -37,3 +37,19 @@ COPY --from=builder /workspace/licenses/ /licenses/
 USER 65532:65532
 
 ENTRYPOINT ["/manager"]
+
+LABEL \
+    com.redhat.component="Red Hat OpenShift Storage Scale Operator" \
+    description="" \
+    io.k8s.display-name="Red Hat OpenShift Storage Scale Operator" \
+    io.k8s.description="" \
+    io.openshift.tags="openshift,storage,scale" \
+    distribution-scope="public" \
+    name="openshift-storage-scale-controller" \
+    summary="Controller" \
+    release="v1.0" \
+    version="v1.0" \
+    maintainer="Red Hat jgil@redhat.com" \
+    url="https://github.com/openshift-storage-scale/openshift-storage-scale-operator.git" \
+    vendor="Red Hat, Inc." \
+    License="Apache License 2.0"
