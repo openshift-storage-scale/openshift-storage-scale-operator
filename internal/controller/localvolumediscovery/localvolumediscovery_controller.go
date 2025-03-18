@@ -46,7 +46,7 @@ var (
 )
 
 const (
-	DiskMakerDiscovery = "diskmaker-discovery"
+	DeviceFinderDiscovery = "devicefinder-discovery"
 )
 
 // LocalVolumeDiscoveryReconciler reconciles a LocalVolumeDiscovery object
@@ -84,7 +84,7 @@ func (r *LocalVolumeDiscoveryReconciler) Reconcile(ctx context.Context, request 
 		return ctrl.Result{}, err
 	}
 
-	diskMakerDSMutateFn := getDiskMakerDiscoveryDSMutateFn(request, instance.Spec.Tolerations,
+	diskMakerDSMutateFn := getDeviceFinderDiscoveryDSMutateFn(request, instance.Spec.Tolerations,
 		getEnvVars(instance.Name, string(instance.UID)),
 		getOwnerRefs(instance),
 		instance.Spec.NodeSelector)
@@ -142,7 +142,7 @@ func (r *LocalVolumeDiscoveryReconciler) Reconcile(ctx context.Context, request 
 	return ctrl.Result{}, nil
 }
 
-func getDiskMakerDiscoveryDSMutateFn(request reconcile.Request,
+func getDeviceFinderDiscoveryDSMutateFn(request reconcile.Request,
 	tolerations []corev1.Toleration,
 	envVars []corev1.EnvVar,
 	ownerRefs []metav1.OwnerReference,
@@ -150,10 +150,10 @@ func getDiskMakerDiscoveryDSMutateFn(request reconcile.Request,
 	return func(ds *appsv1.DaemonSet) error {
 		// read template for default values
 		dsBytes, err := assets.ReadFileAndReplace(
-			common.DiskMakerDiscoveryDaemonSetTemplate,
+			common.DeviceFinderDiscoveryDaemonSetTemplate,
 			[]string{
 				"${OBJECT_NAMESPACE}", request.Namespace,
-				"${CONTAINER_IMAGE}", common.GetDiskMakerImage(),
+				"${CONTAINER_IMAGE}", common.GetDeviceFinderImage(),
 				"${RBAC_PROXY_IMAGE}", common.GetKubeRBACProxyImage(),
 			},
 		)
@@ -248,7 +248,7 @@ func (r *LocalVolumeDiscoveryReconciler) updateStatus(ctx context.Context, lvd *
 
 func (r *LocalVolumeDiscoveryReconciler) getDaemonSetStatus(ctx context.Context, namespace string) (desiredNumberScheduled, numberReady int32, err error) {
 	existingDS := &appsv1.DaemonSet{}
-	err = r.Client.Get(ctx, types.NamespacedName{Name: DiskMakerDiscovery, Namespace: namespace}, existingDS)
+	err = r.Client.Get(ctx, types.NamespacedName{Name: DeviceFinderDiscovery, Namespace: namespace}, existingDS)
 	if err != nil {
 		return 0, 0, err
 	}

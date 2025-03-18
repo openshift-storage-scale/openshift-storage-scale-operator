@@ -5,16 +5,16 @@ import (
 )
 
 const (
-	defaultDiskMakerImageVersion = "quay.io/openshift-storage-scale/openshift-storage-scale-diskmaker"
-	defaultKubeProxyImage        = "quay.io/openshift/origin-kube-rbac-proxy:latest"
+	defaultDeviceFinderImageVersion = "quay.io/openshift-storage-scale/openshift-storage-scale-devicefinder"
+	defaultKubeProxyImage           = "quay.io/openshift/origin-kube-rbac-proxy:latest"
 
 	// OwnerNamespaceLabel references the owning object's namespace
 	OwnerNamespaceLabel = "scale.storage.openshift.io/owner-namespace"
 	// OwnerNameLabel references the owning object
 	OwnerNameLabel = "scale.storage.openshift.io/owner-name"
 
-	// DiskMakerImageEnv is used by the operator to read the DISKMAKER_IMAGE from the environment
-	DiskMakerImageEnv = "DISKMAKER_IMAGE"
+	// DeviceFinderImageEnv is used by the operator to read the DEVICEFINDER_IMAGE from the environment
+	DeviceFinderImageEnv = "DEVICEFINDER_IMAGE"
 	// KubeRBACProxyImageEnv is used by the operator to read the KUBE_RBAC_PROXY_IMAGE from the environment
 	KubeRBACProxyImageEnv = "KUBE_RBAC_PROXY_IMAGE"
 
@@ -22,15 +22,15 @@ const (
 	// the value is the node's name
 	DiscoveryNodeLabel = "discovery-result-node"
 
-	DiskMakerDiscoveryDaemonSetTemplate = "templates/diskmaker-discovery-daemonset.yaml"
+	DeviceFinderDiscoveryDaemonSetTemplate = "templates/devicefinder-discovery-daemonset.yaml"
 )
 
-// GetDiskMakerImage returns the image to be used for diskmaker daemonset
-func GetDiskMakerImage() string {
-	if diskMakerImageFromEnv := os.Getenv(DiskMakerImageEnv); diskMakerImageFromEnv != "" {
-		return diskMakerImageFromEnv
+// GetDeviceFinderImage returns the image to be used for devicefinder daemonset
+func GetDeviceFinderImage() string {
+	if deviceFinderImageFromEnv := os.Getenv(DeviceFinderImageEnv); deviceFinderImageFromEnv != "" {
+		return deviceFinderImageFromEnv
 	}
-	return defaultDiskMakerImageVersion
+	return defaultDeviceFinderImageVersion
 }
 
 // GetKubeRBACProxyImage returns the image to be used for Kube RBAC Proxy sidecar container

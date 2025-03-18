@@ -18,7 +18,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
 )
 
-const componentName = "local-storage-diskmaker"
+const componentName = "local-storage-devicefinder"
 
 type ApiUpdater interface {
 	recordEvent(obj runtime.Object, e *DiskEvent)

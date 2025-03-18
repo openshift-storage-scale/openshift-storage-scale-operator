@@ -200,12 +200,12 @@ console-build: ## Build the console image
 console-push: ## Push the console image
 	$(MAKE) -C console VERSION=$(VERSION) IMG=$(CONSOLE_PLUGIN_IMAGE) docker-push
 
-.PHONY: diskmaker-docker-build
-diskmaker-docker-build: ## Build docker image of the diskmaker
-	$(CONTAINER_TOOL) build -t $(DEVICEFINDER_IMAGE) -f $(CURPATH)/Dockerfile.diskmaker.rhel9 .
+.PHONY: devicefinder-docker-build
+devicefinder-docker-build: ## Build docker image of the devicefinder
+	$(CONTAINER_TOOL) build -t $(DEVICEFINDER_IMAGE) -f $(CURPATH)/devicefinder.Dockerfile .
 
-.PHONY: diskmaker-docker-push
-diskmaker-docker-push: ## Push docker image of the diskmaker
+.PHONY: devicefinder-docker-push
+devicefinder-docker-push: ## Push docker image of the devicefinder
 	$(CONTAINER_TOOL) push $(DEVICEFINDER_IMAGE)
 
 # PLATFORMS defines the target platforms for the manager image be built to provide support to multiple

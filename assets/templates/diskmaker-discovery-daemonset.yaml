@@ -2,19 +2,19 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   labels:
-    app: diskmaker-discovery
-  name: diskmaker-discovery
+    app: devicefinder-discovery
+  name: devicefinder-discovery
   namespace: ${OBJECT_NAMESPACE}
 spec:
   selector:
     matchLabels:
-      app: diskmaker-discovery
+      app: devicefinder-discovery
   template:
     metadata:
       annotations:
         target.workload.openshift.io/management: '{"effect": "PreferredDuringScheduling"}'
       labels:
-        app: diskmaker-discovery
+        app: devicefinder-discovery
     spec:
       containers:
       - args:
@@ -37,7 +37,7 @@ spec:
               fieldPath: metadata.name
         image: ${CONTAINER_IMAGE}
         imagePullPolicy: Always
-        name: diskmaker-discovery
+        name: devicefinder-discovery
         securityContext:
           privileged: true
         resources:
