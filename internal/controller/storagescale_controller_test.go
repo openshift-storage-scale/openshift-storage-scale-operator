@@ -31,8 +31,6 @@ import (
 
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
 	scalev1alpha "github.com/openshift-storage-scale/openshift-storage-scale-operator/api/v1alpha1"
 )
 
@@ -57,7 +55,6 @@ var _ = Describe("StorageScale Controller", func() {
 			Name:      resourceName,
 			Namespace: "default", // TODO(user):Modify as needed
 		}
-		// storagescale := &scalev1alpha.StorageScale{}
 
 		BeforeEach(func() {
 			By("creating the custom resource for the Kind StorageScale")
@@ -80,20 +77,20 @@ var _ = Describe("StorageScale Controller", func() {
 				},
 				Spec: scalev1alpha.StorageScaleSpec{
 					IbmCnsaVersion: "v5.2.2.1",
-					MachineConfig: scalev1alpha.MachineConfig{
-						Create: false,
+					MachineConfig:  scalev1alpha.MachineConfig{
+						// Create: false,
 						// Labels: map[string]string{
 						// 	"machineconfiguration.openshift.io/role": "worker",
 						// },
 					},
 					Cluster: scalev1alpha.IBMSpectrumCluster{
-						Create: false,
+						// Create: false,
 						// Daemon_nodeSelector: map[string]string{
 						// 	"node-role.kubernetes.io/worker": "",
 						// },
 					},
 					LocalVolumeDiscovery: scalev1alpha.StorageDeviceDiscovery{
-						Create: false,
+						// Create: false,
 					},
 				},
 			}
@@ -108,7 +105,7 @@ var _ = Describe("StorageScale Controller", func() {
 				// dynamicClient: k8sClient,
 			}
 
-			_, err := controllerReconciler.Reconcile(ctx, reconcile.Request{
+			_, err := StorageScaleReconciler.Reconcile(ctx, reconcile.Request{
 				NamespacedName: typeNamespacedName,
 			})
 			Expect(err).NotTo(HaveOccurred())

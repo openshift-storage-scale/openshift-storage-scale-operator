@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"path"
 	"strings"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -367,19 +368,20 @@ func (r *StorageScaleReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	return ctrl.Result{}, err
 }
 
-func getInstallPath(cnsaVersion string) (install_path string, err error) {
+func getInstallPath(cnsaVersion string) (string, error) {
 	// Install path when running tests
-	install_path = fmt.Sprintf("../../files/%s/install.yaml", cnsaVersion)
+	var err error
+	install_path := path.Join("../../files/", cnsaVersion, "install.yaml")
 	if _, err := os.Stat(install_path); err == nil {
 		return install_path, nil
 	}
 	// Install path when running locally
-	install_path = fmt.Sprintf("files/%s/install.yaml", cnsaVersion)
+	install_path = path.Join("files/", cnsaVersion, "install.yaml")
 	if _, err := os.Stat(install_path); err == nil {
 		return install_path, nil
 	}
 	// Install path when running in container
-	install_path = fmt.Sprintf("/files/%s/install.yaml", cnsaVersion)
+	install_path = path.Join("/files/", cnsaVersion, "install.yaml")
 	if _, err := os.Stat(install_path); err == nil {
 		return install_path, nil
 	}
