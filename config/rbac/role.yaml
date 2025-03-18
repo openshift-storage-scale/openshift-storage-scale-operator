@@ -34,33 +34,18 @@ rules:
   - services
   verbs:
   - '*'
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
 - apiGroups:
   - ""
   resources:
   - endpoints
   verbs:
   - '*'
-  - create
-  - get
-  - list
-  - patch
-  - update
-  - watch
 - apiGroups:
   - ""
   resources:
   - events
   verbs:
   - '*'
-  - create
-  - patch
 - apiGroups:
   - ""
   resources:
@@ -125,7 +110,6 @@ rules:
   - services/finalizers
   verbs:
   - '*'
-  - update
 - apiGroups:
   - admissionregistration.k8s.io
   resources:
@@ -340,13 +324,6 @@ rules:
   - clusterroles
   verbs:
   - '*'
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
 - apiGroups:
   - rbac.authorization.k8s.io
   resources:
@@ -540,14 +517,6 @@ rules:
   - securitycontextconstraints
   verbs:
   - '*'
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - use
-  - watch
 - apiGroups:
   - storage.k8s.io
   resources:
