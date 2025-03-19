@@ -4,3 +4,12 @@
 .devcontainer/dev.env
 integration-tests/videos
 integration-tests/screenshots
+
+# Modern Yarn with Zero-Installs
+.yarn/*
+!.yarn/cache
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
