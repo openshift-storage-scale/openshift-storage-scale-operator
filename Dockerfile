@@ -1,6 +1,6 @@
 ARG TARGETARCH=amd64
 
-FROM --platform=linux/$TARGETARCH brew.registry.redhat.io/rh-osbs/openshift-golang-builder@sha256:0a070e4a8f2698b6aba3630a49eb995ff1b0a182d0c5fa264888acf9d535f384 AS builder
+FROM --platform=linux/$TARGETARCH brew.registry.redhat.io/rh-osbs/openshift-golang-builder@sha256:4805e1cb2d1bd9d3c5de5d6986056bbda94ca7b01642f721d83d26579d333c60 AS builder
 
 USER 0
 # Build the manager binary
@@ -37,3 +37,19 @@ COPY --from=builder /workspace/licenses/ /licenses/
 USER 65532:65532
 
 ENTRYPOINT ["/manager"]
+
+LABEL \
+    com.redhat.component="Red Hat OpenShift Storage Scale Operator" \
+    description="" \
+    io.k8s.display-name="Red Hat OpenShift Storage Scale Operator" \
+    io.k8s.description="" \
+    io.openshift.tags="openshift,storage,scale" \
+    distribution-scope="public" \
+    name="openshift-storage-scale-controller" \
+    summary="Controller" \
+    release="v1.0" \
+    version="v1.0" \
+    maintainer="Red Hat jgil@redhat.com" \
+    url="https://github.com/openshift-storage-scale/openshift-storage-scale-operator.git" \
+    vendor="Red Hat, Inc." \
+    License="Apache License 2.0"
