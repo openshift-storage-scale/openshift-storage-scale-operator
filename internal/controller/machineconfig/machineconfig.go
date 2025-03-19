@@ -62,16 +62,16 @@ func CreateOrUpdateMachineConfig(ctx context.Context, mc *machineconfigv1.Machin
 	old_mc := &machineconfigv1.MachineConfig{}
 	if err := cl.Get(ctx, client.ObjectKeyFromObject(mc), old_mc); err != nil {
 		if !apierrors.IsNotFound(err) {
-			return fmt.Errorf("Could not check for existing MachineConfig: %w", err)
+			return fmt.Errorf("could not check for existing MachineConfig: %w", err)
 		}
 		if err := cl.Create(ctx, mc); err != nil {
-			return fmt.Errorf("Could not create MachineConfig: %w", err)
+			return fmt.Errorf("could not create MachineConfig: %w", err)
 		}
 	}
 	old_mc.OwnerReferences = mc.OwnerReferences
 	old_mc.Spec = mc.Spec
 	if err := cl.Update(ctx, old_mc); err != nil {
-		return fmt.Errorf("Could not update MachineConfig: %w", err)
+		return fmt.Errorf("could not update MachineConfig: %w", err)
 	}
 	return nil
 }
