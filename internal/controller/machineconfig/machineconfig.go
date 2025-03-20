@@ -1,4 +1,4 @@
-package controller
+package machineconfig
 
 import (
 	"context"
@@ -8,7 +8,9 @@ import (
 
 	machineconfigv1 "github.com/openshift/api/machineconfiguration/v1"
 	ctrlcommon "github.com/openshift/machine-config-operator/pkg/controller/common"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -31,10 +33,6 @@ import (
 
 func NewMachineConfig(labels map[string]string) *machineconfigv1.MachineConfig {
 	return &machineconfigv1.MachineConfig{
-		TypeMeta: metav1.TypeMeta{
-			APIVersion: machineconfigv1.SchemeGroupVersion.String(),
-			Kind:       "MachineConfig",
-		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:   "00-worker-ibm-spectrum-scale-kernel-devel",
 			Labels: labels,
@@ -58,6 +56,24 @@ func NewMachineConfigSpec() *machineconfigv1.MachineConfigSpec {
 		// +optional
 		Extensions: []string{"kernel-devel"},
 	}
+}
+
+func CreateOrUpdateMachineConfig(ctx context.Context, mc *machineconfigv1.MachineConfig, cl client.Client) error {
+	old_mc := &machineconfigv1.MachineConfig{}
+	if err := cl.Get(ctx, client.ObjectKeyFromObject(mc), old_mc); err != nil {
+		if !apierrors.IsNotFound(err) {
+			return fmt.Errorf("could not check for existing MachineConfig: %w", err)
+		}
+		if err := cl.Create(ctx, mc); err != nil {
+			return fmt.Errorf("could not create MachineConfig: %w", err)
+		}
+	}
+	old_mc.OwnerReferences = mc.OwnerReferences
+	old_mc.Spec = mc.Spec
+	if err := cl.Update(ctx, old_mc); err != nil {
+		return fmt.Errorf("could not update MachineConfig: %w", err)
+	}
+	return nil
 }
 
 // WaitForMachineConfigPoolUpdated polls the MachineConfigPool until it shows Updated=True

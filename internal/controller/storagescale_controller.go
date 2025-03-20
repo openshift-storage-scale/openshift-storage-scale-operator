@@ -41,6 +41,7 @@ import (
 	"github.com/manifestival/manifestival"
 	scalev1alpha "github.com/openshift-storage-scale/openshift-storage-scale-operator/api/v1alpha1"
 	"github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/controller/localvolumediscovery"
+	"github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/controller/machineconfig"
 	"github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/utils"
 )
 
@@ -52,6 +53,8 @@ type StorageScaleReconciler struct {
 	dynamicClient dynamic.Interface
 	fullClient    kubernetes.Interface
 }
+
+const storageScaleFinalizer = "scale.storage.openshift.io/finalizer"
 
 // Basic Operator RBACs
 //+kubebuilder:rbac:groups=scale.storage.openshift.io,resources=storagescales,verbs=get;list;watch;create;update;patch;delete
@@ -256,33 +259,45 @@ func (r *StorageScaleReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		return ctrl.Result{}, err
 	}
 
+	// // Check if the StorageScale instance is marked to be deleted, which is
+	// // indicated by the deletion timestamp being set.
+	// isStorageScaleMarkedToBeDeleted := storagescale.GetDeletionTimestamp() != nil
+	// if isStorageScaleMarkedToBeDeleted {
+	// 	if controllerutil.ContainsFinalizer(storagescale, storageScaleFinalizer) {
+	// 		// Run finalization logic for storageScaleFinalizer. If the
+	// 		// finalization logic fails, don't remove the finalizer so
+	// 		// that we can retry during the next reconciliation.
+	// 		if err := r.finalizeStorageScale(log.Log, storagescale); err != nil {
+	// 			return ctrl.Result{}, err
+	// 		}
+
+	// 		// Remove memcachedFinalizer. Once all finalizers have been
+	// 		// removed, the object will be deleted.
+	// 		controllerutil.RemoveFinalizer(storagescale, storageScaleFinalizer)
+	// 		err := r.Update(ctx, storagescale)
+	// 		if err != nil {
+	// 			return ctrl.Result{}, err
+	// 		}
+	// 	}
+	// 	return ctrl.Result{}, nil
+	// }
+	// // Add finalizer for this CR
+	// if !controllerutil.ContainsFinalizer(storagescale, storageScaleFinalizer) {
+	// 	controllerutil.AddFinalizer(storagescale, storageScaleFinalizer)
+	// 	err = r.Update(ctx, storagescale)
+	// 	if err != nil {
+	// 		return ctrl.Result{}, err
+	// 	}
+	// }
+
 	// Create machineconfig to enable kernel modules if needed
 	if storagescale.Spec.MachineConfig.Create {
-		new_mc := NewMachineConfig(storagescale.Spec.MachineConfig.Labels)
-		gvr := schema.GroupVersionResource{
-			Group:    "machineconfiguration.openshift.io",
-			Version:  "v1",
-			Resource: "machineconfigs",
-		}
-
-		old_mc, err := r.dynamicClient.Resource(gvr).Get(ctx, new_mc.GetName(), metav1.GetOptions{})
+		mc := machineconfig.NewMachineConfig(storagescale.Spec.MachineConfig.Labels)
+		err = machineconfig.CreateOrUpdateMachineConfig(ctx, mc, r.Client)
 		if err != nil {
-			log.Log.Info("Creating machineconfig")
-			err = r.Client.Create(ctx, new_mc)
-			if err != nil {
-				return ctrl.Result{}, err
-			}
-			log.Log.Info("Created machineconfig")
-		} else {
-			log.Log.Info("Updating machineconfig")
-			new_mc.SetResourceVersion(old_mc.GetResourceVersion())
-			err = r.Client.Update(ctx, new_mc)
-			if err != nil {
-				return ctrl.Result{}, err
-			}
-			log.Log.Info("Updated machineconfig")
+			return ctrl.Result{}, err
 		}
-		err = WaitForMachineConfigPoolUpdated(ctx, r.dynamicClient, "worker")
+		err = machineconfig.WaitForMachineConfigPoolUpdated(ctx, r.dynamicClient, "worker")
 		if err != nil {
 			return ctrl.Result{}, err
 		}
@@ -365,7 +380,7 @@ func (r *StorageScaleReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		}
 		log.Log.Info("Cluster aleardy exists, considering immutable")
 	}
-	return ctrl.Result{}, err
+	return ctrl.Result{}, nil
 }
 
 func getInstallPath(cnsaVersion string) (string, error) {
@@ -403,3 +418,12 @@ func (r *StorageScaleReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		For(&scalev1alpha.StorageScale{}).
 		Complete(r)
 }
+
+// func (r *StorageScaleReconciler) finalizeStorageScale(reqLogger logr.Logger, sc *v1alpha1.StorageScale) error {
+// 	// TODO(user): Add the cleanup steps that the operator
+// 	// needs to do before the CR can be deleted. Examples
+// 	// of finalizers include performing backups and deleting
+// 	// resources that are not owned by this CR, like a PVC.
+// 	reqLogger.Info("Successfully finalized StorageScale")
+// 	return nil
+// }
