@@ -41,7 +41,7 @@ IMAGE_TAG_BASE ?= quay.io/openshift-storage-scale/openshift-storage-scale
 # always release the console with the same tag as the operator and the other way around!
 # Image base URL of the console plugin
 CONSOLE_PLUGIN_IMAGE_BASE ?= $(IMAGE_TAG_BASE)-console
-CONSOLE_PLUGIN_IMAGE ?= $(CONSOLE_PLUGIN_IMAGE_BASE):$(VERSION)
+export CONSOLE_PLUGIN_IMAGE ?= $(CONSOLE_PLUGIN_IMAGE_BASE):$(VERSION)
 
 
 # BUNDLE_IMG defines the image:tag used for the bundle.
@@ -51,7 +51,7 @@ BUNDLE_IMG ?= $(IMAGE_TAG_BASE)-bundle:$(VERSION)
 # BUNDLE_GEN_FLAGS are the flags passed to the operator-sdk generate bundle command
 BUNDLE_GEN_FLAGS ?= -q --overwrite --version $(VERSION) $(BUNDLE_METADATA_OPTS)
 
-DEVICEFINDER_IMAGE ?= $(IMAGE_TAG_BASE)-devicefinder:$(VERSION)
+export DEVICEFINDER_IMAGE ?= $(IMAGE_TAG_BASE)-devicefinder:$(VERSION)
 REV=$(shell git describe --long --tags --match='v*' --dirty 2>/dev/null || git rev-list -n1 HEAD)
 CURPATH=$(PWD)
 TARGET_DIR=$(CURPATH)/_output/bin
@@ -71,7 +71,7 @@ endif
 # This is useful for CI or a project to utilize a specific version of the operator-sdk toolkit.
 OPERATOR_SDK_VERSION ?= v1.39.1
 # Image URL to use all building/pushing image targets
-OPERATOR_IMG ?= $(IMAGE_TAG_BASE)-operator:$(VERSION)
+export OPERATOR_IMG ?= $(IMAGE_TAG_BASE)-operator:$(VERSION)
 # ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
 ENVTEST_K8S_VERSION = 1.29.0
 
@@ -338,7 +338,6 @@ endif
 
 .PHONY: bundle
 bundle: manifests kustomize operator-sdk ## Generate bundle manifests and metadata, then validate generated files.
-	cd hack && source export-variables.sh
 	$(OPERATOR_SDK) generate kustomize manifests -q
 	$(KUSTOMIZE) build config/manifests | envsubst | $(OPERATOR_SDK) generate bundle $(BUNDLE_GEN_FLAGS)
 	$(OPERATOR_SDK) bundle validate ./bundle

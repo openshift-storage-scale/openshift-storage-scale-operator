@@ -62,7 +62,7 @@ spec:
         - /manager
         args:
         - --leader-elect
-        image: ${CONTROLLER_IMAGE}
+        image: ${OPERATOR_IMG}
         name: manager
         env:
           - name: DEPLOYMENT_NAMESPACE
