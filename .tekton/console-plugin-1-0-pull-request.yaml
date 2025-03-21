@@ -33,7 +33,7 @@ spec:
   - name: path-context
     value: console
   - name: prefetch-input
-    value: '{"type": "npm", "path": "."}'
+    value: '{"type": "npm", "path": "console/"}'
   pipelineSpec:
     description: |
       This pipeline is ideal for building container images from a Containerfile while maintaining trust after pipeline customization.
