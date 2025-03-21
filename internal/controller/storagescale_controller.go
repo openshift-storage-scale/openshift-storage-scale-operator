@@ -54,7 +54,7 @@ type StorageScaleReconciler struct {
 	fullClient    kubernetes.Interface
 }
 
-const storageScaleFinalizer = "scale.storage.openshift.io/finalizer"
+// const storageScaleFinalizer = "scale.storage.openshift.io/finalizer"
 
 // Basic Operator RBACs
 //+kubebuilder:rbac:groups=scale.storage.openshift.io,resources=storagescales,verbs=get;list;watch;create;update;patch;delete
@@ -336,7 +336,10 @@ func (r *StorageScaleReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		if err != nil {
 			if kerrors.IsNotFound(err) {
 				// Resource does not exist, create it
-				_, err = r.fullClient.CoreV1().Secrets(destNamespace).Create(context.TODO(), ibmPullSecret, metav1.CreateOptions{})
+				_, err := r.fullClient.CoreV1().Secrets(destNamespace).Create(context.TODO(), ibmPullSecret, metav1.CreateOptions{})
+				if err != nil {
+					return ctrl.Result{}, err
+				}
 				log.Log.Info(fmt.Sprintf("Created Secret %s in ns %s", destSecretName, destNamespace))
 				continue
 			}
@@ -356,7 +359,9 @@ func (r *StorageScaleReconciler) Reconcile(ctx context.Context, req ctrl.Request
 			return ctrl.Result{}, err
 		}
 		lvd := localvolumediscovery.NewLocalVolumeDiscovery(ns)
-		return ctrl.Result{}, localvolumediscovery.CreateOrUpdateLocalVolumeDiscovery(ctx, lvd, r.Client)
+		if err := localvolumediscovery.CreateOrUpdateLocalVolumeDiscovery(ctx, lvd, r.Client); err != nil {
+			return ctrl.Result{}, err
+		}
 	}
 	if storagescale.Spec.Cluster.Create {
 		// Create IBM storage cluster

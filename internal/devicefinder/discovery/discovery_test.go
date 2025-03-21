@@ -194,7 +194,7 @@ func TestIgnoreDevices(t *testing.T) {
 			diskutils.FilePathGlob = filepath.Glob
 		}()
 
-		actual := ignoreDevices(tc.blockDevice)
+		actual := ignoreDevices(&tc.blockDevice)
 		assert.Equalf(t, tc.expected, actual, "[%s]: %s", tc.label, tc.errMessage)
 	}
 }
@@ -495,7 +495,7 @@ func TestGetDiscoveredDevices(t *testing.T) {
 					Size:     int64(62913494528),
 					Property: "NonRotational",
 					FSType:   "",
-					Status:   v1alpha1.DeviceStatus{State: v1alpha1.Unknown},
+					Status:   v1alpha1.DeviceStatus{State: v1alpha1.Available},
 					WWN:      "mpathID",
 				},
 			},
@@ -555,7 +555,7 @@ func TestGetDiscoveredDevices(t *testing.T) {
 					Size:     int64(62913494528),
 					Property: "NonRotational",
 					FSType:   "",
-					Status:   v1alpha1.DeviceStatus{State: v1alpha1.Unknown},
+					Status:   v1alpha1.DeviceStatus{State: v1alpha1.Available},
 					WWN:      "a",
 				},
 			},

@@ -17,7 +17,6 @@ var (
 	ExecCommand          CommandExecutor
 	FilePathGlob         = filepath.Glob
 	FilePathEvalSymLinks = filepath.EvalSymlinks
-	mountFile            = "/proc/1/mountinfo"
 )
 
 func init() {
@@ -80,35 +79,27 @@ type BlockDevice struct {
 	PartLabel  string        `json:"partlabel,omitempty"`
 	PathByID   string        `json:"pathByID,omitempty"` // Fetched from introspecting /dev
 	WWN        string        `json:"WWN,omitempty"`      // Purple unicorn storage fields
+	Mountpoint string        `json:"mountpoint,omitempty"`
 	Children   []BlockDevice `json:"children,omitempty"`
 }
 
-// HasBindMounts checks for bind mounts and returns mount point for a device by parsing `proc/1/mountinfo`.
-// HostPID should be set to true inside the POD spec to get details of host's mount points inside `proc/1/mountinfo`.
-func (b *BlockDevice) HasBindMounts() (mountpoint string, err error) {
-	data, err := os.ReadFile(mountFile)
-	if err != nil {
-		return "", fmt.Errorf("failed to read file %s: %v", mountFile, err)
+// GetMountPoint returns the mountpoint of the device, or the mp of the first child if it has one
+//
+// TODO remove this: HostPID should be set to true inside the POD spec to get details of host's mount points inside `proc/1/mountinfo`.
+func (b *BlockDevice) GetMountPoint() (mountpoint string, err error) {
+	if b.Children != nil {
+		return b.Children[0].GetMountPoint()
 	}
+	return b.Mountpoint, nil
+}
 
-	mountString := string(data)
-	for _, mountInfo := range strings.Split(mountString, "\n") {
-		if strings.Contains(mountInfo, b.KName) {
-			mountInfoList := strings.Split(mountInfo, " ")
-			if len(mountInfoList) >= 10 {
-				// device source is 4th field for bind mounts and 10th for regular mounts
-				if mountInfoList[3] == fmt.Sprintf("/%s", b.KName) || mountInfoList[9] == fmt.Sprintf("/dev/%s", b.KName) {
-					return mountInfoList[4], nil
-				}
-			}
-		}
-	}
-
-	return "", nil
+func (b *BlockDevice) BiosPartition() bool {
+	return strings.Contains(strings.ToLower(b.PartLabel), strings.ToLower("bios")) ||
+		strings.Contains(strings.ToLower(b.PartLabel), strings.ToLower("boot"))
 }
 
 // GetDevPath for block device (/dev/sdx)
-func (b BlockDevice) GetDevPath() (path string, err error) {
+func (b *BlockDevice) GetDevPath() (path string, err error) {
 	if b.KName == "" {
 		return "", fmt.Errorf("empty KNAME")
 	}
@@ -202,7 +193,7 @@ func ListBlockDevices(devices []string) (blockDevices, badRows []BlockDevice, er
 		return []BlockDevice{}, []BlockDevice{}, errors.Wrap(err, "failed to list block devices")
 	}
 
-	columns := "NAME,ROTA,TYPE,SIZE,MODEL,VENDOR,RO,RM,STATE,KNAME,SERIAL,PARTLABEL,WWN"
+	columns := "NAME,ROTA,TYPE,SIZE,MODEL,VENDOR,RO,RM,STATE,KNAME,SERIAL,PARTLABEL,WWN,MOUNTPOINT"
 	args := []string{"--json", "-b", "-o", columns}
 	cmd := ExecCommand.Execute("lsblk", args...)
 	klog.Infof("Executing command: %#v", cmd)
@@ -219,10 +210,10 @@ func ListBlockDevices(devices []string) (blockDevices, badRows []BlockDevice, er
 		return []BlockDevice{}, []BlockDevice{}, fmt.Errorf("failed to unmarshal JSON %s: %s", output, err)
 	}
 
-	for _, row := range lDevices.BlockDevices {
+	for idx := range lDevices.BlockDevices {
 		// only use device if name is populated, and non-empty
-		if strings.Trim(row.Name, " ") == "" {
-			badRows = append(badRows, row)
+		if strings.Trim(lDevices.BlockDevices[idx].Name, " ") == "" {
+			badRows = append(badRows, lDevices.BlockDevices[idx])
 			e, err := json.Marshal(badRows)
 			m := fmt.Sprintf("Found an entry with empty name: %s.", e)
 			if err != nil {
@@ -232,13 +223,13 @@ func ListBlockDevices(devices []string) (blockDevices, badRows []BlockDevice, er
 			break
 		}
 
-		row.Model = strings.Trim(row.Model, " ")
-		row.Vendor = strings.Trim(row.Vendor, " ")
+		lDevices.BlockDevices[idx].Model = strings.Trim(lDevices.BlockDevices[idx].Model, " ")
+		lDevices.BlockDevices[idx].Vendor = strings.Trim(lDevices.BlockDevices[idx].Vendor, " ")
 		// Update device filesystem using `blkid`
-		if fs, ok := deviceFSMap[fmt.Sprintf("/dev/%s", row.Name)]; ok {
-			row.FSType = fs
+		if fs, ok := deviceFSMap[fmt.Sprintf("/dev/%s", lDevices.BlockDevices[idx].Name)]; ok {
+			lDevices.BlockDevices[idx].FSType = fs
 		}
-		blockDevices = append(blockDevices, row)
+		blockDevices = append(blockDevices, lDevices.BlockDevices[idx])
 	}
 
 	if len(badRows) == len(lDevices.BlockDevices) && len(lDevices.BlockDevices) > 0 {
