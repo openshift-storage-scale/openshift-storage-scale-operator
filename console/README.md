@@ -1,17 +1,23 @@
-# OpenShift Console Plugin Template
+# OpenShift Storage Scale console plugin
 
-## TLDR
+## TL;DR
 
-1. Go in the aws-playground repo and run `make install`
-   The credentials will be under ~/aws-gpfs-playground/ocp_install_files/auth
+### Set up a development OpenShift cluster
+1. Follow the docs at the [aws-ibm-gpfs-playground](https://github.com/openshift-storage-scale/aws-ibm-gpfs-playground) repo.  
+    - Basically, that is:  
+      `make TAGS=1_ocp_install,2_aws,3_ebs,4_gpfs,4_operator install`  
+    - Once complete, the cluster credentials will be stored under:  
+      `~/aws-gpfs-playground/ocp_install_files/auth`
 
-2. git clone https://github.com/openshift-storage-scale/openshift-storage-scale-operator
+2. From a terminal execute:
+   ```sh
+   oc login --token=... --server=...
+   cd console/
+   yarn install
+   yarn start-all
+   ```
 
-3. Have two terminals both in the console/ folder, you need to oc login on both
-From one console/ run `yarn install` and then `yarn run start`
-And from the other console/ terminal run `yarn run --verbose start-console`
-
-4. Go to http://localhost:9000
+4. Your default browser should open automatically, otherwise navigate to http://localhost:9000.
 
 ## More
 

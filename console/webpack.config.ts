@@ -72,6 +72,9 @@ const config: Configuration = {
     devMiddleware: {
       writeToDisk: true,
     },
+    open: {
+      target: "http://localhost:9000"
+    },
   },
   plugins: [
     new ConsoleRemotePlugin(),
