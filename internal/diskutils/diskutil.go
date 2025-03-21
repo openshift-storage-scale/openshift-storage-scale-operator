@@ -108,7 +108,7 @@ func (b *BlockDevice) HasBindMounts() (mountpoint string, err error) {
 }
 
 // GetDevPath for block device (/dev/sdx)
-func (b BlockDevice) GetDevPath() (path string, err error) {
+func (b *BlockDevice) GetDevPath() (path string, err error) {
 	if b.KName == "" {
 		return "", fmt.Errorf("empty KNAME")
 	}
@@ -219,10 +219,10 @@ func ListBlockDevices(devices []string) (blockDevices, badRows []BlockDevice, er
 		return []BlockDevice{}, []BlockDevice{}, fmt.Errorf("failed to unmarshal JSON %s: %s", output, err)
 	}
 
-	for _, row := range lDevices.BlockDevices {
+	for idx := range lDevices.BlockDevices {
 		// only use device if name is populated, and non-empty
-		if strings.Trim(row.Name, " ") == "" {
-			badRows = append(badRows, row)
+		if strings.Trim(lDevices.BlockDevices[idx].Name, " ") == "" {
+			badRows = append(badRows, lDevices.BlockDevices[idx])
 			e, err := json.Marshal(badRows)
 			m := fmt.Sprintf("Found an entry with empty name: %s.", e)
 			if err != nil {

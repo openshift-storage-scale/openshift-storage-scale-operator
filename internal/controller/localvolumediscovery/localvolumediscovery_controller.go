@@ -214,8 +214,8 @@ func (r *LocalVolumeDiscoveryReconciler) deleteOrphanDiscoveryResults(ctx contex
 		return fmt.Errorf("failed to list LocalVolumeDiscoveryResult instances in namespace %q", instance.Namespace)
 	}
 
-	for _, discoveryResult := range discoveryResultList.Items {
-		nodeName := discoveryResult.Spec.NodeName
+	for idx := range discoveryResultList.Items {
+		nodeName := discoveryResultList.Items[idx].Spec.NodeName
 		node := &corev1.Node{}
 		err = r.Client.Get(ctx, types.NamespacedName{Name: nodeName}, node)
 		if err != nil {
@@ -227,9 +227,9 @@ func (r *LocalVolumeDiscoveryReconciler) deleteOrphanDiscoveryResults(ctx contex
 			return err
 		}
 		if !matches {
-			err := r.Client.Delete(ctx, discoveryResult.DeepCopy())
+			err := r.Client.Delete(ctx, discoveryResultList.Items[idx].DeepCopy())
 			if err != nil {
-				return fmt.Errorf("failed to delete orphan discovery result %q in node %q", discoveryResult.Name, nodeName)
+				return fmt.Errorf("failed to delete orphan discovery result %q in node %q", discoveryResultList.Items[idx].Name, nodeName)
 			}
 		}
 	}

@@ -194,7 +194,7 @@ func TestIgnoreDevices(t *testing.T) {
 			diskutils.FilePathGlob = filepath.Glob
 		}()
 
-		actual := ignoreDevices(tc.blockDevice)
+		actual := ignoreDevices(&tc.blockDevice)
 		assert.Equalf(t, tc.expected, actual, "[%s]: %s", tc.label, tc.errMessage)
 	}
 }

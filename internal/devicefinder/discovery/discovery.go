@@ -152,11 +152,11 @@ func getValidBlockDevices() ([]diskutil.BlockDevice, error) {
 
 	// Get valid list of devices
 	validDevices := make([]diskutil.BlockDevice, 0)
-	for _, blockDevice := range blockDevices {
-		if ignoreDevices(blockDevice) {
+	for idx := range blockDevices {
+		if ignoreDevices(&blockDevices[idx]) {
 			continue
 		}
-		validDevices = append(validDevices, blockDevice)
+		validDevices = append(validDevices, blockDevices[idx])
 	}
 
 	return validDevices, nil
@@ -165,29 +165,29 @@ func getValidBlockDevices() ([]diskutil.BlockDevice, error) {
 // getDiscoverdDevices creates v1alpha1.DiscoveredDevice from diskutil.BlockDevices
 func getDiscoverdDevices(blockDevices []diskutil.BlockDevice) []v1alpha1.DiscoveredDevice {
 	discoveredDevices := make([]v1alpha1.DiscoveredDevice, 0)
-	for _, blockDevice := range blockDevices {
-		deviceID, err := blockDevice.GetPathByID("" /*existing symlink path*/)
+	for idx := range blockDevices {
+		deviceID, err := blockDevices[idx].GetPathByID("" /*existing symlink path*/)
 		if err != nil {
-			klog.Warningf("failed to get persistent ID for the device %q. Error %v", blockDevice.Name, err)
+			klog.Warningf("failed to get persistent ID for the device %q. Error %v", blockDevices[idx].Name, err)
 			deviceID = ""
 		}
 
-		path, err := blockDevice.GetDevPath()
+		path, err := blockDevices[idx].GetDevPath()
 		if err != nil {
-			klog.Warningf("failed to parse path for the device %q. Error %v", blockDevice.KName, err)
+			klog.Warningf("failed to parse path for the device %q. Error %v", blockDevices[idx].KName, err)
 		}
 		discoveredDevice := v1alpha1.DiscoveredDevice{
 			Path:     path,
-			Model:    blockDevice.Model,
-			Vendor:   blockDevice.Vendor,
-			FSType:   blockDevice.FSType,
-			Serial:   blockDevice.Serial,
-			Type:     parseDeviceType(blockDevice.Type),
+			Model:    blockDevices[idx].Model,
+			Vendor:   blockDevices[idx].Vendor,
+			FSType:   blockDevices[idx].FSType,
+			Serial:   blockDevices[idx].Serial,
+			Type:     parseDeviceType(blockDevices[idx].Type),
 			DeviceID: deviceID,
-			Size:     blockDevice.Size,
-			Property: parseDeviceProperty(blockDevice.Rotational),
-			Status:   getDeviceStatus(blockDevice),
-			WWN:      blockDevice.WWN,
+			Size:     blockDevices[idx].Size,
+			Property: parseDeviceProperty(blockDevices[idx].Rotational),
+			Status:   getDeviceStatus(&blockDevices[idx]),
+			WWN:      blockDevices[idx].WWN,
 		}
 		discoveredDevices = append(discoveredDevices, discoveredDevice)
 	}
@@ -198,6 +198,8 @@ func getDiscoverdDevices(blockDevices []diskutil.BlockDevice) []v1alpha1.Discove
 // uniqueDevices removes duplicate devices from the list using DeviceID as a key
 // TODO: remove this and use lsblk with -M flag once base images are updated and lsblk v2.34 or higher is available
 // See: https://github.com/util-linux/util-linux/blob/3be31a106c52e093928afbea2cddbdbe44cfb357/Documentation/releases/v2.34-ReleaseNotes#L18
+
+//nolint:gocritic
 func uniqueDevices(sample []v1alpha1.DiscoveredDevice) []v1alpha1.DiscoveredDevice {
 	var unique []v1alpha1.DiscoveredDevice
 	type key struct{ value, value2 string }
@@ -215,7 +217,7 @@ func uniqueDevices(sample []v1alpha1.DiscoveredDevice) []v1alpha1.DiscoveredDevi
 }
 
 // ignoreDevices checks if a device should be ignored during discovery
-func ignoreDevices(dev diskutil.BlockDevice) bool {
+func ignoreDevices(dev *diskutil.BlockDevice) bool {
 	if dev.ReadOnly {
 		klog.Infof("ignoring read only device %q", dev.Name)
 		return true
@@ -245,7 +247,7 @@ func ignoreDevices(dev diskutil.BlockDevice) bool {
 }
 
 // getDeviceStatus returns device status as "Available", "NotAvailable" or "Unknown"
-func getDeviceStatus(dev diskutil.BlockDevice) v1alpha1.DeviceStatus {
+func getDeviceStatus(dev *diskutil.BlockDevice) v1alpha1.DeviceStatus {
 	status := v1alpha1.DeviceStatus{}
 	if dev.FSType != "" {
 		klog.Infof("device %q with filesystem %q is not available", dev.Name, dev.FSType)
