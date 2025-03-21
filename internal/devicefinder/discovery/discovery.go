@@ -255,29 +255,13 @@ func getDeviceStatus(dev *diskutil.BlockDevice) v1alpha1.DeviceStatus {
 		return status
 	}
 
-	noBiosBootInPartLabel, err := filterMap["noBiosBootInPartLabel"](dev)
-	if err != nil {
-		status.State = v1alpha1.Unknown
-		return status
-	}
-	if !noBiosBootInPartLabel {
+	if dev.BiosPartition() {
 		klog.Infof("device %q with part label %q is not available", dev.Name, dev.PartLabel)
 		status.State = v1alpha1.NotAvailable
 		return status
 	}
 
-	canOpen, err := filterMap["canOpenExclusively"](dev)
-	if err != nil {
-		status.State = v1alpha1.Unknown
-		return status
-	}
-	if !canOpen {
-		klog.Infof("device %q is not available as it can't be opened exclusively", dev.Name)
-		status.State = v1alpha1.NotAvailable
-		return status
-	}
-
-	mountPoint, err := dev.HasBindMounts()
+	mountPoint, err := dev.GetMountPoint()
 	if err != nil {
 		status.State = v1alpha1.Unknown
 		return status
