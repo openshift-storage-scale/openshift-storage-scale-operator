@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-set -exuo pipefail
+set -euo pipefail
+[[ -n "${DEBUGME+x}" ]] && set -x
 
 ARTIFACT_DIR=${ARTIFACT_DIR:=/tmp/artifacts}
 SCREENSHOTS_DIR=integration-tests/screenshots

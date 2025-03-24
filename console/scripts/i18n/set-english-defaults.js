@@ -3,7 +3,7 @@ const path = require('path');
 const pluralize = require('pluralize');
 const common = require('./common.js');
 
-const publicDir = path.join(__dirname, './../locales/');
+const publicDir = path.join(__dirname, '../../locales/');
 
 function determineRule(key) {
   if (key.includes('WithCount_plural')) {

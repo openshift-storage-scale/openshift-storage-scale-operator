@@ -1,21 +1,22 @@
 {
-  "name": "console-plugin-template",
+  "name": "openshift-storage-scale-console",
   "version": "0.0.1",
-  "description": "Template project for OpenShift Console plugins",
+  "description": "Console plugin for OpenShift Storage Scale Operator",
   "private": true,
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/openshift/console-plugin-template.git"
+    "url": "https://github.com/openshift-storage-scale/openshift-storage-scale-operator.git",
+    "directory": "console"
   },
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "npm run clean && NODE_ENV=production webpack",
-    "build-dev": "webpack",
-    "start": "webpack serve --progress",
-    "start-console": "./start-console.sh",
-    "start-all": "concurrently -c auto -n \"proxy,fe\" -p \"{name}:{pid}\" \"yarn start-console\" \"yarn start\"",
-    "i18n": "./i18n-scripts/build-i18n.sh && node ./i18n-scripts/set-english-defaults.js",
+    "build": "yarn clean && NODE_ENV=production yarn webpack",
+    "build-dev": "yarn clean && yarn webpack",
+    "start": "yarn webpack serve --progress",
+    "start-console": "scripts/start-console.sh",
+    "start-all": "concurrently --kill-others -c auto -n \"proxy,fe\" -p \"{name}:{pid}\" \"yarn start-console\" \"yarn start\"",
+    "i18n": "scripts/build-i18n.sh && node scripts/i18n/set-english-defaults.js",
     "lint": "yarn eslint src integration-tests --fix && stylelint 'src/**/*.css' --allow-empty-input --fix",
     "test-cypress": "cd integration-tests && cypress open",
     "test-cypress-headless": "cd integration-tests && node --max-old-space-size=4096 ../node_modules/.bin/cypress run --browser ${BRIDGE_E2E_BROWSER_NAME:=electron}",
@@ -37,6 +38,7 @@
     "@types/react-router-dom": "^5.3.2",
     "@typescript-eslint/eslint-plugin": "^5.14.0",
     "@typescript-eslint/parser": "^5.14.0",
+    "concurrently": "^9.1.2",
     "copy-webpack-plugin": "^6.4.1",
     "css-loader": "^6.7.1",
     "cypress": "^12.17.4",
@@ -70,7 +72,7 @@
     "webpack-dev-server": "^4.7.4"
   },
   "consolePlugin": {
-    "name": "console-plugin-template",
+    "name": "openshift-storage-scale-console",
     "version": "0.0.1",
     "displayName": "OpenShift Console Plugin Template",
     "description": "Template project for OpenShift Console plugins. Edit package.json to change this message and the plugin name.",
@@ -80,16 +82,5 @@
     "dependencies": {
       "@console/pluginAPI": "*"
     }
-  },
-  "peerDependencies": {
-    "@babel/core": "^7.0.1",
-    "@babel/preset-env": "^7.0.0",
-    "babel-loader": "^8.0.2",
-    "i18next": "^23.11.5",
-    "mocha": "^10.5.1"
-  },
-  "dependencies": {
-    "@patternfly/react-catalog-view-extension": "^4.95.1",
-    "concurrently": "^9.1.2"
   }
 }

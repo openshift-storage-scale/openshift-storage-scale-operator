@@ -7,7 +7,7 @@ import './example.css';
 import { DiscoveredDisks } from './DiscoveredDisks';
 
 export default function ExamplePage() {
-  const { t } = useTranslation('plugin__console-plugin-template');
+  const { t } = useTranslation('plugin__openshift-storage-scale-console');
 
   return (
     <>

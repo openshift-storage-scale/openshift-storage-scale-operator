@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
 set -euo pipefail
+[[ -n "${DEBUGME+x}" ]] && set -x
+
 
 # https://ci-operator-configresolver-ui-ci.apps.ci.l2s4.p1.openshiftapps.com/help#env
 OPENSHIFT_CI=${OPENSHIFT_CI:=false}

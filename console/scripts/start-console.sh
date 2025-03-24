@@ -1,16 +1,19 @@
 #!/usr/bin/env bash
 
 set -euo pipefail
+[[ -n "${DEBUGME+x}" ]] && set -x
 
 script_name="${BASH_SOURCE[0]:-$0}"
-script_path="$(realpath "$(dirname $script_name)")"
+script_path="$(realpath "$script_name")"
+script_dir_path="$(dirname "$script_path")"
+project_dir_path="$(dirname "$script_dir_path")"
 
 CONSOLE_IMAGE=${CONSOLE_IMAGE:="quay.io/openshift/origin-console:latest"}
 CONSOLE_PORT=${CONSOLE_PORT:=9000}
 CONSOLE_IMAGE_PLATFORM=${CONSOLE_IMAGE_PLATFORM:="linux/amd64"}
 
 # Plugin metadata is declared in package.json
-PLUGIN_NAME="$(jq -r '.consolePlugin.name' "$script_path/package.json")"
+PLUGIN_NAME="$(jq -r '.consolePlugin.name' "$project_dir_path/package.json")"
 
 echo "Starting local OpenShift console..."
 

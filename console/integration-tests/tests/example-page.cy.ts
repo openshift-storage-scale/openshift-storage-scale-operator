@@ -57,7 +57,7 @@ describe('Console plugin template test', () => {
     if (!isLocalDevEnvironment) {
       console.log('this is not a local env, installig helm');
 
-      cy.exec('cd ../../console-plugin-template && ./install_helm.sh', {
+      cy.exec('cd ../../console-plugin-template && ./scripts/install-helm.sh', {
         failOnNonZeroExit: false,
       }).then((result) => {
         cy.log('Error installing helm binary: ', result.stderr);
