@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi9/nodejs-18:latest AS builder
+FROM registry.access.redhat.com/ubi9/nodejs-22:latest AS builder
 ARG VERSION=0.0.1
 
 USER root

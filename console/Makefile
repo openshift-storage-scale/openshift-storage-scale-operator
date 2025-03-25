@@ -63,15 +63,15 @@ help: ## Display this help
 
 .PHONY: install
 install: ## Installs dependencies (default)
-	yarn install
+	npm install
 
 .PHONY: lint
 lint: install ## Lints source files
-	yarn lint
+	npm run lint
 
 .PHONY: clean
-clean: ## Cleans node_modules and yarn cache to avoid disk space issues
-	rm -rf node_modules && yarn cache clean
+clean: ## Cleans node_modules and npm cache to avoid disk space issues
+	rm -rf node_modules && npm cache clean --force
 
 .PHONY: container-build
 container-build: ## Builds the container image
