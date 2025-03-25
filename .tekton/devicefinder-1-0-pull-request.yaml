@@ -12,6 +12,7 @@ metadata:
       "internal/devicefinder/***".pathChanged()  ||
       "internal/diskutils/***".pathChanged()  ||
       "cmd/devicefinder/***".pathChanged() ||
+      "go.mod".pathChanged() ||
       ".tekton/devicefinder-1-0-pull-request.yaml".pathChanged())
   creationTimestamp: null
   labels:

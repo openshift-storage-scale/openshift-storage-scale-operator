@@ -12,6 +12,7 @@ metadata:
        "internal/controller/***".pathChanged() ||
        "internal/utils/***".pathChanged() ||
        "cmd/main.go".pathChanged() ||
+       "go.mod".pathChanged() ||
       ".tekton/controller-rhel9-operator-1-0-push.yaml".pathChanged())
   creationTimestamp: null
   labels:
