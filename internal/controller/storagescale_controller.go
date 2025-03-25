@@ -378,7 +378,7 @@ func (r *StorageScaleReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		if err != nil {
 			if kerrors.IsNotFound(err) {
 				// Resource does not exist, create it
-				err = r.Client.Create(ctx, cluster)
+				err = r.Create(ctx, cluster)
 				log.Log.Info("Created cluster")
 			}
 			return ctrl.Result{}, err
@@ -406,7 +406,7 @@ func getInstallPath(cnsaVersion string) (string, error) {
 		return install_path, nil
 	}
 
-	return "", fmt.Errorf("Could not find/open install file with version %s: %w", cnsaVersion, err)
+	return "", fmt.Errorf("could not find/open install file with version %s: %w", cnsaVersion, err)
 }
 
 // SetupWithManager sets up the controller with the Manager.

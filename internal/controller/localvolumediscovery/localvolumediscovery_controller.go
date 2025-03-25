@@ -114,7 +114,7 @@ func (r *LocalVolumeDiscoveryReconciler) Reconcile(ctx context.Context, request 
 			return ctrl.Result{}, err
 		}
 		return waitForRequeueIfDaemonsNotReady, fmt.Errorf("%s", message)
-	} else if !(desiredDaemons == readyDaemons) {
+	} else if desiredDaemons != readyDaemons {
 		message := fmt.Sprintf("running %d out of %d discovery daemons", readyDaemons, desiredDaemons)
 		err := r.updateDiscoveryStatus(ctx, instance, operatorv1.OperatorStatusTypeProgressing, message,
 			operatorv1.ConditionFalse, localv1alpha1.Discovering)

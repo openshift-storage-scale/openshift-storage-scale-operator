@@ -71,23 +71,23 @@ func MutateAggregatedSpec(
 	}
 
 	// copy selector labels to daemonset spec
-	initMapIfNil(&ds.ObjectMeta.Labels)
-	for key, value := range dsTemplate.ObjectMeta.Labels {
-		ds.ObjectMeta.Labels[key] = value
+	initMapIfNil(&ds.Labels)
+	for key, value := range dsTemplate.Labels {
+		ds.Labels[key] = value
 	}
 	// copy selector labels to template spec
-	initMapIfNil(&ds.Spec.Template.ObjectMeta.Labels)
-	for key, value := range dsTemplate.Spec.Template.ObjectMeta.Labels {
-		ds.Spec.Template.ObjectMeta.Labels[key] = value
+	initMapIfNil(&ds.Spec.Template.Labels)
+	for key, value := range dsTemplate.Spec.Template.Labels {
+		ds.Spec.Template.Labels[key] = value
 	}
 	// add management workload annotations
-	initMapIfNil(&ds.Spec.Template.ObjectMeta.Annotations)
-	for key, value := range dsTemplate.Spec.Template.ObjectMeta.Annotations {
-		ds.Spec.Template.ObjectMeta.Annotations[key] = value
+	initMapIfNil(&ds.Spec.Template.Annotations)
+	for key, value := range dsTemplate.Spec.Template.Annotations {
+		ds.Spec.Template.Annotations[key] = value
 	}
 
 	// ownerRefs
-	ds.ObjectMeta.OwnerReferences = ownerRefs
+	ds.OwnerReferences = ownerRefs
 
 	// service account
 	ds.Spec.Template.Spec.ServiceAccountName = dsTemplate.Spec.Template.Spec.ServiceAccountName
