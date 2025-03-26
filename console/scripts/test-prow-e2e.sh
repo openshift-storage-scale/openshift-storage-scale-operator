@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-set -exuo pipefail
+set -euo pipefail
+[[ -n "${DEBUGME+x}" ]] && set -x
 
 ARTIFACT_DIR=${ARTIFACT_DIR:=/tmp/artifacts}
 SCREENSHOTS_DIR=integration-tests/screenshots
@@ -30,8 +31,8 @@ export BRIDGE_BASE_ADDRESS
 
 echo "Install dependencies"
 if [ ! -d node_modules ]; then
-  yarn install
+  npm install
 fi
 
 echo "Runs Cypress tests in headless mode"
-yarn run test-cypress-headless
+npm run test-cypress-headless

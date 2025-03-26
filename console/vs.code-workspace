@@ -1,0 +1,21 @@
+{
+    "folders": [
+        {
+            "name": "Openshift StorageScale Operator console plugin",
+            "path": "."
+        }
+    ],
+    "settings": {
+        "window.title": "${folderName}",
+        "typescript.tsdk": "node_modules/typescript/lib",
+        "editor.formatOnSave": true,
+        "files.autoSave": "afterDelay"
+    },
+    "extensions": {
+        "recommendations": [
+            "dbaeumer.vscode-eslint",
+            "esbenp.prettier-vscode",
+            "redhat.vscode-yaml"
+        ]
+    }
+}

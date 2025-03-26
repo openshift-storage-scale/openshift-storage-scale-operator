@@ -1,9 +1,6 @@
 approvers:
-  - christianvogt
-  - florkbr
-  - spadgett
-  - vojtechszocs
-  - jhadvig
-  - TheRealJon
-  - rhamilto
-component: Management Console
+  - aeros@redhat.com
+  - jkilzi@redhat.com
+  - jgil@redhat.com
+  - michele@acksyn.org
+component: Openshift StorageScale console plugin

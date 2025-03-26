@@ -4,7 +4,7 @@ const jsonc = require('comment-json');
 /**
  * Custom JSON parser for localizing keys matching format: /%.+%/
  */
-module.exports.CustomJSONLexer = class extends EventEmitter {
+module.exports.CustomJSONLexer = class CustomJSONLexer extends EventEmitter {
   extract(content, filename) {
     let keys = [];
     console.log(1)

@@ -1,21 +1,14 @@
-FROM registry.access.redhat.com/ubi9/nodejs-18:latest AS builder
+FROM registry.access.redhat.com/ubi9/nodejs-22:latest AS builder
 ARG VERSION=0.0.1
-
-WORKDIR /opt/app-root
 
 USER root
 
-COPY . .
+COPY . /opt/app-root/src
 # replace version in package.json
 RUN sed -r -i "s|\"version\": \"0.0.0\"|\"version\": \"${VERSION}\"|;" ./package.json
 RUN npm ci --ignore-scripts && npm run build
 
 FROM registry.access.redhat.com/ubi9/nginx-120:latest
-COPY default.conf "${NGINX_CONFIGURATION_PATH}"
-COPY --from=builder /opt/app-root/dist .
-USER 1001
-CMD /usr/libexec/s2i/run
-
 LABEL \
     com.redhat.component="Console plugin image for OpenShift Storage Scale Operator" \
     description="" \
@@ -31,3 +24,8 @@ LABEL \
     url="https://github.com/openshift-storage-scale/openshift-storage-scale-operator.git" \
     vendor="Red Hat, Inc." \
     License="Apache License 2.0"
+
+COPY docker/etc/default.conf "${NGINX_CONFIGURATION_PATH}"
+COPY --from=builder /opt/app-root/src/dist .
+USER 1001
+CMD /usr/libexec/s2i/run

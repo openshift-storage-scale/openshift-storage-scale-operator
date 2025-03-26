@@ -1,4 +1,4 @@
-# OpenShift Storage Scale console plugin
+# OpenShift StorageScale Operator console plugin
 
 ## TL;DR
 
@@ -13,16 +13,15 @@
    ```sh
    oc login --token=... --server=...
    cd console/
-   yarn install
-   yarn start-all
+   npm install
+   npm run start-all
    ```
 
 4. Your default browser should open automatically, otherwise navigate to http://localhost:9000.
 
-## More
+## Additional information
 
-This project is a minimal template for writing a new OpenShift Console dynamic
-plugin.
+This project is based on a template for creating an OpenShift Console dynamic plugin.
 
 [Dynamic plugins](https://github.com/openshift/console/tree/master/frontend/packages/console-dynamic-plugin-sdk)
 allow you to extend the
@@ -38,12 +37,12 @@ and higher. For using old `v1alpha1` API version us OpenShift version 4.10 or 4.
 For an example of a plugin that works with OpenShift 4.11, see the `release-4.11` branch.
 For a plugin that works with OpenShift 4.10, see the `release-4.10` branch.
 
-[Node.js](https://nodejs.org/en/) and [yarn](https://yarnpkg.com) are required
+[Node.js](https://nodejs.org/en/) and [npm](https://npmjs.com/downloading-and-installing-node-js-and-npm) are required
 to build and run the example. To run OpenShift console in a container, either
 [Docker](https://www.docker.com) or [podman 3.2.0+](https://podman.io) and
 [oc](https://console.redhat.com/openshift/downloads) are required.
 
-## Getting started
+### Getting started
 
 After cloning this repo, you should update the plugin metadata such as the
 plugin name in the `consolePlugin` declaration of [package.json](package.json).
@@ -71,27 +70,27 @@ file and the React component is declared in
 You can run the plugin using a local development environment or build an image
 to deploy it to a cluster.
 
-## Development
+### Development
 
-### Option 1: Local
+#### Option 1: Local
 
 In one terminal window, run:
 
-1. `yarn install`
-2. `yarn run start`
+1. `npm install`
+2. `npm run start`
 
 In another terminal window, run:
 
 1. `oc login` (requires [oc](https://console.redhat.com/openshift/downloads) and an [OpenShift cluster](https://console.redhat.com/openshift/create))
-2. `yarn run start-console` (requires [Docker](https://www.docker.com) or [podman 3.2.0+](https://podman.io))
+2. `npm run start-console` (requires [Docker](https://www.docker.com) or [podman 3.2.0+](https://podman.io))
 
 This will run the OpenShift console in a container connected to the cluster
 you've logged into. The plugin HTTP server runs on port 9001 with CORS enabled.
 Navigate to <http://localhost:9000/example> to see the running plugin.
 
-#### Running start-console with Apple silicon and podman
+##### Running start-console with Apple silicon and podman
 
-If you are using podman on a Mac with Apple silicon, `yarn run start-console`
+If you are using podman on a Mac with Apple silicon, `npm run start-console`
 might fail since it runs an amd64 image. You can workaround the problem with
 [qemu-user-static](https://github.com/multiarch/qemu-user-static) by running
 these commands:
@@ -103,7 +102,7 @@ rpm-ostree install qemu-user-static
 systemctl reboot
 ```
 
-### Option 2: Docker + VSCode Remote Container
+#### Option 2: Docker + VSCode Remote Container
 
 Make sure the
 [Remote Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
@@ -122,10 +121,10 @@ OC_PASS=<password>
 ```
 
 2. `(Ctrl+Shift+P) => Remote Containers: Open Folder in Container...`
-3. `yarn run start`
+3. `npm run start`
 4. Navigate to <http://localhost:9000/example>
 
-## Docker image
+### Docker image
 
 Before you can deploy your plugin on a cluster, you must build an image and
 push it to an image registry.
@@ -152,7 +151,7 @@ NOTE: If you have a Mac with Apple silicon, you will need to add the flag
 `--platform=linux/amd64` when building the image to target the correct platform
 to run in-cluster.
 
-## Deployment on cluster
+### Deployment on cluster
 
 A [Helm](https://helm.sh) chart is available to deploy the plugin to an OpenShift environment.
 
@@ -162,7 +161,7 @@ The following Helm parameters are required:
 
 Additional parameters can be specified if desired. Consult the chart [values](charts/openshift-console-plugin/values.yaml) file for the full set of supported parameters.
 
-### Installing the Helm Chart
+#### Installing the Helm Chart
 
 Install the chart using the name of the plugin as the Helm release name into a new namespace or an existing namespace as specified by the `plugin_console-plugin-template` parameter and providing the location of the image within the `plugin.image` parameter by using the following command:
 
@@ -174,7 +173,7 @@ NOTE: When deploying on OpenShift 4.10, it is recommended to add the parameter `
 
 NOTE: When defining i18n namespace, adhere `plugin__<name-of-the-plugin>` format. The name of the plugin should be extracted from the `consolePlugin` declaration within the [package.json](package.json) file.
 
-## i18n
+### i18n
 
 The plugin template demonstrates how you can translate messages in with [react-i18next](https://react.i18next.com/). The i18n namespace must match
 the name of the `ConsolePlugin` resource with the `plugin__` prefix to avoid
@@ -205,13 +204,13 @@ namespace. For example:
   }
 ```
 
-Running `yarn i18n` updates the JSON files in the `locales` folder of the
+Running `npm run i18n` updates the JSON files in the `locales` folder of the
 plugin template when adding or changing messages.
 
-## Linting
+### Linting
 
 This project adds prettier, eslint, and stylelint. Linting can be run with
-`yarn run lint`.
+`npm run lint`.
 
 The stylelint config disallows hex colors since these cause problems with dark
 mode (starting in OpenShift console 4.11). You should use the
@@ -225,15 +224,15 @@ best practice is to prefix your CSS classnames with your plugin name to avoid
 conflicts. Please don't disable these rules without understanding how they can
 break console styles!
 
-## Reporting
+### Reporting
 
 Steps to generate reports
 
-1. In command prompt, navigate to root folder and execute the command `yarn run cypress-merge`
-2. Then execute command `yarn run cypress-generate`
+1. In command prompt, navigate to root folder and execute the command `npm run cypress-merge`
+2. Then execute command `npm run cypress-generate`
 The cypress-report.html file is generated and should be in (/integration-tests/screenshots) directory
 
-## References
+### References
 
 - [Console Plugin SDK README](https://github.com/openshift/console/tree/master/frontend/packages/console-dynamic-plugin-sdk)
 - [Customization Plugin Example](https://github.com/spadgett/console-customization-plugin)
