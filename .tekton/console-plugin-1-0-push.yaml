@@ -26,7 +26,7 @@ spec:
   - name: output-image
     value: quay.io/redhat-user-workloads/storage-scale-releng-tenant/console-plugin-rhel9:{{revision}}
   - name: dockerfile
-    value: Dockerfile
+    value: docker/Dockerfile
   - name: path-context
     value: console
   - name: prefetch-input
