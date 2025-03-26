@@ -75,7 +75,7 @@ clean: ## Cleans node_modules and npm cache to avoid disk space issues
 
 .PHONY: container-build
 container-build: ## Builds the container image
-	$(POCKER) build --build-arg VERSION=$(VERSION) -t ${IMG} .
+	$(POCKER) build -f docker/Dockerfile --build-arg VERSION=$(VERSION) -t ${IMG} .
 docker-build: container-build
 
 .PHONY: container-push
