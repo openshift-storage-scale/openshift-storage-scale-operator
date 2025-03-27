@@ -8,7 +8,9 @@ script_path="$(realpath "$script_name")"
 script_dir_path="$(dirname "$script_path")"
 project_dir_path="$(dirname "$script_dir_path")"
 
-CONSOLE_IMAGE=${CONSOLE_IMAGE:="quay.io/openshift/origin-console:latest"}
+# TODO(jkilzi): This one brings PFv6
+# CONSOLE_IMAGE=${CONSOLE_IMAGE:="quay.io/openshift/origin-console:latest"}
+CONSOLE_IMAGE=${CONSOLE_IMAGE:="quay.io/openshift/origin-console@sha256:2606f1b316d7d74ae8f7b1b9162a73f6967ae65ad8214d6127b82b98a07254df"}
 CONSOLE_PORT=${CONSOLE_PORT:=9000}
 CONSOLE_IMAGE_PLATFORM=${CONSOLE_IMAGE_PLATFORM:="linux/amd64"}
 
