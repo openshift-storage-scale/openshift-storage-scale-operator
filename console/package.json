@@ -11,19 +11,21 @@
   },
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "npm run clean && NODE_ENV=production npm run webpack",
-    "build-dev": "npm run clean && npm run webpack",
-    "start": "npm run webpack serve --progress",
+    "build": "npm run clean && NODE_ENV=production npm run ts-webpack",
+    "build-dev": "npm run clean && npm run ts-webpack",
+    "start-devserver": "npm run ts-webpack serve --progress",
     "start-console": "scripts/start-console.sh",
-    "start-all": "concurrently --kill-others -c auto -n \"proxy,fe\" -p \"{name}:{pid}\" \"npm run start-console\" \"npm run start\"",
-    "i18n": "scripts/build-i18n.sh && node scripts/i18n/set-english-defaults.js",
-    "lint": "npm run eslint src integration-tests --fix && stylelint 'src/**/*.css' --allow-empty-input --fix",
-    "test-cypress": "cd integration-tests && cypress open",
-    "test-cypress-headless": "cd integration-tests && NODE_OPTIONS='--max-old-space-size=4096' cypress run --browser ${BRIDGE_E2E_BROWSER_NAME:=electron}",
+    "start": "concurrently --kill-others -c auto -n \"proxy,fe\" -p \"{name}:{pid}\" \"npm run start-console\" \"npm run start-devserver\"",
+    "i18n": "i18next src/**/*.{js,jsx,ts,tsx,json} -c scripts/i18n/i18next-parser.config.js -o locales/\\$LOCALE/\\$NAMESPACE.json && node scripts/i18n/set-english-defaults.js",
+    "lint": "eslint src integration-tests --fix && stylelint 'src/**/*.css' --allow-empty-input --fix",
+    "test-cypress": "cypress open -p integration-tests",
+    "test-cypress-headless": "NODE_OPTIONS='--max-old-space-size=4096' cypress run -p integration-tests --browser ${BRIDGE_E2E_BROWSER_NAME:=electron}",
+    "test-integration": "scripts/test-integration.sh",
+    "test-locales": "scripts/test-locales.sh",
     "cypress-merge": "mochawesome-merge ./integration-tests/screenshots/cypress_report*.json > ./integration-tests/screenshots/cypress.json",
     "cypress-generate": "marge -o ./integration-tests/screenshots/ -f cypress-report -t 'OpenShift Console Plugin Template Cypress Test Results' -p 'OpenShift Cypress Plugin Template Test Results' --showPassed false --assetsDir ./integration-tests/screenshots/cypress/assets ./integration-tests/screenshots/cypress.json",
     "cypress-postreport": "npm run cypress-merge && npm run cypress-generate",
-    "webpack": "node -r ts-node/register ./node_modules/.bin/webpack"
+    "ts-webpack": "node -r ts-node/register ./node_modules/.bin/webpack"
   },
   "dependencies": {
     "@patternfly/react-catalog-view-extension": "^4.95.1"

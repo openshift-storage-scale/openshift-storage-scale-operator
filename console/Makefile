@@ -70,8 +70,8 @@ lint: install ## Lints source files
 	npm run lint
 
 .PHONY: clean
-clean: ## Cleans node_modules and npm cache to avoid disk space issues
-	rm -rf node_modules && npm cache clean --force
+clean: ## Removes the node_modules directory
+	rm -rf node_modules
 
 .PHONY: container-build
 container-build: ## Builds the container image
@@ -82,12 +82,3 @@ docker-build: container-build
 container-push: ## Pushes the container image
 	$(POCKER) push ${IMG}
 docker-push: container-push
-
-.PHONY: test-locales
-test-locales: ## Checks whether the locales are in sync
-	scripts/test-frontend.sh
-test-frontend: test-locales
-
-.PHONY: test-prow-e2e
-test-prow-e2e: ## Executes the integration tests
-	scripts/test-prow-e2e.sh

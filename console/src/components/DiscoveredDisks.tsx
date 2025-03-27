@@ -13,7 +13,9 @@ import { CatalogTile } from '@patternfly/react-catalog-view-extension';
 import { useK8sWatchResource } from '@openshift-console/dynamic-plugin-sdk';
 
 export const DiscoveredDisks: React.FC = () => {
-  const [discoveryresults, loaded, loadError] = useK8sWatchResource<LocalVolumeDiscoveryResultSpec[]>({
+  const [discoveryresults, loaded, loadError] = useK8sWatchResource<
+    LocalVolumeDiscoveryResultSpec[]
+  >({
     groupVersionKind: LocalVolumeDiscoveryResultKind,
     isList: true,
     // namespace: "default", TBD if we need to filter for namespace here
@@ -47,9 +49,7 @@ export const DiscoveredDisks: React.FC = () => {
             <Title headingLevel="h4" size="lg">
               No LocalVolumeDiscoveryResult found
             </Title>
-            <EmptyStateBody>
-              No LocalVolumeDiscoveryResult exist in the cluster.
-            </EmptyStateBody>
+            <EmptyStateBody>No LocalVolumeDiscoveryResult exist in the cluster.</EmptyStateBody>
           </EmptyState>
         </PageSection>
       </>
@@ -67,7 +67,7 @@ export const DiscoveredDisks: React.FC = () => {
                   key={index}
                   id={item.metadata.name}
                   title={item.spec.nodeName}
-                  description={item.status.discoveredDevices.length + " Disk(s)"}
+                  description={item.status.discoveredDevices.length + ' Disk(s)'}
                   onClick={() => {
                     setModalData(item);
                     setModalVisible(true);
@@ -78,11 +78,7 @@ export const DiscoveredDisks: React.FC = () => {
           })}
         </Flex>
       </PageSection>
-      <DisksModal
-        data={modalData}
-        isOpen={modalVisible}
-        onClose={() => setModalVisible(false)}
-      />
+      <DisksModal data={modalData} isOpen={modalVisible} onClose={() => setModalVisible(false)} />
     </>
   );
 };

@@ -14,7 +14,7 @@
    oc login --token=... --server=...
    cd console/
    npm install
-   npm run start-all
+   npm run start
    ```
 
 4. Your default browser should open automatically, otherwise navigate to http://localhost:9000.
