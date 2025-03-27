@@ -4,6 +4,7 @@ metadata:
   annotations:
     alm-examples: '[]'
     capabilities: Basic Install
+    console.openshift.io/plugins: '["openshift-storage-scale-operator-console-plugin"]'
     features.operators.openshift.io/cnf: "false"
     features.operators.openshift.io/cni: "false"
     features.operators.openshift.io/csi: "true"
@@ -14,8 +15,10 @@ metadata:
     features.operators.openshift.io/token-auth-aws: "false"
     features.operators.openshift.io/token-auth-azure: "false"
     features.operators.openshift.io/token-auth-gcp: "false"
+    operatorframework.io/initialization-resource: '{"apiVersion":"scale.storage.openshift.io/v1alpha1","kind":"StorageScale","metadata":{"name":"storagescale-sample","namespace":"openshift-storage-scale"},"spec":{"ibm_cnsa_version":"v5.2.2.1"}}'
     operatorframework.io/suggested-namespace: openshift-storage-scale
     operators.openshift.io/valid-subscription: '["Openshift Container Platform"]'
+    operators.operatorframework.io/internal-objects: '["localvolumediscoveryresults.scale.storage.openshift.io","localvolumediscoveries.scale.storage.openshift.io"]'
   name: openshift-storage-scale-operator.v0.0.0
   namespace: placeholder
 spec:
