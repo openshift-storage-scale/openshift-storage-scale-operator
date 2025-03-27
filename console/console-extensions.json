@@ -4,17 +4,17 @@
     "properties": {
       "exact": true,
       "path": "/example",
-      "component": { "$codeRef": "ExamplePage" }
+      "component": { "$codeRef": "MainPage" }
     }
   },
   {
     "type": "console.navigation/href",
     "properties": {
-      "id": "example",
-      "name": "%plugin__openshift-storage-scale-console~Plugin Example%",
+      "id": "main",
+      "name": "%plugin__openshift-storage-scale-console~plugin_name%",
       "href": "/example",
       "perspective": "admin",
-      "section": "home"
+      "section": "storage"
     }
   }
 ]
