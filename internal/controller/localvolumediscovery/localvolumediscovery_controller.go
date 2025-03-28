@@ -92,7 +92,7 @@ func (r *LocalVolumeDiscoveryReconciler) Reconcile(ctx context.Context, request 
 	if err != nil {
 		message := fmt.Sprintf("failed to create discovery daemonset. Error %+v", err)
 		err := r.updateDiscoveryStatus(ctx, instance, operatorv1.OperatorStatusTypeDegraded, message,
-			operatorv1.ConditionFalse, localv1alpha1.DiscoveryFailed)
+			metav1.ConditionFalse, localv1alpha1.DiscoveryFailed)
 		if err != nil {
 			return ctrl.Result{}, err
 		}
@@ -109,7 +109,7 @@ func (r *LocalVolumeDiscoveryReconciler) Reconcile(ctx context.Context, request 
 	if desiredDaemons == 0 {
 		message := "no discovery daemons are scheduled for running"
 		err := r.updateDiscoveryStatus(ctx, instance, operatorv1.OperatorStatusTypeDegraded, message,
-			operatorv1.ConditionFalse, localv1alpha1.DiscoveryFailed)
+			metav1.ConditionFalse, localv1alpha1.DiscoveryFailed)
 		if err != nil {
 			return ctrl.Result{}, err
 		}
@@ -117,7 +117,7 @@ func (r *LocalVolumeDiscoveryReconciler) Reconcile(ctx context.Context, request 
 	} else if desiredDaemons != readyDaemons {
 		message := fmt.Sprintf("running %d out of %d discovery daemons", readyDaemons, desiredDaemons)
 		err := r.updateDiscoveryStatus(ctx, instance, operatorv1.OperatorStatusTypeProgressing, message,
-			operatorv1.ConditionFalse, localv1alpha1.Discovering)
+			metav1.ConditionFalse, localv1alpha1.Discovering)
 		if err != nil {
 			return ctrl.Result{}, err
 		}
@@ -127,7 +127,7 @@ func (r *LocalVolumeDiscoveryReconciler) Reconcile(ctx context.Context, request 
 
 	message := fmt.Sprintf("successfully running %d out of %d discovery daemons", desiredDaemons, readyDaemons)
 	err = r.updateDiscoveryStatus(ctx, instance, operatorv1.OperatorStatusTypeAvailable, message,
-		operatorv1.ConditionTrue, localv1alpha1.Discovering)
+		metav1.ConditionTrue, localv1alpha1.Discovering)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
@@ -179,17 +179,17 @@ func getDeviceFinderDiscoveryDSMutateFn(request reconcile.Request,
 // updateDiscoveryStatus updates the discovery state with conditions and phase
 func (r *LocalVolumeDiscoveryReconciler) updateDiscoveryStatus(ctx context.Context, instance *localv1alpha1.LocalVolumeDiscovery,
 	conditionType, message string,
-	status operatorv1.ConditionStatus,
+	status metav1.ConditionStatus,
 	phase localv1alpha1.DiscoveryPhase) error {
 	// avoid frequently updating the same status in the CR
 	if len(instance.Status.Conditions) < 1 || instance.Status.Conditions[0].Message != message {
-		condition := operatorv1.OperatorCondition{
+		condition := localv1alpha1.Condition{
 			Type:               conditionType,
 			Status:             status,
 			Message:            message,
 			LastTransitionTime: metav1.Now(),
 		}
-		newConditions := []operatorv1.OperatorCondition{condition}
+		newConditions := []localv1alpha1.Condition{condition}
 		instance.Status.Conditions = newConditions
 		instance.Status.Phase = phase
 		instance.Status.ObservedGeneration = instance.Generation
