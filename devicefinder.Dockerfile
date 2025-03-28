@@ -7,7 +7,7 @@ COPY . .
 
 RUN make build-devicefinder
 
-FROM registry.redhat.io/rhel9/support-tools@sha256:bcf55d238c144fb0686e658d18f7da96b33997ab8535e2e300767e1518c0ca23
+FROM registry.redhat.io/rhel9/support-tools@sha256:f007f57fbdfeeb7a0ca2d8ae17dc02544cae9404320712f18d7b88dd25389094
 
 COPY --from=builder /workspace/_output/bin/devicefinder /usr/bin/
 
