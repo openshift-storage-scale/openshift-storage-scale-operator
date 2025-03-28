@@ -85,7 +85,11 @@ spec:
                   Important: Run "make" to regenerate code after modifying this file
                   Conditions is a list of conditions and their status.
                 items:
-                  description: OperatorCondition is just the standard condition fields.
+                  description: |-
+                    This is a copy from https://github.com/kubernetes/apimachinery/blob/e8a77bd768fd1419e9b3b48a28dd2c6458733a20/pkg/apis/meta/v1/types.go#L1589
+                    Removed the Reason field because we don't use it, otherwise we'd be reusing the struct provided by the apimachinery
+
+                    Condition contains details for one aspect of the current state of this API Resource.
                   properties:
                     lastTransitionTime:
                       description: |-
@@ -94,8 +98,10 @@ spec:
                       format: date-time
                       type: string
                     message:
-                      type: string
-                    reason:
+                      description: |-
+                        message is a human readable message indicating details about the transition.
+                        This may be an empty string.
+                      maxLength: 32768
                       type: string
                     status:
                       description: status of the condition, one of True, False, Unknown.
@@ -111,6 +117,7 @@ spec:
                       type: string
                   required:
                   - lastTransitionTime
+                  - message
                   - status
                   - type
                   type: object

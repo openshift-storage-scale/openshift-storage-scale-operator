@@ -17,7 +17,6 @@ limitations under the License.
 package v1alpha1
 
 import (
-	operatorv1 "github.com/openshift/api/operator/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -67,7 +66,7 @@ type StorageScaleStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 	// Conditions is a list of conditions and their status.
-	Conditions []operatorv1.OperatorCondition `json:"conditions,omitempty"`
+	Conditions []Condition `json:"conditions,omitempty"`
 	// TotalProvisionedDeviceCount is the count of the total devices over which the PVs has been provisioned
 	TotalProvisionedDeviceCount *int32 `json:"totalProvisionedDeviceCount,omitempty"`
 	// observedGeneration is the last generation change the operator has dealt with

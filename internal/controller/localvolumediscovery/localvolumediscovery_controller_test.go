@@ -229,6 +229,7 @@ func TestDiscoveryReconciler(t *testing.T) {
 		}
 		fakeReconciler := newFakeLocalVolumeDiscoveryReconciler(t, objects...)
 		_, err := fakeReconciler.Reconcile(context.TODO(), req)
+		assert.NoError(t, err)
 		err = fakeReconciler.Client.Get(context.TODO(), types.NamespacedName{Name: discoveryObj.Name, Namespace: discoveryObj.Namespace}, discoveryObj)
 		assert.NoError(t, err)
 		assert.Equalf(t, tc.expectedPhase, discoveryObj.Status.Phase, "[%s] invalid phase", tc.label)
