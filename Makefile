@@ -52,6 +52,10 @@ BUNDLE_IMG ?= $(IMAGE_TAG_BASE)-bundle:$(VERSION)
 BUNDLE_GEN_FLAGS ?= -q --overwrite --version $(VERSION) $(BUNDLE_METADATA_OPTS)
 
 export DEVICEFINDER_IMAGE ?= $(IMAGE_TAG_BASE)-devicefinder:$(VERSION)
+# Must Gather image
+
+export MUST_GATHER_IMAGE ?= $(IMAGE_TAG_BASE)-must-gather:$(VERSION)
+
 REV=$(shell git describe --long --tags --match='v*' --dirty 2>/dev/null || git rev-list -n1 HEAD)
 CURPATH=$(PWD)
 TARGET_DIR=$(CURPATH)/_output/bin
@@ -207,6 +211,14 @@ devicefinder-docker-build: ## Build docker image of the devicefinder
 .PHONY: devicefinder-docker-push
 devicefinder-docker-push: ## Push docker image of the devicefinder
 	$(CONTAINER_TOOL) push $(DEVICEFINDER_IMAGE)
+
+.PHONY: must-gather-docker-build
+must-gather-docker-build: ## Build docker image of the must gather container
+	$(CONTAINER_TOOL) build --platform=linux/$(TARGETARCH) -t $(MUST_GATHER_IMAGE) -f $(CURPATH)/must-gather.Dockerfile .
+
+.PHONY: must-gather-docker-push
+must-gather-docker-push: ## Push docker image of the must gather container
+	$(CONTAINER_TOOL) push $(MUST_GATHER_IMAGE)
 
 # PLATFORMS defines the target platforms for the manager image be built to provide support to multiple
 # architectures. (i.e. make docker-buildx IMG=myregistry/mypoperator:0.0.1). To use this option you need to:
