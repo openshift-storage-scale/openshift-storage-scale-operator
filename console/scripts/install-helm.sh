@@ -4,7 +4,7 @@ set -euo pipefail
 [[ -n "${DEBUGME+x}" ]] && set -x
 
 if type "helm" &> /dev/null; then
-    echo "helm is already installed. Exiting."
+    echo "OK, helm is already installed."
     exit 0
 fi
 

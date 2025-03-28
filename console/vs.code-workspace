@@ -3,6 +3,14 @@
         {
             "name": "Openshift StorageScale Operator console plugin",
             "path": "."
+        },
+        {
+            "name": "Tekton pipeline",
+            "path": "../.tekton"
+        },
+        {
+            "name": "Github Actions",
+            "path": "../.github"
         }
     ],
     "settings": {
