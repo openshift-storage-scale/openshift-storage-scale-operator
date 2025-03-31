@@ -1,6 +1,6 @@
 FROM quay.io/konflux-ci/operator-sdk-builder:latest as builder
 
-ARG CONTROLLER_IMAGE="quay.io/redhat-user-workloads/storage-scale-releng-tenant/controller-rhel9-operator@sha256:fcb250f19666d0a323d7be2b36303ff4cfdd8c4c306c0c7b1b59eb0f1ccb80c2"
+ARG CONTROLLER_IMAGE="quay.io/redhat-user-workloads/storage-scale-releng-tenant/controller-rhel9-operator@sha256:ba503417af04a2108bb3275956c162e4f41751097a10390c94d7594701d9f228"
 ARG DEVICEFINDER_IMAGE="quay.io/redhat-user-workloads/storage-scale-releng-tenant/devicefinder-rhel9@sha256:9e196581c1f5150d8e4f258139c1446451580a4a85fa15017be6dda1acbcfbd9"
 ARG CONSOLE_IMAGE="quay.io/redhat-user-workloads/storage-scale-releng-tenant/console-plugin-rhel9@sha256:22a6e6a593a3e92ac3951405832708f04237d32937209e378a25d54e6b69e512"
 ARG MUST_GATHER_IMAGE="quay.io/redhat-user-workloads/storage-scale-releng-tenant/must-gather-rhel9@sha256:22a6e6a593a3e92ac3951405832708f04237d32937209e378a25d54e6b69e512"
@@ -21,7 +21,7 @@ RUN \
 
 FROM scratch
 
-LABEL controller="quay.io/redhat-user-workloads/storage-scale-releng-tenant/controller-rhel9-operator@sha256:fcb250f19666d0a323d7be2b36303ff4cfdd8c4c306c0c7b1b59eb0f1ccb80c2"
+LABEL controller="quay.io/redhat-user-workloads/storage-scale-releng-tenant/controller-rhel9-operator@sha256:ba503417af04a2108bb3275956c162e4f41751097a10390c94d7594701d9f228"
 LABEL devicefinder="quay.io/redhat-user-workloads/storage-scale-releng-tenant/devicefinder-rhel9@sha256:9e196581c1f5150d8e4f258139c1446451580a4a85fa15017be6dda1acbcfbd9"
 LABEL console="quay.io/redhat-user-workloads/storage-scale-releng-tenant/console-plugin-rhel9@sha256:22a6e6a593a3e92ac3951405832708f04237d32937209e378a25d54e6b69e512"
 LABEL must_gather="quay.io/redhat-user-workloads/storage-scale-releng-tenant/must-gather-rhel9@sha256:22a6e6a593a3e92ac3951405832708f04237d32937209e378a25d54e6b69e512"
