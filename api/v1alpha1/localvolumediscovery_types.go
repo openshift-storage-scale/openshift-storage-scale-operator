@@ -17,7 +17,6 @@ limitations under the License.
 package v1alpha1
 
 import (
-	operatorv1 "github.com/openshift/api/operator/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -65,7 +64,7 @@ type LocalVolumeDiscoveryStatus struct {
 	// to the user
 	Phase DiscoveryPhase `json:"phase,omitempty"`
 	// Conditions are the list of conditions and their status.
-	Conditions []operatorv1.OperatorCondition `json:"conditions,omitempty"`
+	Conditions []Condition `json:"conditions,omitempty"`
 	// observedGeneration is the last generation change the operator has dealt with
 	// +optional
 	ObservedGeneration int64 `json:"observedGeneration,omitempty"`
