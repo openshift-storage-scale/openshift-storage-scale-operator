@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	localv1alpha1 "github.com/openshift-storage-scale/openshift-storage-scale-operator/api/v1alpha1"
-	operatorv1 "github.com/openshift/api/operator/v1"
 	monitoringv1 "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
 	"github.com/stretchr/testify/assert"
 	appsv1 "k8s.io/api/apps/v1"
@@ -148,7 +147,7 @@ func TestDiscoveryReconciler(t *testing.T) {
 		discoveryReadyDaemonsCount   int32
 		expectedPhase                localv1alpha1.DiscoveryPhase
 		conditionType                string
-		conditionStatus              operatorv1.ConditionStatus
+		conditionStatus              metav1.ConditionStatus
 	}{
 		{
 			label:                        "case 1", // all the desired discovery daemonset pods are running
@@ -157,7 +156,7 @@ func TestDiscoveryReconciler(t *testing.T) {
 			discoveryReadyDaemonsCount:   1,
 			expectedPhase:                localv1alpha1.Discovering,
 			conditionType:                "Available",
-			conditionStatus:              operatorv1.ConditionTrue,
+			conditionStatus:              metav1.ConditionTrue,
 		},
 		{
 			label:                        "case 2", // all the desired discovery daemonset pods are running
@@ -166,7 +165,7 @@ func TestDiscoveryReconciler(t *testing.T) {
 			discoveryReadyDaemonsCount:   100,
 			expectedPhase:                localv1alpha1.Discovering,
 			conditionType:                "Available",
-			conditionStatus:              operatorv1.ConditionTrue,
+			conditionStatus:              metav1.ConditionTrue,
 		},
 		{
 			label:                        "case 3", // ready discovery daemonset pods are less than the desired count
@@ -175,7 +174,7 @@ func TestDiscoveryReconciler(t *testing.T) {
 			discoveryReadyDaemonsCount:   80,
 			expectedPhase:                localv1alpha1.Discovering,
 			conditionType:                "Progressing",
-			conditionStatus:              operatorv1.ConditionFalse,
+			conditionStatus:              metav1.ConditionFalse,
 		},
 		{
 			label:                        "case 4", // no discovery daemonset pods are running
@@ -184,7 +183,7 @@ func TestDiscoveryReconciler(t *testing.T) {
 			discoveryReadyDaemonsCount:   0,
 			expectedPhase:                localv1alpha1.DiscoveryFailed,
 			conditionType:                "Degraded",
-			conditionStatus:              operatorv1.ConditionFalse,
+			conditionStatus:              metav1.ConditionFalse,
 		},
 
 		{
@@ -194,7 +193,7 @@ func TestDiscoveryReconciler(t *testing.T) {
 			discoveryReadyDaemonsCount:   0,
 			expectedPhase:                localv1alpha1.DiscoveryFailed,
 			conditionType:                "Degraded",
-			conditionStatus:              operatorv1.ConditionFalse,
+			conditionStatus:              metav1.ConditionFalse,
 		},
 	}
 
@@ -229,7 +228,7 @@ func TestDiscoveryReconciler(t *testing.T) {
 		}
 		fakeReconciler := newFakeLocalVolumeDiscoveryReconciler(t, objects...)
 		_, err := fakeReconciler.Reconcile(context.TODO(), req)
-		assert.NoError(t, err)
+		assert.NoError(t, err, tc.label)
 		err = fakeReconciler.Client.Get(context.TODO(), types.NamespacedName{Name: discoveryObj.Name, Namespace: discoveryObj.Namespace}, discoveryObj)
 		assert.NoError(t, err)
 		assert.Equalf(t, tc.expectedPhase, discoveryObj.Status.Phase, "[%s] invalid phase", tc.label)
