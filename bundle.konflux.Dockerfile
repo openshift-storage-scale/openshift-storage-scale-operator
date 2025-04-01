@@ -2,8 +2,8 @@ FROM quay.io/konflux-ci/operator-sdk-builder:latest as builder
 
 ARG CONTROLLER_IMAGE="quay.io/redhat-user-workloads/storage-scale-releng-tenant/controller-rhel9-operator@sha256:9a4a256484745e0ff41a0d612856ad21146ff49917634a55814d8691c864f114"
 ARG DEVICEFINDER_IMAGE="quay.io/redhat-user-workloads/storage-scale-releng-tenant/devicefinder-rhel9@sha256:9e196581c1f5150d8e4f258139c1446451580a4a85fa15017be6dda1acbcfbd9"
-ARG CONSOLE_IMAGE="quay.io/redhat-user-workloads/storage-scale-releng-tenant/console-plugin-rhel9@sha256:22a6e6a593a3e92ac3951405832708f04237d32937209e378a25d54e6b69e512"
-ARG MUST_GATHER_IMAGE="quay.io/redhat-user-workloads/storage-scale-releng-tenant/must-gather-rhel9@sha256:b0ae2b02f89580876d413644f19fe64542cf5c729d88d4043f7ead40058753b6"
+ARG CONSOLE_IMAGE="quay.io/redhat-user-workloads/storage-scale-releng-tenant/console-plugin-rhel9@sha256:ece2ce4dc9cee2429bd2173400bf637768615337ec1deea531656c79929f7c3c"
+ARG MUST_GATHER_IMAGE="quay.io/redhat-user-workloads/storage-scale-releng-tenant/must-gather-rhel9@sha256:22a6e6a593a3e92ac3951405832708f04237d32937209e378a25d54e6b69e512"
 
 COPY ./ /repo
 WORKDIR /repo
@@ -23,8 +23,8 @@ FROM scratch
 
 LABEL controller="quay.io/redhat-user-workloads/storage-scale-releng-tenant/controller-rhel9-operator@sha256:9a4a256484745e0ff41a0d612856ad21146ff49917634a55814d8691c864f114"
 LABEL devicefinder="quay.io/redhat-user-workloads/storage-scale-releng-tenant/devicefinder-rhel9@sha256:9e196581c1f5150d8e4f258139c1446451580a4a85fa15017be6dda1acbcfbd9"
-LABEL console="quay.io/redhat-user-workloads/storage-scale-releng-tenant/console-plugin-rhel9@sha256:22a6e6a593a3e92ac3951405832708f04237d32937209e378a25d54e6b69e512"
-LABEL must_gather="quay.io/redhat-user-workloads/storage-scale-releng-tenant/must-gather-rhel9@sha256:b0ae2b02f89580876d413644f19fe64542cf5c729d88d4043f7ead40058753b6"
+LABEL console="quay.io/redhat-user-workloads/storage-scale-releng-tenant/console-plugin-rhel9@sha256:ece2ce4dc9cee2429bd2173400bf637768615337ec1deea531656c79929f7c3c"
+LABEL must_gather="quay.io/redhat-user-workloads/storage-scale-releng-tenant/must-gather-rhel9@sha256:22a6e6a593a3e92ac3951405832708f04237d32937209e378a25d54e6b69e512"
 
 COPY --from=builder /repo/build/manifests /manifests/
 COPY --from=builder /repo/build/metadata /metadata/
