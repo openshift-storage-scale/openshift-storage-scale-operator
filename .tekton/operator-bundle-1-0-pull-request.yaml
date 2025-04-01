@@ -80,6 +80,10 @@ spec:
       description: Skip checks against built image
       name: skip-checks
       type: string
+    - default: "false"
+      description: Skip checks for ecosystem-cert-preflight-checks
+      name: skip-ecosystem-cert-preflight-checks
+      type: string
     - default: "true"
       description: Execute the build with network isolation
       name: hermetic
@@ -340,6 +344,8 @@ spec:
       params:
       - name: image-url
         value: $(tasks.build-image-index.results.IMAGE_URL)
+      - name: artifact-type
+        value: operatorbundle
       runAfter:
       - build-image-index
       taskRef:
@@ -353,6 +359,10 @@ spec:
         resolver: bundles
       when:
       - input: $(params.skip-checks)
+        operator: in
+        values:
+        - "false"
+      - input: $(params.skip-ecosystem-cert-preflight-checks)
         operator: in
         values:
         - "false"
