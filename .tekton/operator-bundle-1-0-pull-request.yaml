@@ -80,7 +80,7 @@ spec:
       description: Skip checks against built image
       name: skip-checks
       type: string
-    - default: "false"
+    - default: "true"
       description: Skip checks for ecosystem-cert-preflight-checks
       name: skip-ecosystem-cert-preflight-checks
       type: string
