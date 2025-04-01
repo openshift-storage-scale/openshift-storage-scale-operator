@@ -11,25 +11,13 @@ metadata:
             "name": "storagescale-sample"
           },
           "spec": {
-            "ibm_cnsa_cluster": {
-              "create": true,
-              "daemon_nodeSelector": {
-                "node-role.kubernetes.io/worker": ""
-              }
-            },
-            "ibm_cnsa_version": "v5.2.2.1",
-            "mco_config": {
-              "create": true,
-              "labels": {
-                "machineconfiguration.openshift.io/role": "worker"
-              }
-            }
+            "ibm_cnsa_version": "v5.2.2.1"
           }
         }
       ]
     capabilities: Basic Install
     console.openshift.io/plugins: '["openshift-storage-scale-operator-console-plugin"]'
-    createdAt: "2025-04-01T21:00:33Z"
+    createdAt: "2025-04-01T21:14:17Z"
     features.operators.openshift.io/cnf: "false"
     features.operators.openshift.io/cni: "false"
     features.operators.openshift.io/csi: "true"
@@ -40,7 +28,7 @@ metadata:
     features.operators.openshift.io/token-auth-aws: "false"
     features.operators.openshift.io/token-auth-azure: "false"
     features.operators.openshift.io/token-auth-gcp: "false"
-    operatorframework.io/initialization-resource: '{"apiVersion":"scale.storage.openshift.io/v1alpha1","kind":"StorageScale","metadata":{"name":"storagescale-sample"},"spec":{"ibm_cnsa_version":"v5.2.2.1","mco_config":{"create":true,"labels":{"machineconfiguration.openshift.io/role":"worker"}},"ibm_cnsa_cluster":{"create":true,"daemon_nodeSelector":{"node-role.kubernetes.io/worker":""}}}}'
+    operatorframework.io/initialization-resource: '{"apiVersion":"scale.storage.openshift.io/v1alpha1","kind":"StorageScale","metadata":{"name":"storagescale-sample"},"spec":{"ibm_cnsa_version":"v5.2.2.1"}}'
     operatorframework.io/suggested-namespace: openshift-storage-scale
     operators.openshift.io/valid-subscription: '["Openshift Container Platform"]'
     operators.operatorframework.io/builder: operator-sdk-v1.39.1
