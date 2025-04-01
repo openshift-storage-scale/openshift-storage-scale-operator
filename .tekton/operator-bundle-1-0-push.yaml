@@ -8,9 +8,7 @@ metadata:
     pipelinesascode.tekton.dev/cancel-in-progress: "false"
     pipelinesascode.tekton.dev/max-keep-runs: "3"
     pipelinesascode.tekton.dev/on-cel-expression: event == "push && target_branch == "main" &&
-      ("bundle.konflux.Dockerfile".pathChanged() ||
-      ".tekton/operator-bundle-1-0-push.yaml".pathChanged() ||
-      "bundle/***".pathChanged() )
+      (".tekton/operator-bundle-1-0-push.yaml".pathChanged() )
   creationTimestamp: null
   labels:
     appstudio.openshift.io/application: operator-1-0
