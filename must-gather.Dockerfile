@@ -11,3 +11,19 @@ COPY --from=builder /usr/bin/oc /usr/bin/oc
 #COPY collection-scripts/* /usr/bin/
 
 ENTRYPOINT /usr/bin/gather
+
+LABEL \
+    com.redhat.component="Must gather image for OpenShift Storage Scale Operator" \
+    description="" \
+    io.k8s.display-name="Must gather image for OpenShift Storage Scale Operator" \
+    io.k8s.description="" \
+    io.openshift.tags="openshift,storage,scale" \
+    distribution-scope="public" \
+    name="openshift-storage-scale-must-gather-rhel9" \
+    summary="Must gather image" \
+    release="v1.0" \
+    version="v1.0" \
+    maintainer="Red Hat jgil@redhat.com" \
+    url="https://github.com/openshift-storage-scale/openshift-storage-scale-operator.git" \
+    vendor="Red Hat, Inc." \
+    License="Apache License 2.0"
