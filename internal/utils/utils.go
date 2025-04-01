@@ -50,6 +50,7 @@ var storageScaleTable = map[string]StorageScaleData{
 	"5.2.1.0": {"2.12.0", []string{"x86_64", "ppc64le", "s390x"}, "5.1.9.0+", "35.00", []string{"4.14", "4.15", "4.16"}},
 	"5.2.1.1": {"2.12.1", []string{"x86_64", "ppc64le", "s390x"}, "5.1.9.0+", "35.00", []string{"4.14", "4.15", "4.16"}},
 	"5.2.2.0": {"2.13.0", []string{"x86_64", "ppc64le", "s390x"}, "5.1.9.0+", "36.00", []string{"4.15", "4.16", "4.17"}},
+	"5.2.2.1": {"2.13.1", []string{"x86_64", "ppc64le", "s390x"}, "5.1.9.0+", "36.00", []string{"4.15", "4.16", "4.17", "4.18"}},
 }
 
 func IsOpenShiftSupported(ibmStorageScaleVersion string, openShiftVersion semver.Version) bool {
