@@ -20,24 +20,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// DeviceState defines the observed state of the disk
-type DeviceState string
-
-const (
-	// Available means that the device is available to use and a new persistent volume can be provisioned on it
-	Available DeviceState = "Available"
-	// NotAvailable means that the device is already used by some other process and shouldn't be used to provision a Persistent Volume
-	NotAvailable DeviceState = "NotAvailable"
-	// Unknown means that the state of the device can't be determined
-	Unknown DeviceState = "Unknown"
-)
-
-// DeviceStatus defines the observed state of the discovered devices
-type DeviceStatus struct {
-	// State shows the availability of the device
-	State DeviceState `json:"state"`
-}
-
 // DiscoveredDevice shows the list of discovered devices with their properties
 type DiscoveredDevice struct {
 	// DeviceID represents the persistent name of the device. For eg, /dev/disk/by-id/...
@@ -50,17 +32,9 @@ type DiscoveredDevice struct {
 	Type DiscoveredDeviceType `json:"type"`
 	// Vendor of the discovered device
 	Vendor string `json:"vendor"`
-	// Serial number of the disk
-	Serial string `json:"serial"`
 	// Size of the discovered device
 	Size int64 `json:"size"`
-	// Property represents whether the device type is rotational or not
-	Property DeviceMechanicalProperty `json:"property"`
-	// FSType represents the filesystem available on the device
-	FSType string `json:"fstype"`
-	// Status defines whether the device is available for use or not
-	Status DeviceStatus `json:"status"`
-	// WWN defines the WWN value of the device. For multipath devices, this is mandatory
+	// WWN defines the WWN value of the device.
 	WWN string `json:"WWN"`
 }
 
@@ -74,8 +48,8 @@ type LocalVolumeDiscoveryResultSpec struct {
 type LocalVolumeDiscoveryResultStatus struct {
 	// DiscoveredTimeStamp is the last timestamp when the list of discovered devices was updated
 	DiscoveredTimeStamp string `json:"discoveredTimeStamp,omitempty"`
-	// DiscoveredDevices contains the list of devices on which LSO
-	// is capable of creating LocalPVs
+	// DiscoveredDevices contains the list of devices which are usable
+	// for creating LocalDisks
 	// The devices in this list qualify these following conditions.
 	// - it should be a non-removable device.
 	// - it should not be a read-only device.

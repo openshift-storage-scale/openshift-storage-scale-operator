@@ -1,22 +1,15 @@
 package diskutils
 
 import (
-	"encoding/json"
 	"fmt"
-	"os"
 	"os/exec"
-	"path/filepath"
 	"strings"
 
 	"k8s.io/klog/v2"
-
-	"github.com/pkg/errors"
 )
 
 var (
-	ExecCommand          CommandExecutor
-	FilePathGlob         = filepath.Glob
-	FilePathEvalSymLinks = filepath.EvalSymlinks
+	ExecCommand CommandExecutor
 )
 
 func init() {
@@ -26,10 +19,6 @@ func init() {
 const (
 	// StateSuspended is a possible value of BlockDevice.State
 	StateSuspended = "suspended"
-	// DiskByIDDir is the path for symlinks to the device by id.
-	DiskByIDDir = "/dev/disk/by-id/"
-	// DiskDMDir is the path for symlinks of device mapper disks (e.g. mpath)
-	DiskDMDir = "/dev/mapper/"
 )
 
 type CommandExecutor interface {
@@ -47,27 +36,16 @@ type Command interface {
 	CombinedOutput() ([]byte, error)
 }
 
-// IDPathNotFoundError indicates that a symlink to the device was not found in /dev/disk/by-id/
-type IDPathNotFoundError struct {
-	DeviceName string
-}
-
-func (e IDPathNotFoundError) Error() string {
-	return fmt.Sprintf("IDPathNotFoundError: a symlink to  %q was not found in %q", e.DeviceName, DiskByIDDir)
-}
-
 // BlockDevice is the a block device as output by lsblk.
-// All the fields are lsblk columns.
-
 type BlockDeviceList struct {
 	BlockDevices []BlockDevice `json:"blockdevices"`
 }
 
 type BlockDevice struct {
 	Name       string        `json:"name"`
-	Rotational bool          `json:"rota"`
 	Type       string        `json:"type"`
 	Size       int64         `json:"size"`
+	PathByID   string        `json:"id-link,omitempty"`
 	Model      string        `json:"model,omitempty"`
 	Vendor     string        `json:"vendor,omitempty"`
 	ReadOnly   bool          `json:"RO,omitempty"`
@@ -75,217 +53,60 @@ type BlockDevice struct {
 	State      string        `json:"state,omitempty"`
 	KName      string        `json:"kname"`
 	FSType     string        `json:"fstype,omitempty"`
-	Serial     string        `json:"serial,omitempty"`
 	PartLabel  string        `json:"partlabel,omitempty"`
-	PathByID   string        `json:"pathByID,omitempty"` // Fetched from introspecting /dev
-	WWN        string        `json:"WWN,omitempty"`      // Purple unicorn storage fields
-	Mountpoint string        `json:"mountpoint,omitempty"`
+	Path       string        `json:"path,omitempty"`
+	WWN        string        `json:"wwn,omitempty"`
 	Children   []BlockDevice `json:"children,omitempty"`
-}
-
-// GetMountPoint returns the mountpoint of the device, or the mp of the first child if it has one
-//
-// TODO remove this: HostPID should be set to true inside the POD spec to get details of host's mount points inside `proc/1/mountinfo`.
-func (b *BlockDevice) GetMountPoint() (mountpoint string, err error) {
-	if b.Children != nil {
-		return b.Children[0].GetMountPoint()
-	}
-	return b.Mountpoint, nil
+	Mountpoint string        `json:"mountpoint,omitempty"`
 }
 
 func (b *BlockDevice) BiosPartition() bool {
+	if b.Children != nil {
+		for idx := range b.Children {
+			if strings.Contains(
+				strings.ToLower(b.Children[idx].PartLabel),
+				strings.ToLower("bios")) ||
+				strings.Contains(
+					strings.ToLower(b.Children[idx].PartLabel),
+					strings.ToLower("boot")) {
+				return true
+			}
+			continue
+		}
+	}
 	return strings.Contains(strings.ToLower(b.PartLabel), strings.ToLower("bios")) ||
 		strings.Contains(strings.ToLower(b.PartLabel), strings.ToLower("boot"))
 }
 
 // GetDevPath for block device (/dev/sdx)
 func (b *BlockDevice) GetDevPath() (path string, err error) {
-	if b.KName == "" {
-		return "", fmt.Errorf("empty KNAME")
+	if b.FSType == "mpath_member" {
+		// mpaths always have a single children
+		return fmt.Sprintf("/dev/%s", b.Children[0].KName), nil
 	}
-	return fmt.Sprintf("/dev/%s", b.KName), nil
+	return b.Path, nil
 }
 
 // GetPathByID check on BlockDevice
-func (b *BlockDevice) GetPathByID(existingDeviceID string) (string, error) {
-	// return if previously populated value is valid
-	if b.PathByID != "" && strings.HasPrefix(b.PathByID, DiskByIDDir) {
-		evalsCorrectly, err := PathEvalsToDiskLabel(b.PathByID, b.KName)
-		if err == nil && evalsCorrectly {
-			return b.PathByID, nil
-		}
-	}
-	b.PathByID = ""
-	allDisks, err := FilePathGlob(filepath.Join(DiskByIDDir, "*"))
-	if err != nil {
-		return "", fmt.Errorf("error listing files in %s: %v", DiskByIDDir, err)
-	}
-	preferredPatterns := []string{"wwn", "scsi", "nvme", ""}
-
-	// sortedSymlinks sorts symlinks in 4 buckets.
-	// 	- [0] - syminks that match wwn
-	//	- [1] - symlinks that match scsi
-	//	- [2] - symlinks that match nvme
-	//	- [3] - symlinks that does not any of these
-	sortedSymlinks := make([][]string, len(preferredPatterns))
-
-	for _, path := range allDisks {
-		symLinkName := filepath.Base(path)
-		if existingDeviceID != "" && symLinkName == existingDeviceID {
-			isMatch, err := PathEvalsToDiskLabel(path, b.KName)
-			if err != nil {
-				return "", err
-			}
-			if isMatch {
-				b.PathByID = path
-				return path, nil
-			}
-		}
-
-		for i, pattern := range preferredPatterns {
-			if strings.HasPrefix(symLinkName, pattern) {
-				sortedSymlinks[i] = append(sortedSymlinks[i], path)
-				break
-			}
-		}
+func (b *BlockDevice) GetPathByID() (string, error) {
+	if b.FSType == "mpath_member" {
+		return fmt.Sprintf("/dev/disk/by-id/%s", b.Children[0].PathByID), nil
 	}
 
-	for _, groupedLink := range sortedSymlinks {
-		for _, path := range groupedLink {
-			isMatch, err := PathEvalsToDiskLabel(path, b.KName)
-			if err != nil {
-				return "", err
-			}
-			if isMatch {
-				b.PathByID = path
-				return path, nil
-			}
-		}
+	if b.PathByID != "" {
+		return fmt.Sprintf("/dev/disk/by-id/%s", b.PathByID), nil
 	}
-
-	devPath, err := b.GetDevPath()
-	if err != nil {
-		return "", err
-	}
-	// return path by label and error
-	return devPath, IDPathNotFoundError{DeviceName: b.KName}
+	return "", fmt.Errorf("disk has no persistent ID")
 }
 
-// PathEvalsToDiskLabel checks if the path is a symplink to a file devName
-func PathEvalsToDiskLabel(path, devName string) (bool, error) {
-	devPath, err := FilePathEvalSymLinks(path)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return false, nil
-		}
-		return false, fmt.Errorf("could not eval symLink %q:%w", devPath, err)
-	}
-	if filepath.Base(devPath) == devName {
-		return true, nil
-	}
-	return false, nil
-}
-
-// ListBlockDevices using the lsblk command
-func ListBlockDevices(devices []string) (blockDevices, badRows []BlockDevice, err error) {
-	deviceFSMap, err := GetDeviceFSMap(devices)
-	if err != nil {
-		return []BlockDevice{}, []BlockDevice{}, errors.Wrap(err, "failed to list block devices")
-	}
-
-	columns := "NAME,ROTA,TYPE,SIZE,MODEL,VENDOR,RO,RM,STATE,KNAME,SERIAL,PARTLABEL,WWN,MOUNTPOINT"
-	args := []string{"--json", "-b", "-o", columns}
+// GetBlockDevices using the lsblk command
+func GetBlockDevices() ([]byte, error) {
+	args := []string{"--json", "-O", "-b"}
 	cmd := ExecCommand.Execute("lsblk", args...)
 	klog.Infof("Executing command: %#v", cmd)
-	output, err := executeCmdWithCombinedOutput(cmd)
-	if err != nil {
-		return []BlockDevice{}, []BlockDevice{}, fmt.Errorf("failed to run command: %s", err)
-	}
-	if output == "" {
-		return []BlockDevice{}, []BlockDevice{}, nil
-	}
-	lDevices := BlockDeviceList{}
-	err = json.Unmarshal([]byte(output), &lDevices)
-	if err != nil {
-		return []BlockDevice{}, []BlockDevice{}, fmt.Errorf("failed to unmarshal JSON %s: %s", output, err)
-	}
-
-	for idx := range lDevices.BlockDevices {
-		// only use device if name is populated, and non-empty
-		if strings.Trim(lDevices.BlockDevices[idx].Name, " ") == "" {
-			badRows = append(badRows, lDevices.BlockDevices[idx])
-			e, err := json.Marshal(badRows)
-			m := fmt.Sprintf("Found an entry with empty name: %s.", e)
-			if err != nil {
-				m = fmt.Sprintf(m+" Failed to marshal ", err)
-			}
-			klog.Warning(m)
-			break
-		}
-
-		lDevices.BlockDevices[idx].Model = strings.Trim(lDevices.BlockDevices[idx].Model, " ")
-		lDevices.BlockDevices[idx].Vendor = strings.Trim(lDevices.BlockDevices[idx].Vendor, " ")
-		// Update device filesystem using `blkid`
-		if fs, ok := deviceFSMap[fmt.Sprintf("/dev/%s", lDevices.BlockDevices[idx].Name)]; ok {
-			lDevices.BlockDevices[idx].FSType = fs
-		}
-		blockDevices = append(blockDevices, lDevices.BlockDevices[idx])
-	}
-
-	if len(badRows) == len(lDevices.BlockDevices) && len(lDevices.BlockDevices) > 0 {
-		return []BlockDevice{}, badRows, fmt.Errorf("could not parse any of the lsblk entries")
-	}
-
-	return blockDevices, badRows, nil
-}
-
-// GetDeviceFSMap returns mapping between disks and the filesystem using blkid
-// It parses the output of `blkid -s TYPE`. Sample output format before parsing
-// `/dev/sdc: TYPE="ext4"
-// /dev/sdd: TYPE="ext2"`
-// If devices is empty, it scans all disks, otherwise only devices.
-func GetDeviceFSMap(devices []string) (map[string]string, error) {
-	m := map[string]string{}
-	args := append([]string{"-s", "TYPE"}, devices...)
-	cmd := ExecCommand.Execute("blkid", args...)
-	output, err := executeCmdWithCombinedOutput(cmd)
-	if err != nil {
-		// According to blkid man page, exit status 2 is returned
-		// if no device found.
-		if exiterr, ok := err.(*exec.ExitError); ok {
-			if exiterr.ExitCode() == 2 {
-				return map[string]string{}, nil
-			}
-		}
-		return map[string]string{}, err
-	}
-	lines := strings.Split(output, "\n")
-	for _, l := range lines {
-		if l == "" {
-			// Ignore empty line.
-			continue
-		}
-
-		values := strings.Split(l, ":")
-		if len(values) != 2 {
-			continue
-		}
-
-		fs := strings.Split(values[1], "=")
-		if len(fs) != 2 {
-			continue
-		}
-
-		m[values[0]] = strings.Trim(strings.TrimSpace(fs[1]), "\"")
-	}
-
-	return m, nil
-}
-
-func executeCmdWithCombinedOutput(cmd Command) (string, error) {
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return string(output), err
+		return []byte{}, fmt.Errorf("failed to run command: %s", err)
 	}
-	return strings.TrimSpace(string(output)), nil
+	return output, err
 }

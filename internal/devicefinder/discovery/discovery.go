@@ -1,17 +1,17 @@
 package discovery
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/signal"
 	"reflect"
-	"strings"
 	"syscall"
 	"time"
 
 	"github.com/openshift-storage-scale/openshift-storage-scale-operator/api/v1alpha1"
 	"github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/devicefinder"
-	diskutil "github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/diskutils"
+	"github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/diskutils"
 
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/util/sets"
@@ -143,30 +143,29 @@ func (discovery *DeviceDiscovery) discoverDevices() error {
 	return nil
 }
 
-// getValidBlockDevices fetchs all the block devices sutitable for discovery
-func getValidBlockDevices() ([]diskutil.BlockDevice, error) {
-	blockDevices, output, err := diskutil.ListBlockDevices([]string{})
+// getValidBlockDevices fetches and unmarshalls all the block devices sutitable for discovery
+func getValidBlockDevices() ([]diskutils.BlockDevice, error) {
+	lDevices := diskutils.BlockDeviceList{}
+	blockDevices, err := diskutils.GetBlockDevices()
 	if err != nil {
-		return blockDevices, errors.Wrapf(err, "failed to list all the block devices in the node, stderr=%v", output)
+		return lDevices.BlockDevices, err
+	}
+	err = json.Unmarshal(blockDevices, &lDevices)
+	if err != nil {
+		return lDevices.BlockDevices, err
 	}
 
-	// Get valid list of devices
-	validDevices := make([]diskutil.BlockDevice, 0)
+	return lDevices.BlockDevices, nil
+}
+
+// getDiscoverdDevices creates v1alpha1.DiscoveredDevice from diskutil.BlockDevices
+func getDiscoverdDevices(blockDevices []diskutils.BlockDevice) []v1alpha1.DiscoveredDevice {
+	discoveredDevices := make([]v1alpha1.DiscoveredDevice, 0)
 	for idx := range blockDevices {
 		if ignoreDevices(&blockDevices[idx]) {
 			continue
 		}
-		validDevices = append(validDevices, blockDevices[idx])
-	}
-
-	return validDevices, nil
-}
-
-// getDiscoverdDevices creates v1alpha1.DiscoveredDevice from diskutil.BlockDevices
-func getDiscoverdDevices(blockDevices []diskutil.BlockDevice) []v1alpha1.DiscoveredDevice {
-	discoveredDevices := make([]v1alpha1.DiscoveredDevice, 0)
-	for idx := range blockDevices {
-		deviceID, err := blockDevices[idx].GetPathByID("" /*existing symlink path*/)
+		deviceID, err := blockDevices[idx].GetPathByID()
 		if err != nil {
 			klog.Warningf("failed to get persistent ID for the device %q. Error %v", blockDevices[idx].Name, err)
 			deviceID = ""
@@ -180,32 +179,23 @@ func getDiscoverdDevices(blockDevices []diskutil.BlockDevice) []v1alpha1.Discove
 			Path:     path,
 			Model:    blockDevices[idx].Model,
 			Vendor:   blockDevices[idx].Vendor,
-			FSType:   blockDevices[idx].FSType,
-			Serial:   blockDevices[idx].Serial,
 			Type:     parseDeviceType(blockDevices[idx].Type),
 			DeviceID: deviceID,
 			Size:     blockDevices[idx].Size,
-			Property: parseDeviceProperty(blockDevices[idx].Rotational),
-			Status:   getDeviceStatus(&blockDevices[idx]),
 			WWN:      blockDevices[idx].WWN,
 		}
 		discoveredDevices = append(discoveredDevices, discoveredDevice)
 	}
-
 	return uniqueDevices(discoveredDevices)
 }
 
-// uniqueDevices removes duplicate devices from the list using DeviceID as a key
-// TODO: remove this and use lsblk with -M flag once base images are updated and lsblk v2.34 or higher is available
-// See: https://github.com/util-linux/util-linux/blob/3be31a106c52e093928afbea2cddbdbe44cfb357/Documentation/releases/v2.34-ReleaseNotes#L18
-
-//nolint:gocritic
+// uniqueDevices removes duplicate devices from the list using WWN as a key
 func uniqueDevices(sample []v1alpha1.DiscoveredDevice) []v1alpha1.DiscoveredDevice {
 	var unique []v1alpha1.DiscoveredDevice
-	type key struct{ value, value2 string }
+	type key struct{ value string }
 	m := make(map[key]int)
 	for _, v := range sample {
-		k := key{v.DeviceID, v.Path}
+		k := key{v.WWN}
 		if i, ok := m[k]; ok {
 			unique[i] = v
 		} else {
@@ -217,13 +207,13 @@ func uniqueDevices(sample []v1alpha1.DiscoveredDevice) []v1alpha1.DiscoveredDevi
 }
 
 // ignoreDevices checks if a device should be ignored during discovery
-func ignoreDevices(dev *diskutil.BlockDevice) bool {
+func ignoreDevices(dev *diskutils.BlockDevice) bool {
 	if dev.ReadOnly {
 		klog.Infof("ignoring read only device %q", dev.Name)
 		return true
 	}
 
-	if dev.State == diskutil.StateSuspended {
+	if dev.State == diskutils.StateSuspended {
 		klog.Infof("ignoring device %q with invalid state %q", dev.Name, dev.State)
 		return true
 	}
@@ -238,55 +228,35 @@ func ignoreDevices(dev *diskutil.BlockDevice) bool {
 		return true
 	}
 
-	if strings.Trim(dev.WWN, " ") == "" {
-		klog.Infof("ignoring device %q with undefined WWN", dev.Name)
+	if dev.BiosPartition() {
+		klog.Infof("ignoring device %q with partion with bios/boot label", dev.Name)
 		return true
 	}
 
+	if dev.Mountpoint != "" {
+		klog.Infof("ignoring device %q with at least one mountpoint", dev.Mountpoint)
+		return true
+	}
+
+	if dev.FSType != "" && dev.FSType != "mpath_member" {
+		klog.Infof("ignoring device %q with FS", dev.FSType)
+		return true
+	}
+	// Ignore childrens which has partiton/fs on them
+	if dev.Children != nil {
+		klog.Infof("ignoring device %q with partitions", dev.FSType)
+		for idx := range dev.Children {
+			if dev.Children[idx].Type == "part" {
+				klog.Infof("ignoring device %q with partitions", dev.Children[idx].Name)
+				return true
+			}
+			if dev.Children[idx].FSType != "" {
+				klog.Infof("ignoring device %q with filesystem %s", dev.Children[idx].Name, dev.Children[idx].FSType)
+				return true
+			}
+		}
+	}
 	return false
-}
-
-// getDeviceStatus returns device status as "Available", "NotAvailable" or "Unknown"
-func getDeviceStatus(dev *diskutil.BlockDevice) v1alpha1.DeviceStatus {
-	status := v1alpha1.DeviceStatus{}
-	if dev.FSType != "" {
-		klog.Infof("device %q with filesystem %q is not available", dev.Name, dev.FSType)
-		status.State = v1alpha1.NotAvailable
-		return status
-	}
-
-	if dev.BiosPartition() {
-		klog.Infof("device %q with part label %q is not available", dev.Name, dev.PartLabel)
-		status.State = v1alpha1.NotAvailable
-		return status
-	}
-
-	mountPoint, err := dev.GetMountPoint()
-	if err != nil {
-		status.State = v1alpha1.Unknown
-		return status
-	}
-
-	if mountPoint != "" {
-		klog.Infof("device %q with mount point %q is not available", dev.Name, mountPoint)
-		status.State = v1alpha1.NotAvailable
-		return status
-	}
-
-	klog.Infof("device %q is available", dev.Name)
-	status.State = v1alpha1.Available
-	return status
-}
-
-func parseDeviceProperty(property bool) v1alpha1.DeviceMechanicalProperty {
-	switch property {
-	case true:
-		return v1alpha1.Rotational
-	case false:
-		return v1alpha1.NonRotational
-	default:
-		return ""
-	}
 }
 
 func parseDeviceType(deviceType string) v1alpha1.DiscoveredDeviceType {
