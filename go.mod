@@ -26,14 +26,14 @@ require (
 )
 
 require (
-	github.com/ajeddeloh/go-json e49c8866685a // indirect
+	github.com/ajeddeloh/go-json v0.0.0-20231102161613-e49c8866685a // indirect
 	github.com/aws/aws-sdk-go v1.45.20 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/blang/semver/v4 v4.0.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/clarketm/json v1.17.1 // indirect
 	github.com/coreos/fcct v0.5.0 // indirect
-	github.com/coreos/go-json v0.0.0-20231102161613-e49c8866685a // indirect
+	github.com/coreos/go-json v0.0.0-20230131223807-18775e0fb4fb // indirect
 	github.com/coreos/go-semver v0.3.1 // indirect
 	github.com/coreos/go-systemd v0.0.0-20190719114852-fd7a80b32e1f // indirect
 	github.com/coreos/go-systemd/v22 v22.5.0 // indirect
@@ -109,3 +109,5 @@ require (
 	sigs.k8s.io/structured-merge-diff/v4 v4.6.0 // indirect
 	sigs.k8s.io/yaml v1.4.0 // indirect
 )
+
+replace github.com/ajeddeloh/go-json => github.com/coreos/go-json v0.0.0-20231102161613-e49c8866685a
