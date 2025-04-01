@@ -1,9 +1,9 @@
 FROM quay.io/konflux-ci/operator-sdk-builder:latest as builder
 
-ARG CONTROLLER_IMAGE="quay.io/redhat-user-workloads/storage-scale-releng-tenant/controller-rhel9-operator@sha256:ba503417af04a2108bb3275956c162e4f41751097a10390c94d7594701d9f228"
-ARG DEVICEFINDER_IMAGE="quay.io/redhat-user-workloads/storage-scale-releng-tenant/devicefinder-rhel9@sha256:9488f4ae3c5af5f3c08f55031f726659277a081153857f365c8a4e43b0be8df5"
-ARG CONSOLE_IMAGE="quay.io/redhat-user-workloads/storage-scale-releng-tenant/console-plugin-rhel9@sha256:22a6e6a593a3e92ac3951405832708f04237d32937209e378a25d54e6b69e512"
-ARG MUST_GATHER_IMAGE="quay.io/redhat-user-workloads/storage-scale-releng-tenant/must-gather-rhel9@sha256:b0ae2b02f89580876d413644f19fe64542cf5c729d88d4043f7ead40058753b6"
+ARG OPERATOR_IMG="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/controller-rhel9-operator@sha256:ba503417af04a2108bb3275956c162e4f41751097a10390c94d7594701d9f228"
+ARG DEVICEFINDER_IMAGE="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/devicefinder-rhel9@sha256:9488f4ae3c5af5f3c08f55031f726659277a081153857f365c8a4e43b0be8df5"
+ARG CONSOLE_PLUGIN_IMAGE="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/storage-scale-operator-console-plugin-rhel9@sha256:22a6e6a593a3e92ac3951405832708f04237d32937209e378a25d54e6b69e512"
+ARG MUST_GATHER_IMAGE="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/storage-scale-operator-must-gather-rhel9@sha256:b0ae2b02f89580876d413644f19fe64542cf5c729d88d4043f7ead40058753b6"
 
 COPY ./ /repo
 WORKDIR /repo
@@ -21,14 +21,17 @@ RUN \
 
 FROM scratch
 
-LABEL nudge.controller="quay.io/redhat-user-workloads/storage-scale-releng-tenant/controller-rhel9-operator@sha256:ba503417af04a2108bb3275956c162e4f41751097a10390c94d7594701d9f228"
-LABEL nudge.devicefinder="quay.io/redhat-user-workloads/storage-scale-releng-tenant/devicefinder-rhel9@sha256:9488f4ae3c5af5f3c08f55031f726659277a081153857f365c8a4e43b0be8df5"
-LABEL nudge.console="quay.io/redhat-user-workloads/storage-scale-releng-tenant/console-plugin-rhel9@sha256:22a6e6a593a3e92ac3951405832708f04237d32937209e378a25d54e6b69e512"
-LABEL nudge.must_gather="quay.io/redhat-user-workloads/storage-scale-releng-tenant/must-gather-rhel9@sha256:b0ae2b02f89580876d413644f19fe64542cf5c729d88d4043f7ead40058753b6"
+LABEL nudge.operator="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/controller-rhel9-operator@sha256:ba503417af04a2108bb3275956c162e4f41751097a10390c94d7594701d9f228"
+LABEL nudge.devicefinder="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/devicefinder-rhel9@sha256:9488f4ae3c5af5f3c08f55031f726659277a081153857f365c8a4e43b0be8df5"
+LABEL nudge.console="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/storage-scale-operator-console-plugin-rhel9@sha256:22a6e6a593a3e92ac3951405832708f04237d32937209e378a25d54e6b69e512"
+LABEL nudge.must_gather="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/storage-scale-operator-must-gather-rhel9@sha256:b0ae2b02f89580876d413644f19fe64542cf5c729d88d4043f7ead40058753b6"
 
 COPY --from=builder /repo/build/manifests /manifests/
 COPY --from=builder /repo/build/metadata /metadata/
 
+COPY --from=builder licenses /licenses/
+
+USER 1001
 # These are three labels needed to control how the pipeline should handle this container image
 # This first label tells the pipeline that this is a bundle image and should be
 # delivered via an index image
@@ -36,7 +39,7 @@ LABEL com.redhat.delivery.operator.bundle=true
 
 # This second label tells the pipeline which versions of OpenShift the operator supports.
 # This is used to control which index images should include this operator.
-LABEL com.redhat.openshift.versions="v4.16"
+LABEL com.redhat.openshift.versions="v4.18"
 
 # This third label tells the pipeline that this operator should *also* be supported on OCP 4.4 and
 # earlier.  It is used to control whether or not the pipeline should attempt to automatically
