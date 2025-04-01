@@ -122,6 +122,10 @@ help: ## Display this help.
 .PHONY: manifests
 manifests: controller-gen ## Generate WebhookConfiguration, ClusterRole and CustomResourceDefinition objects.
 	$(CONTROLLER_GEN) rbac:roleName=manager-role crd webhook paths="./..." output:crd:artifacts:config=config/crd/bases
+	# This reads config/samples/scale_v1alpha1_storagescale.yaml and keeps it in sync
+	# with the initialization-resource
+	sed -i "s|^\(.*operatorframework.io/initialization-resource:\).*|\1 '$$(yq -o=json -I=0 config/samples/scale_v1alpha1_storagescale.yaml)'|" config/manifests/bases/openshift-storage-scale-operator.clusterserviceversion.yaml
+
 
 .PHONY: generate
 generate: controller-gen ## Generate code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations.
