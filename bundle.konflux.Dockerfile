@@ -29,6 +29,9 @@ LABEL nudge.must_gather="quay.io/redhat-user-workloads/storage-scale-releng-tena
 COPY --from=builder /repo/build/manifests /manifests/
 COPY --from=builder /repo/build/metadata /metadata/
 
+COPY --from=builder licenses /licenses/
+
+USER 1001
 # These are three labels needed to control how the pipeline should handle this container image
 # This first label tells the pipeline that this is a bundle image and should be
 # delivered via an index image
@@ -36,7 +39,7 @@ LABEL com.redhat.delivery.operator.bundle=true
 
 # This second label tells the pipeline which versions of OpenShift the operator supports.
 # This is used to control which index images should include this operator.
-LABEL com.redhat.openshift.versions="v4.16"
+LABEL com.redhat.openshift.versions="v4.18"
 
 # This third label tells the pipeline that this operator should *also* be supported on OCP 4.4 and
 # earlier.  It is used to control whether or not the pipeline should attempt to automatically
