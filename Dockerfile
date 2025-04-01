@@ -1,6 +1,6 @@
 ARG TARGETARCH=amd64
 
-FROM --platform=linux/$TARGETARCH brew.registry.redhat.io/rh-osbs/openshift-golang-builder@sha256:2e38fae8c9caa7a0e23c54f6d612bd3a4a4fc170514be7eb24f44ea1ff7861c9 AS builder
+FROM --platform=linux/$TARGETARCH brew.registry.redhat.io/rh-osbs/openshift-golang-builder:v1.23@sha256:0a070e4a8f2698b6aba3630a49eb995ff1b0a182d0c5fa264888acf9d535f384 AS builder
 
 USER 0
 # Build the manager binary
