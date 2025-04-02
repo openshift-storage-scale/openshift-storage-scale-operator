@@ -3,6 +3,7 @@ package discovery
 
 import (
 	"fmt"
+	"os"
 	"testing"
 
 	"github.com/openshift-storage-scale/openshift-storage-scale-operator/api/v1alpha1"
@@ -180,4 +181,28 @@ func TestTruncateNodeName(t *testing.T) {
 		actual := truncateNodeName("discovery-result-%s", tc.input)
 		assert.Equalf(t, tc.expected, actual, "[%s]: failed to truncate node name", tc.label)
 	}
+}
+
+func getFakeDeviceDiscovery() *DeviceDiscovery {
+	dd := &DeviceDiscovery{}
+	dd.apiClient = &devicefinder.MockAPIUpdater{}
+	dd.eventSync = devicefinder.NewEventReporter(dd.apiClient)
+	dd.disks = []v1alpha1.DiscoveredDevice{}
+	dd.localVolumeDiscovery = &v1alpha1.LocalVolumeDiscovery{}
+
+	return dd
+}
+
+func setEnv() {
+	os.Setenv("MY_NODE_NAME", "node1")
+	os.Setenv("WATCH_NAMESPACE", "ns")
+	os.Setenv("DISCOVERY_OBJECT_UID", "uid")
+	os.Setenv("DISCOVERY_OBJECT_NAME", "auto-discover-devices")
+}
+
+func unsetEnv() {
+	os.Unsetenv("MY_NODE_NAME")
+	os.Unsetenv("WATCH_NAMESPACE")
+	os.Unsetenv("DISCOVERY_OBJECT_UID")
+	os.Unsetenv("DISCOVERY_OBJECT_NAME")
 }

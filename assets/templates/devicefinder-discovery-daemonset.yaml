@@ -47,23 +47,15 @@ spec:
         terminationMessagePath: /dev/termination-log
         terminationMessagePolicy: FallbackToLogsOnError
         volumeMounts:
-        - mountPath: /mnt/local-storage
-          mountPropagation: HostToContainer
-          name: local-disks
         - mountPath: /dev
           mountPropagation: HostToContainer
           name: device-dir
         - mountPath: /run/udev
           mountPropagation: HostToContainer
           name: run-udev
-      hostPID: true
       priorityClassName: ${PRIORITY_CLASS_NAME}
       serviceAccountName: storage-scale-operator-controller-manager
       volumes:
-      - hostPath:
-          path: /mnt/local-storage
-          type: ""
-        name: local-disks
       - hostPath:
           path: /dev
           type: Directory
