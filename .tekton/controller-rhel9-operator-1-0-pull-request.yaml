@@ -20,7 +20,7 @@ metadata:
     appstudio.openshift.io/application: operator-1-0
     appstudio.openshift.io/component: controller-rhel9-operator-1-0
     pipelines.appstudio.openshift.io/type: build
-  name: controller-rhel9-operator-1-0-on-pull-request
+  name: controller-rhel9-operator-1-0-pull-request
   namespace: storage-scale-releng-tenant
 spec:
   params:

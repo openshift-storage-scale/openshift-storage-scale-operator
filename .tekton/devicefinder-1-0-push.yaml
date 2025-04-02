@@ -18,7 +18,7 @@ metadata:
     appstudio.openshift.io/application: operator-1-0
     appstudio.openshift.io/component: devicefinder-1-0
     pipelines.appstudio.openshift.io/type: build
-  name: devicefinder-1-0-on-push
+  name: devicefinder-1-0-push
   namespace: storage-scale-releng-tenant
 spec:
   params:
