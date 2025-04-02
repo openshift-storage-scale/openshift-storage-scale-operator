@@ -1,7 +1,7 @@
 FROM quay.io/konflux-ci/operator-sdk-builder:latest as builder
 
-ARG OPERATOR_IMG="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/controller-rhel9-operator@sha256:be56fe5d0da46d17ee9d81f0a13a423df1d80567e67683997689a0166dfb94dc"
-ARG DEVICEFINDER_IMAGE="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/devicefinder-rhel9@sha256:9488f4ae3c5af5f3c08f55031f726659277a081153857f365c8a4e43b0be8df5"
+ARG OPERATOR_IMG="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/controller-rhel9-operator@sha256:ba503417af04a2108bb3275956c162e4f41751097a10390c94d7594701d9f228"
+ARG DEVICEFINDER_IMAGE="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/devicefinder-rhel9@sha256:45e6dc46bc3b77e0ebe509c923f1b1a872741bc37a4e37aaff9d6ad7da13a987"
 ARG CONSOLE_PLUGIN_IMAGE="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/storage-scale-operator-console-plugin-rhel9@sha256:22a6e6a593a3e92ac3951405832708f04237d32937209e378a25d54e6b69e512"
 ARG MUST_GATHER_IMAGE="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/storage-scale-operator-must-gather-rhel9@sha256:e3ff1754e7eb997ba7680121ed728e5d2e14e72fbf018f4cf42c39d72e576273"
 
@@ -21,8 +21,8 @@ RUN \
 
 FROM scratch
 
-LABEL nudge.operator="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/controller-rhel9-operator@sha256:be56fe5d0da46d17ee9d81f0a13a423df1d80567e67683997689a0166dfb94dc"
-LABEL nudge.devicefinder="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/devicefinder-rhel9@sha256:9488f4ae3c5af5f3c08f55031f726659277a081153857f365c8a4e43b0be8df5"
+LABEL nudge.operator="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/controller-rhel9-operator@sha256:ba503417af04a2108bb3275956c162e4f41751097a10390c94d7594701d9f228"
+LABEL nudge.devicefinder="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/devicefinder-rhel9@sha256:45e6dc46bc3b77e0ebe509c923f1b1a872741bc37a4e37aaff9d6ad7da13a987"
 LABEL nudge.console="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/storage-scale-operator-console-plugin-rhel9@sha256:22a6e6a593a3e92ac3951405832708f04237d32937209e378a25d54e6b69e512"
 LABEL nudge.must_gather="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/storage-scale-operator-must-gather-rhel9@sha256:e3ff1754e7eb997ba7680121ed728e5d2e14e72fbf018f4cf42c39d72e576273"
 
