@@ -53,8 +53,8 @@ spec:
             properties:
               discoveredDevices:
                 description: |-
-                  DiscoveredDevices contains the list of devices on which LSO
-                  is capable of creating LocalPVs
+                  DiscoveredDevices contains the list of devices which are usable
+                  for creating LocalDisks
                   The devices in this list qualify these following conditions.
                   - it should be a non-removable device.
                   - it should not be a read-only device.
@@ -67,16 +67,11 @@ spec:
                     with their properties
                   properties:
                     WWN:
-                      description: WWN defines the WWN value of the device. For multipath
-                        devices, this is mandatory
+                      description: WWN defines the WWN value of the device.
                       type: string
                     deviceID:
                       description: DeviceID represents the persistent name of the
                         device. For eg, /dev/disk/by-id/...
-                      type: string
-                    fstype:
-                      description: FSType represents the filesystem available on the
-                        device
                       type: string
                     model:
                       description: Model of the discovered device
@@ -84,27 +79,10 @@ spec:
                     path:
                       description: Path represents the device path. For eg, /dev/sdb
                       type: string
-                    property:
-                      description: Property represents whether the device type is
-                        rotational or not
-                      type: string
-                    serial:
-                      description: Serial number of the disk
-                      type: string
                     size:
                       description: Size of the discovered device
                       format: int64
                       type: integer
-                    status:
-                      description: Status defines whether the device is available
-                        for use or not
-                      properties:
-                        state:
-                          description: State shows the availability of the device
-                          type: string
-                      required:
-                      - state
-                      type: object
                     type:
                       description: Type of the discovered device
                       type: string
@@ -114,13 +92,9 @@ spec:
                   required:
                   - WWN
                   - deviceID
-                  - fstype
                   - model
                   - path
-                  - property
-                  - serial
                   - size
-                  - status
                   - type
                   - vendor
                   type: object
