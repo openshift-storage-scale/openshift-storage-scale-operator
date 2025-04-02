@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"reflect"
 
 	machineconfigv1 "github.com/openshift/api/machineconfiguration/v1"
 	ctrlcommon "github.com/openshift/machine-config-operator/pkg/controller/common"
@@ -67,11 +68,14 @@ func CreateOrUpdateMachineConfig(ctx context.Context, mc *machineconfigv1.Machin
 		if err := cl.Create(ctx, mc); err != nil {
 			return fmt.Errorf("could not create MachineConfig: %w", err)
 		}
+		return nil
 	}
-	old_mc.OwnerReferences = mc.OwnerReferences
-	old_mc.Spec = mc.Spec
-	if err := cl.Update(ctx, old_mc); err != nil {
-		return fmt.Errorf("could not update MachineConfig: %w", err)
+	if !reflect.DeepEqual(old_mc.Spec, mc.Spec) {
+		old_mc.OwnerReferences = mc.OwnerReferences
+		old_mc.Spec = mc.Spec
+		if err := cl.Update(ctx, old_mc); err != nil {
+			return fmt.Errorf("could not update MachineConfig: %w", err)
+		}
 	}
 	return nil
 }
