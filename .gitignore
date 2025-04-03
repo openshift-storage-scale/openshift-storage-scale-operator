@@ -34,3 +34,5 @@ go.work
 /scripts/create-rbacs
 
 bundle_tmp*/
+
+must-gather.local.*/
