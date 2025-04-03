@@ -1,6 +1,6 @@
 FROM quay.io/konflux-ci/operator-sdk-builder:latest as builder
 
-ARG OPERATOR_IMG="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/controller-rhel9-operator@sha256:38b1b9b91c2310a20fd38cf2ab729e8cb5d1dc317e2280559a06cdbc89d7a8bc"
+ARG OPERATOR_IMG="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/controller-rhel9-operator@sha256:b9f77694996d15790cd9f0aac54f52218f9eac31b5cefa0f0144878b71435082"
 ARG DEVICEFINDER_IMAGE="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/devicefinder-rhel9@sha256:58ce8e008b8a14d98ff3ff1b3ae951c946aa1e3ebc6930d97dc7e31389368646"
 ARG CONSOLE_PLUGIN_IMAGE="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/storage-scale-operator-console-plugin-rhel9@sha256:b4f6bead74463b4b3611d70f2ea6fe1f8902df68890107d4726201c7cbf55f16"
 ARG MUST_GATHER_IMAGE="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/storage-scale-operator-must-gather-rhel9@sha256:e3ff1754e7eb997ba7680121ed728e5d2e14e72fbf018f4cf42c39d72e576273"
@@ -21,7 +21,7 @@ RUN \
 
 FROM scratch
 
-LABEL nudge.operator="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/controller-rhel9-operator@sha256:38b1b9b91c2310a20fd38cf2ab729e8cb5d1dc317e2280559a06cdbc89d7a8bc"
+LABEL nudge.operator="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/controller-rhel9-operator@sha256:b9f77694996d15790cd9f0aac54f52218f9eac31b5cefa0f0144878b71435082"
 LABEL nudge.devicefinder="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/devicefinder-rhel9@sha256:58ce8e008b8a14d98ff3ff1b3ae951c946aa1e3ebc6930d97dc7e31389368646"
 LABEL nudge.console="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/storage-scale-operator-console-plugin-rhel9@sha256:b4f6bead74463b4b3611d70f2ea6fe1f8902df68890107d4726201c7cbf55f16"
 LABEL nudge.must_gather="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/storage-scale-operator-must-gather-rhel9@sha256:e3ff1754e7eb997ba7680121ed728e5d2e14e72fbf018f4cf42c39d72e576273"
