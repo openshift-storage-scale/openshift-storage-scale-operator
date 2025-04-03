@@ -75,7 +75,7 @@ clean: ## Removes the node_modules directory
 
 .PHONY: container-build
 container-build: ## Builds the container image
-	$(POCKER) build -f docker/Dockerfile --build-arg VERSION=$(VERSION) -t ${IMG} .
+	$(POCKER) build -f docker/Dockerfile -t ${IMG} .
 docker-build: container-build
 
 .PHONY: container-push
