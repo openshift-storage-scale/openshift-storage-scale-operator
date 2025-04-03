@@ -29,9 +29,7 @@ spec:
   - name: image-expires-after
     value: 5d
   - name: dockerfile
-    value: docker/Dockerfile
-  - name: path-context
-    value: console
+    value: console/docker/Dockerfile
   - name: prefetch-input
     value: [{"type": "npm", "path": "console/"},]
     # TODO switch to yarn at some point
