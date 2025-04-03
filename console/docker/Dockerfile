@@ -6,7 +6,7 @@ WORKDIR /opt/app-root/src
 COPY VERSION.txt .
 COPY console/ .
 # replace version in package.json
-RUN VERSION=$(cat VERSION.txt) && sed -r -i "s|\"version\": \"0.0.1\"|\"version\": \"${VERSION}\"|;" ./package.json
+RUN VERSION=$(cat VERSION.txt) && echo $VERSION && sed -r -i "s|\"version\": \"0.0.1\"|\"version\": \"${VERSION}\"|;" ./package.json
 RUN npm ci --ignore-scripts && npm run build
 
 FROM registry.access.redhat.com/ubi9/nginx-120:latest
@@ -26,7 +26,7 @@ LABEL \
     vendor="Red Hat, Inc." \
     License="Apache License 2.0"
 
-COPY --from=builder /opt/app-root/src/docker/etc/default.conf "${NGINX_CONFIGURATION_PATH}"
+COPY --from=builder docker/etc/default.conf "${NGINX_CONFIGURATION_PATH}"
 COPY --from=builder /opt/app-root/src/dist .
 USER 1001
 CMD /usr/libexec/s2i/run
