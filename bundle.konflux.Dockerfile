@@ -2,7 +2,7 @@ FROM quay.io/konflux-ci/operator-sdk-builder:latest as builder
 
 ARG OPERATOR_IMG="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/controller-rhel9-operator@sha256:b9f77694996d15790cd9f0aac54f52218f9eac31b5cefa0f0144878b71435082"
 ARG DEVICEFINDER_IMAGE="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/devicefinder-rhel9@sha256:58ce8e008b8a14d98ff3ff1b3ae951c946aa1e3ebc6930d97dc7e31389368646"
-ARG CONSOLE_PLUGIN_IMAGE="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/storage-scale-operator-console-plugin-rhel9@sha256:b4f6bead74463b4b3611d70f2ea6fe1f8902df68890107d4726201c7cbf55f16"
+ARG CONSOLE_PLUGIN_IMAGE="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/storage-scale-operator-console-plugin-rhel9@sha256:f75874d3a4dcd4fd565b795e2884b7c5426600a3fb31ec9b98c3db905a4700fd"
 ARG MUST_GATHER_IMAGE="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/storage-scale-operator-must-gather-rhel9@sha256:c701119180467e377cdffb0df1d24cb6eb7c68999d3d375acd24d357af84979d"
 
 COPY ./ /repo
@@ -23,7 +23,7 @@ FROM scratch
 
 LABEL nudge.operator="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/controller-rhel9-operator@sha256:b9f77694996d15790cd9f0aac54f52218f9eac31b5cefa0f0144878b71435082"
 LABEL nudge.devicefinder="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/devicefinder-rhel9@sha256:58ce8e008b8a14d98ff3ff1b3ae951c946aa1e3ebc6930d97dc7e31389368646"
-LABEL nudge.console="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/storage-scale-operator-console-plugin-rhel9@sha256:b4f6bead74463b4b3611d70f2ea6fe1f8902df68890107d4726201c7cbf55f16"
+LABEL nudge.console="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/storage-scale-operator-console-plugin-rhel9@sha256:f75874d3a4dcd4fd565b795e2884b7c5426600a3fb31ec9b98c3db905a4700fd"
 LABEL nudge.must_gather="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/storage-scale-operator-must-gather-rhel9@sha256:c701119180467e377cdffb0df1d24cb6eb7c68999d3d375acd24d357af84979d"
 
 COPY --from=builder /repo/build/manifests /manifests/
