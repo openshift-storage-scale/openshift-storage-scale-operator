@@ -144,7 +144,8 @@ vet: ## Run go vet against code.
 
 .PHONY: test
 test: pull manifests generate fmt vet envtest ## Run tests.
-	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) --bin-dir $(LOCALBIN) -p path)" go run github.com/onsi/ginkgo/v2/ginkgo -r --randomize-all --randomize-suites --fail-on-pending --keep-going -coverprofile cover.out
+	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) --bin-dir $(LOCALBIN) -p path)" go run github.com/onsi/ginkgo/v2/ginkgo -r --randomize-all --randomize-suites --fail-on-pending --keep-going -coverprofile ./cover.out
+	go tool cover -html="cover.out" -o coverage.html
 	# Test the scripts as well
 	# go test -v ./scripts/rbacs/*.go 2>&1
 
@@ -187,7 +188,7 @@ run: manifests generate fmt vet ## Run a controller from your host.
 .PHONY: clean
 clean: ## Remove build artifacts and downloaded tools
 	find bin/ -exec chmod +w "{}" \;
-	rm -rf ./manager ./bin/* ./cover.out
+	rm -rf ./manager ./bin/* ./cover.out ./coverage.html
 
 # If you wish to build the manager image targeting other platforms you can use the --platform flag.
 # (i.e. docker build --platform linux/arm64). However, you must enable docker buildKit for it.
