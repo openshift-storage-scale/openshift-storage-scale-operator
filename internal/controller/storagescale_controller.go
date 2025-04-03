@@ -40,6 +40,7 @@ import (
 	mfc "github.com/manifestival/controller-runtime-client"
 	"github.com/manifestival/manifestival"
 	scalev1alpha "github.com/openshift-storage-scale/openshift-storage-scale-operator/api/v1alpha1"
+	"github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/controller/console"
 	"github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/controller/localvolumediscovery"
 	"github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/controller/machineconfig"
 	"github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/utils"
@@ -352,6 +353,16 @@ func (r *StorageScaleReconciler) Reconcile(ctx context.Context, req ctrl.Request
 			continue
 		}
 	}
+	if err := console.CreateOrUpdatePlugin(ctx, r.Client); err != nil {
+		return ctrl.Result{}, err
+	}
+	log.Log.Info("Successfully created / updated console plugin resources")
+
+	if err := console.EnablePlugin(ctx, r.Client); err != nil {
+		return ctrl.Result{}, err
+	}
+	log.Log.Info("Successfully enabled console plugin")
+
 	if storagescale.Spec.LocalVolumeDiscovery.Create {
 		// Create Device discovery
 		ns, err := utils.GetDeploymentNamespace()
