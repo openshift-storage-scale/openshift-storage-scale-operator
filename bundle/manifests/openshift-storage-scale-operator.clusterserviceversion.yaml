@@ -28,8 +28,7 @@ metadata:
         }
       ]
     capabilities: Basic Install
-    console.openshift.io/plugins: '["openshift-storage-scale-operator-console-plugin"]'
-    createdAt: "2025-04-03T09:36:36Z"
+    createdAt: "2025-04-02T20:39:25Z"
     features.operators.openshift.io/cnf: "false"
     features.operators.openshift.io/cni: "false"
     features.operators.openshift.io/csi: "true"
