@@ -81,7 +81,7 @@ if [[ -n $(git status --porcelain) ]]; then
 fi
 
 make VERSION=${VERSION} IMAGE_TAG_BASE=${REGISTRY}/openshift-storage-scale CHANNELS=fast \
-    bundle generate docker-build docker-push bundle-build bundle-push console-build console-push \
+    manifests bundle generate docker-build docker-push bundle-build bundle-push console-build console-push \
     devicefinder-docker-build devicefinder-docker-push catalog-build catalog-push catalog-install
 
 wait_for_resource "packagemanifest" "${OPERATOR}" "" "${CATALOGSOURCE}"
