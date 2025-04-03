@@ -20,15 +20,23 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+// NOTE(bandini): If you change anything in the following two lines you need to update
+// ./scripts/update-cnsa-versions-metadata.sh
+// +kubebuilder:validation:Enum=v5.2.1.1;v5.2.2.0;v5.2.2.1
+type CNSAVersions string
+
 // StorageScaleSpec defines the desired state of StorageScale
 type StorageScaleSpec struct {
 	// MachineConfig labeling for the installation of kernel-devel package
 	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=1
 	MachineConfig MachineConfig `json:"mco_config,omitempty"`
 
+	// NOTE(bandini): If you change anything in the following three lines you need to update
+	// ./scripts/update-cnsa-versions-metadata.sh
+
 	// Version of IBMs installation manifests found at https://github.com/IBM/ibm-spectrum-scale-container-native
-	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=2
-	IbmCnsaVersion string `json:"ibm_cnsa_version,omitempty"`
+	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=2,xDescriptors={"urn:alm:descriptor:com.tectonic.ui:select:v5.2.1.1","urn:alm:descriptor:com.tectonic.ui:select:v5.2.2.0","urn:alm:descriptor:com.tectonic.ui:select:v5.2.2.1"}
+	IbmCnsaVersion CNSAVersions `json:"ibm_cnsa_version,omitempty"`
 
 	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=3
 	Cluster IBMSpectrumCluster `json:"ibm_cnsa_cluster,omitempty"`

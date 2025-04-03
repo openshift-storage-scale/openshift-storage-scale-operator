@@ -110,6 +110,9 @@ linters:
       - std-error-handling
     rules:
       - linters:
+          - lll
+        source: ".*operator-sdk:csv:customresourcedefinitions"
+      - linters:
           - goconst
           - gocritic
           - ineffassign

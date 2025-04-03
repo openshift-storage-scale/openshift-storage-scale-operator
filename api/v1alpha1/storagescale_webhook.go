@@ -96,7 +96,7 @@ func (r *StorageScaleValidator) ValidateCreate(ctx context.Context, obj runtime.
 	if err != nil {
 		return nil, fmt.Errorf("failed to get current cluster version: %v", err)
 	}
-	if !utils.IsOpenShiftSupported(p.Spec.IbmCnsaVersion, *ocpVersion) {
+	if !utils.IsOpenShiftSupported(string(p.Spec.IbmCnsaVersion), *ocpVersion) {
 		// FIXME(bandini): we currently only log this so QE can test on upcoming versions that are not yet supported by IBM
 		storagescalelog.Info("IBM CNSA version not supported", "OCP Version", ocpVersion, "IBM CNSA Version", p.Spec.IbmCnsaVersion)
 		// FIXME(bandini): return nil, fmt.Errorf("IBM CNSA version %s is not supported", ocpVersion)

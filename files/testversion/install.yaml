@@ -1,7 +1,0 @@
-apiVersion: v1
-data:
-  testdata: This is some test data
-kind: ConfigMap
-metadata:
-  name: test-configmap
-  namespace: default
