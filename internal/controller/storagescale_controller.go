@@ -304,7 +304,7 @@ func (r *StorageScaleReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	}
 
 	// Load and install manifests from ibm
-	install_path, err := getInstallPath(storagescale.Spec.IbmCnsaVersion)
+	install_path, err := getInstallPath(string(storagescale.Spec.IbmCnsaVersion))
 	if err != nil {
 		return ctrl.Result{}, err
 	}
