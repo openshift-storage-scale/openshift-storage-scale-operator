@@ -26,7 +26,9 @@ import (
 	. "github.com/onsi/gomega"
 
 	configv1 "github.com/openshift/api/config/v1"
+	consolev1 "github.com/openshift/api/console/v1"
 	machineconfigv1 "github.com/openshift/api/machineconfiguration/v1"
+	operatorv1 "github.com/openshift/api/operator/v1"
 	corev1 "k8s.io/api/core/v1"
 
 	kruntime "k8s.io/apimachinery/pkg/runtime"
@@ -101,6 +103,8 @@ func createFakeScheme() *kruntime.Scheme {
 		scalev1alpha.AddToScheme,
 		corev1.AddToScheme,
 		configv1.AddToScheme,
+		consolev1.AddToScheme,
+		operatorv1.AddToScheme,
 	)
 	Expect(builder.AddToScheme(s)).To(Succeed())
 	return s
