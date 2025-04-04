@@ -1,6 +1,6 @@
 FROM quay.io/konflux-ci/operator-sdk-builder:latest as builder
 
-ARG OPERATOR_IMG="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/controller-rhel9-operator@sha256:50bb08bc3df8801417e7e4c22485c5073b8eb6f471c28093015993f7e093637c"
+ARG OPERATOR_IMG="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/controller-rhel9-operator@sha256:3a1c7db695e9115713d7babf3a37455c908e1285413cc2a7a04cc61a811a7aad"
 ARG DEVICEFINDER_IMAGE="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/devicefinder-rhel9@sha256:58ce8e008b8a14d98ff3ff1b3ae951c946aa1e3ebc6930d97dc7e31389368646"
 ARG CONSOLE_PLUGIN_IMAGE="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/storage-scale-operator-console-plugin-rhel9@sha256:24c76455113ff27b4c2bb50d98a0042d59c8680d610b0c278dc6c268b8830270"
 ARG MUST_GATHER_IMAGE="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/storage-scale-operator-must-gather-rhel9@sha256:c701119180467e377cdffb0df1d24cb6eb7c68999d3d375acd24d357af84979d"
@@ -21,7 +21,7 @@ RUN \
 
 FROM scratch
 
-LABEL controller-rhel9-operator="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/controller-rhel9-operator@sha256:50bb08bc3df8801417e7e4c22485c5073b8eb6f471c28093015993f7e093637c"
+LABEL controller-rhel9-operator="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/controller-rhel9-operator@sha256:3a1c7db695e9115713d7babf3a37455c908e1285413cc2a7a04cc61a811a7aad"
 LABEL devicefinder="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/devicefinder-rhel9@sha256:58ce8e008b8a14d98ff3ff1b3ae951c946aa1e3ebc6930d97dc7e31389368646"
 LABEL console-plugin="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/storage-scale-operator-console-plugin-rhel9@sha256:24c76455113ff27b4c2bb50d98a0042d59c8680d610b0c278dc6c268b8830270"
 LABEL must-gather="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/storage-scale-operator-must-gather-rhel9@sha256:c701119180467e377cdffb0df1d24cb6eb7c68999d3d375acd24d357af84979d"
