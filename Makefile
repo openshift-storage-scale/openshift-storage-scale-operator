@@ -35,7 +35,11 @@ USE_IMAGE_DIGESTS ?= --use-image-digests
 ifneq ($(origin DEFAULT_CHANNEL), undefined)
 BUNDLE_DEFAULT_CHANNEL := --default-channel=$(DEFAULT_CHANNEL)
 endif
+<<<<<<< HEAD
 BUNDLE_METADATA_OPTS ?= $(BUNDLE_CHANNELS) $(BUNDLE_DEFAULT_CHANNEL) $(USE_IMAGE_DIGESTS)
+=======
+BUNDLE_METADATA_OPTS ?= $(BUNDLE_CHANNELS) $(BUNDLE_DEFAULT_CHANNEL) --use-image-digests
+>>>>>>> 913e280e (Add relatedImages to CSV to support disconnected environments)
 
 BUNDLE_CONTAINERFILE_TEMPLATE ?= new-bundle.Dockerfile
 # IMAGE_TAG_BASE defines the docker.io namespace and part of the image name for remote images.
@@ -389,6 +393,15 @@ bundle: manifests kustomize operator-sdk ## Generate bundle manifests and metada
 	$(OPERATOR_SDK) generate kustomize manifests -q
 	$(KUSTOMIZE) build config/manifests | envsubst | $(OPERATOR_SDK) generate bundle $(BUNDLE_GEN_FLAGS)
 	$(OPERATOR_SDK) bundle validate ./bundle
+<<<<<<< HEAD
+=======
+	$(MAKE) add-console-plugin-annotation
+	./scripts/ignore-createdAt-bundle.sh
+
+.PHONY: add-console-plugin-annotation
+add-console-plugin-annotation: yq ## Add console-plugin annotation to the CSV
+	$(YQ) -i '.metadata.annotations."console.openshift.io/plugins" = "[\"openshift-storage-scale-operator-console-plugin\"]"' $(CSV)
+>>>>>>> 913e280e (Add relatedImages to CSV to support disconnected environments)
 
 .PHONY: bundle-build
 bundle-build: ## Build the bundle image.
