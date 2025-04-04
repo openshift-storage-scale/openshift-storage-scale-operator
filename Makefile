@@ -27,7 +27,7 @@ endif
 ifneq ($(origin DEFAULT_CHANNEL), undefined)
 BUNDLE_DEFAULT_CHANNEL := --default-channel=$(DEFAULT_CHANNEL)
 endif
-BUNDLE_METADATA_OPTS ?= $(BUNDLE_CHANNELS) $(BUNDLE_DEFAULT_CHANNEL)
+BUNDLE_METADATA_OPTS ?= $(BUNDLE_CHANNELS) $(BUNDLE_DEFAULT_CHANNEL) --use-image-digests
 
 BUNDLE_CONTAINERFILE_TEMPLATE ?= new-bundle.Dockerfile
 # IMAGE_TAG_BASE defines the docker.io namespace and part of the image name for remote images.
