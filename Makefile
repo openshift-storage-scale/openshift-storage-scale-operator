@@ -361,11 +361,6 @@ bundle: manifests kustomize operator-sdk ## Generate bundle manifests and metada
 	$(OPERATOR_SDK) generate kustomize manifests -q
 	$(KUSTOMIZE) build config/manifests | envsubst | $(OPERATOR_SDK) generate bundle $(BUNDLE_GEN_FLAGS)
 	$(OPERATOR_SDK) bundle validate ./bundle
-	$(MAKE) add-console-plugin-annotation
-
-.PHONY: add-console-plugin-annotation
-add-console-plugin-annotation: yq ## Add console-plugin annotation to the CSV
-	$(YQ) -i '.metadata.annotations."console.openshift.io/plugins" = "[\"openshift-storage-scale-operator-console-plugin\"]"' $(CSV)
 
 .PHONY: bundle-build
 bundle-build: ## Build the bundle image.

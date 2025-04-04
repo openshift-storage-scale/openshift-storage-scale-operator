@@ -18,10 +18,13 @@ package console
 
 import (
 	"context"
+	"fmt"
+	"slices"
 
-	"github.com/go-logr/logr"
+	"github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/utils"
 	"github.com/pkg/errors"
 
+	operatorv1 "github.com/openshift/api/operator/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -32,7 +35,7 @@ import (
 const (
 	// PluginName is the name of the plugin and used at several places
 	// this has to be the same as in the package.json in the plugin
-	PluginName = "console-plugin-template"
+	PluginName = "openshift-storage-scale-console"
 	// ServiceName is the name of the console plugin Service and must match the name of the Service in /bundle/manifests!
 	ServiceName = "openshift-storage-scale-operator-console-plugin"
 	// ServicePort is the port of the console plugin Service and must match the port of the Service in /bundle/manifests!
@@ -40,22 +43,26 @@ const (
 )
 
 // +kubebuilder:rbac:groups=console.openshift.io,resources=consoleplugins,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=operator.openshift.io,resources=consoles,verbs=get;list;watch;update
 
 // CreateOrUpdatePlugin creates or updates the resources needed for the remediation console plugin.
 // HEADS UP: consider cleanup of old resources in case of name changes or removals!
-func CreateOrUpdatePlugin(ctx context.Context, cl client.Client, namespace string, log logr.Logger) error {
+func CreateOrUpdatePlugin(ctx context.Context, cl client.Client) error {
 	// Create ConsolePlugin resource
 	// Deployment and Service are deployed by OLM
-	if err := createOrUpdateConsolePlugin(ctx, namespace, cl); err != nil {
+	ns, err := utils.GetDeploymentNamespace()
+	if err != nil {
+		return err
+	}
+	if err := createOrUpdateConsolePlugin(ctx, ns, cl); err != nil {
 		return err
 	}
 
-	log.Info("successfully created / updated console plugin resources")
 	return nil
 }
 
 func createOrUpdateConsolePlugin(ctx context.Context, namespace string, cl client.Client) error {
-	cp := getConsolePlugin(namespace)
+	cp := newConsolePlugin(namespace)
 	oldCP := &consolev1.ConsolePlugin{}
 	if err := cl.Get(ctx, client.ObjectKeyFromObject(cp), oldCP); apierrors.IsNotFound(err) {
 		if err := cl.Create(ctx, cp); err != nil {
@@ -73,7 +80,7 @@ func createOrUpdateConsolePlugin(ctx context.Context, namespace string, cl clien
 	return nil
 }
 
-func getConsolePlugin(namespace string) *consolev1.ConsolePlugin {
+func newConsolePlugin(namespace string) *consolev1.ConsolePlugin {
 	return &consolev1.ConsolePlugin{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: PluginName,
@@ -81,7 +88,7 @@ func getConsolePlugin(namespace string) *consolev1.ConsolePlugin {
 			// but which resource to use, needs to be cluster scoped
 		},
 		Spec: consolev1.ConsolePluginSpec{
-			DisplayName: "Node Remediation",
+			DisplayName: "Fusion Access for SAN plugin",
 			Backend: consolev1.ConsolePluginBackend{
 				Type: consolev1.Service,
 				Service: &consolev1.ConsolePluginService{
@@ -93,4 +100,23 @@ func getConsolePlugin(namespace string) *consolev1.ConsolePlugin {
 			},
 		},
 	}
+}
+
+func EnablePlugin(ctx context.Context, cl client.Client) error {
+	consoleKey := client.ObjectKey{Namespace: "", Name: "cluster"}
+	consoleObj := &operatorv1.Console{}
+	if err := cl.Get(ctx, consoleKey, consoleObj); err != nil {
+		return errors.Wrap(err, fmt.Sprintf("Could not find resource - APIVersion: %s, Kind: %s, Name: %s",
+			consoleObj.APIVersion, consoleObj.Kind, consoleObj.Name))
+	}
+
+	if !slices.Contains(consoleObj.Spec.Plugins, PluginName) {
+		consoleObj.Spec.Plugins = append(consoleObj.Spec.Plugins, PluginName)
+		err := cl.Update(ctx, consoleObj)
+		if err != nil {
+			return errors.Wrap(err, fmt.Sprintf("Could not update resource - APIVersion: %s, Kind: %s, Name: %s",
+				consoleObj.APIVersion, consoleObj.Kind, consoleObj.Name))
+		}
+	}
+	return nil
 }

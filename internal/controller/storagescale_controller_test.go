@@ -18,12 +18,15 @@ package controller
 
 import (
 	"context"
+	"os"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	configv1 "github.com/openshift/api/config/v1"
+	operatorv1 "github.com/openshift/api/operator/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
 	"k8s.io/apimachinery/pkg/types"
 
 	kubeclient "k8s.io/client-go/kubernetes/fake"
@@ -43,8 +46,9 @@ var _ = Describe("StorageScale Controller", func() {
 	var (
 		fakeClientBuilder *fake.ClientBuilder
 		scheme            = createFakeScheme()
-		os                = newNamespace("openshift-storage-scale-operator")
+		namespace         = newNamespace("openshift-storage-scale-operator")
 		version           = newOCPVersion(oscinitVersion)
+		clusterConsole    = &operatorv1.Console{ObjectMeta: metav1.ObjectMeta{Name: "cluster"}}
 	)
 	Context("When reconciling a resource", func() {
 		const resourceName = "test-resource"
@@ -58,15 +62,16 @@ var _ = Describe("StorageScale Controller", func() {
 
 		BeforeEach(func() {
 			By("creating the custom resource for the Kind StorageScale")
+			os.Setenv("DEPLOYMENT_NAMESPACE", "openshift-storage-scale-operator")
 			fakeClientBuilder = fake.NewClientBuilder().
 				WithScheme(scheme).
-				WithRuntimeObjects(version, os).
+				WithRuntimeObjects(version, namespace, clusterConsole).
 				WithStatusSubresource(&scalev1alpha.StorageScale{})
 
 		})
 
 		AfterEach(func() {
-			// // TODO(user): Cleanup logic after each test, like removing the resource instance.
+			os.Unsetenv("DEPLOYMENT_NAMESPACE")
 		})
 
 		It("should successfully reconcile the resource", func() {

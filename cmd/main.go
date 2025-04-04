@@ -38,8 +38,8 @@ import (
 
 	machineconfigv1 "github.com/openshift/api/machineconfiguration/v1"
 
-	"github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/controller/initializer"
 	consolev1 "github.com/openshift/api/console/v1"
+	operatorv1 "github.com/openshift/api/operator/v1"
 
 	lvdcontroller "github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/controller/localvolumediscovery"
 
@@ -62,6 +62,8 @@ func init() {
 	utilruntime.Must(machineconfigv1.AddToScheme(scheme))
 
 	utilruntime.Must(consolev1.AddToScheme(scheme))
+
+	utilruntime.Must(operatorv1.AddToScheme(scheme))
 
 	//+kubebuilder:scaffold:scheme
 }
@@ -160,13 +162,6 @@ func main() {
 		}
 	}
 	//+kubebuilder:scaffold:builder
-
-	// Do some initialization
-	initializer := initializer.New(mgr, ctrl.Log.WithName("Initializer"))
-	if err = mgr.Add(initializer); err != nil {
-		setupLog.Error(err, "failed to add initializer to the manager")
-		os.Exit(1)
-	}
 
 	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
 		setupLog.Error(err, "unable to set up health check")
