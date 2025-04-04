@@ -13,8 +13,8 @@ const (
 	// OwnerNameLabel references the owning object
 	OwnerNameLabel = "scale.storage.openshift.io/owner-name"
 
-	// DeviceFinderImageEnv is used by the operator to read the DEVICEFINDER_IMAGE from the environment
-	DeviceFinderImageEnv = "DEVICEFINDER_IMAGE"
+	// DeviceFinderImageEnv is used by the operator to read the RELATED_IMAGE_OPENSHIFT-STORAGE-SCALE-OPERATOR-DEVICEFINDER from the environment
+	DeviceFinderImageEnv = "RELATED_IMAGE_OPENSHIFT-STORAGE-SCALE-OPERATOR-DEVICEFINDER"
 	// KubeRBACProxyImageEnv is used by the operator to read the KUBE_RBAC_PROXY_IMAGE from the environment
 	KubeRBACProxyImageEnv = "KUBE_RBAC_PROXY_IMAGE"
 

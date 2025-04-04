@@ -28,8 +28,7 @@ metadata:
         }
       ]
     capabilities: Basic Install
-    console.openshift.io/plugins: '["openshift-storage-scale-operator-console-plugin"]'
-    createdAt: "2025-04-04T17:50:21Z"
+    createdAt: "2025-04-04T18:38:43Z"
     features.operators.openshift.io/cnf: "false"
     features.operators.openshift.io/cni: "false"
     features.operators.openshift.io/csi: "true"
@@ -408,6 +407,15 @@ spec:
                 - patch
                 - watch
             - apiGroups:
+                - operator.openshift.io
+              resources:
+                - consoles
+              verbs:
+                - get
+                - list
+                - update
+                - watch
+            - apiGroups:
                 - policy
               resources:
                 - poddisruptionbudgets
@@ -661,7 +669,7 @@ spec:
                   app.kubernetes.io/component: openshift-storage-scale-operator-console-plugin
               spec:
                 containers:
-                  - image: registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/storage-scale-operator-console-plugin-rhel9@sha256:f75874d3a4dcd4fd565b795e2884b7c5426600a3fb31ec9b98c3db905a4700fd
+                  - image: quay.io/openshift-storage-scale/openshift-storage-scale-console@sha256:35cea907a7126af371dc1f0746fffc5a76e6bc0399a5a35a23c881ef1421f6e7
                     name: openshift-storage-scale-operator-console-plugin
                     ports:
                       - containerPort: 9443
@@ -718,10 +726,10 @@ spec:
                           fieldRef:
                             fieldPath: metadata.namespace
                       - name: RELATED_IMAGE_OPENSHIFT-STORAGE-SCALE-OPERATOR-DEVICEFINDER
-                        value: registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/devicefinder-rhel9@sha256:58ce8e008b8a14d98ff3ff1b3ae951c946aa1e3ebc6930d97dc7e31389368646
+                        value: quay.io/openshift-storage-scale/openshift-storage-scale-devicefinder@sha256:5bed543a4bb567a1cd8a589444b6ceaa3815705829c42ecd986d5b65a47862f3
                       - name: RELATED_IMAGE_OPENSHIFT-STORAGE-SCALE-OPERATOR-MUST-GATHER
-                        value: registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/storage-scale-operator-must-gather-rhel9@sha256:c701119180467e377cdffb0df1d24cb6eb7c68999d3d375acd24d357af84979d
-                    image: registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/controller-rhel9-operator@sha256:b9f77694996d15790cd9f0aac54f52218f9eac31b5cefa0f0144878b71435082
+                        value: quay.io/openshift-storage-scale/openshift-storage-scale-must-gather@sha256:03db023ac2d725f995976fdd8c463e916c70f44a3bca13f0dd7fc12c6a846dd5
+                    image: quay.io/openshift-storage-scale/openshift-storage-scale-operator@sha256:22c18f4e7552d8c3430db96b01eab117e01063e0f5a8baf0fdd5f4d4b762a2ed
                     livenessProbe:
                       httpGet:
                         path: /healthz
@@ -847,13 +855,13 @@ spec:
   provider:
     name: Storage Scale Team
   relatedImages:
-    - image: registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/devicefinder-rhel9@sha256:58ce8e008b8a14d98ff3ff1b3ae951c946aa1e3ebc6930d97dc7e31389368646
+    - image: quay.io/openshift-storage-scale/openshift-storage-scale-devicefinder@sha256:5bed543a4bb567a1cd8a589444b6ceaa3815705829c42ecd986d5b65a47862f3
       name: openshift-storage-scale-operator-devicefinder
-    - image: registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/storage-scale-operator-must-gather-rhel9@sha256:c701119180467e377cdffb0df1d24cb6eb7c68999d3d375acd24d357af84979d
+    - image: quay.io/openshift-storage-scale/openshift-storage-scale-must-gather@sha256:03db023ac2d725f995976fdd8c463e916c70f44a3bca13f0dd7fc12c6a846dd5
       name: openshift-storage-scale-operator-must-gather
-    - image: registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/storage-scale-operator-console-plugin-rhel9@sha256:f75874d3a4dcd4fd565b795e2884b7c5426600a3fb31ec9b98c3db905a4700fd
+    - image: quay.io/openshift-storage-scale/openshift-storage-scale-console@sha256:35cea907a7126af371dc1f0746fffc5a76e6bc0399a5a35a23c881ef1421f6e7
       name: openshift-storage-scale-operator-console-plugin
-    - image: registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/controller-rhel9-operator@sha256:b9f77694996d15790cd9f0aac54f52218f9eac31b5cefa0f0144878b71435082
+    - image: quay.io/openshift-storage-scale/openshift-storage-scale-operator@sha256:22c18f4e7552d8c3430db96b01eab117e01063e0f5a8baf0fdd5f4d4b762a2ed
       name: manager
     - image: registry.redhat.io/openshift4/ose-kube-rbac-proxy-rhel9@sha256:29201e85bd41642b72c7c0ce915e40aad90823d0efc3e7bbab9c351c92c74341
       name: kube-rbac-proxy
