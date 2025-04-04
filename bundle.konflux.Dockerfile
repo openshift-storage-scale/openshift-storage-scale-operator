@@ -16,7 +16,8 @@ RUN \
         --version $(cat VERSION.txt) \
         --output-dir build \
         --channels development \
-        --default-channel development && \
+        --default-channel development \
+        --use-image-digests && \
     operator-sdk bundle validate ./build
 
 FROM scratch

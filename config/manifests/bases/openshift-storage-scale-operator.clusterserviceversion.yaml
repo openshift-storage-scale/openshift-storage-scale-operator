@@ -16,7 +16,9 @@ metadata:
     features.operators.openshift.io/token-auth-gcp: "false"
     operatorframework.io/initialization-resource: '{"apiVersion":"scale.storage.openshift.io/v1alpha1","kind":"StorageScale","metadata":{"name":"storagescale-sample"},"spec":{"ibm_cnsa_version":"v5.2.2.1","mco_config":{"create":true,"labels":{"machineconfiguration.openshift.io/role":"worker"}},"ibm_cnsa_cluster":{"create":true,"daemon_nodeSelector":{"node-role.kubernetes.io/worker":""}}}}'
     operatorframework.io/suggested-namespace: openshift-storage-scale
-    operators.openshift.io/valid-subscription: '["Openshift Container Platform"]'
+    operators.openshift.io/infrastructure-features: '["disconnected"]'
+    operators.openshift.io/valid-subscription: '["Openshift Container Platform","OpenShift
+      Virtualization Engine"]'
     operators.operatorframework.io/internal-objects: '["localvolumediscoveryresults.scale.storage.openshift.io","localvolumediscoveries.scale.storage.openshift.io"]'
   name: openshift-storage-scale-operator.v0.0.0
   namespace: placeholder
