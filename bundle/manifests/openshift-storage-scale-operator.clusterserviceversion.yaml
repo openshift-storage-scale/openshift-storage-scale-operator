@@ -28,7 +28,7 @@ metadata:
         }
       ]
     capabilities: Basic Install
-    createdAt: "2025-04-02T20:39:25Z"
+    createdAt: "2025-04-04T18:38:43Z"
     features.operators.openshift.io/cnf: "false"
     features.operators.openshift.io/cni: "false"
     features.operators.openshift.io/csi: "true"
@@ -41,7 +41,8 @@ metadata:
     features.operators.openshift.io/token-auth-gcp: "false"
     operatorframework.io/initialization-resource: '{"apiVersion":"scale.storage.openshift.io/v1alpha1","kind":"StorageScale","metadata":{"name":"storagescale-sample"},"spec":{"ibm_cnsa_version":"v5.2.2.1","mco_config":{"create":true,"labels":{"machineconfiguration.openshift.io/role":"worker"}},"ibm_cnsa_cluster":{"create":true,"daemon_nodeSelector":{"node-role.kubernetes.io/worker":""}}}}'
     operatorframework.io/suggested-namespace: openshift-storage-scale
-    operators.openshift.io/valid-subscription: '["Openshift Container Platform"]'
+    operators.openshift.io/infrastructure-features: '["disconnected"]'
+    operators.openshift.io/valid-subscription: '["Openshift Container Platform","OpenShift Virtualization Engine"]'
     operators.operatorframework.io/builder: operator-sdk-v1.39.1
     operators.operatorframework.io/internal-objects: '["localvolumediscoveryresults.scale.storage.openshift.io","localvolumediscoveries.scale.storage.openshift.io"]'
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
@@ -406,6 +407,15 @@ spec:
                 - patch
                 - watch
             - apiGroups:
+                - operator.openshift.io
+              resources:
+                - consoles
+              verbs:
+                - get
+                - list
+                - update
+                - watch
+            - apiGroups:
                 - policy
               resources:
                 - poddisruptionbudgets
@@ -659,7 +669,7 @@ spec:
                   app.kubernetes.io/component: openshift-storage-scale-operator-console-plugin
               spec:
                 containers:
-                  - image: quay.io/openshift-storage-scale/openshift-storage-scale-console:0.0.5
+                  - image: quay.io/openshift-storage-scale/openshift-storage-scale-console@sha256:35cea907a7126af371dc1f0746fffc5a76e6bc0399a5a35a23c881ef1421f6e7
                     name: openshift-storage-scale-operator-console-plugin
                     ports:
                       - containerPort: 9443
@@ -715,9 +725,11 @@ spec:
                         valueFrom:
                           fieldRef:
                             fieldPath: metadata.namespace
-                      - name: DEVICEFINDER_IMAGE
-                        value: quay.io/openshift-storage-scale/openshift-storage-scale-devicefinder:0.0.5
-                    image: quay.io/openshift-storage-scale/openshift-storage-scale-operator:0.0.5
+                      - name: RELATED_IMAGE_OPENSHIFT-STORAGE-SCALE-OPERATOR-DEVICEFINDER
+                        value: quay.io/openshift-storage-scale/openshift-storage-scale-devicefinder@sha256:5bed543a4bb567a1cd8a589444b6ceaa3815705829c42ecd986d5b65a47862f3
+                      - name: RELATED_IMAGE_OPENSHIFT-STORAGE-SCALE-OPERATOR-MUST-GATHER
+                        value: quay.io/openshift-storage-scale/openshift-storage-scale-must-gather@sha256:03db023ac2d725f995976fdd8c463e916c70f44a3bca13f0dd7fc12c6a846dd5
+                    image: quay.io/openshift-storage-scale/openshift-storage-scale-operator@sha256:22c18f4e7552d8c3430db96b01eab117e01063e0f5a8baf0fdd5f4d4b762a2ed
                     livenessProbe:
                       httpGet:
                         path: /healthz
@@ -842,6 +854,17 @@ spec:
   minKubeVersion: 1.23.0
   provider:
     name: Storage Scale Team
+  relatedImages:
+    - image: quay.io/openshift-storage-scale/openshift-storage-scale-devicefinder@sha256:5bed543a4bb567a1cd8a589444b6ceaa3815705829c42ecd986d5b65a47862f3
+      name: openshift-storage-scale-operator-devicefinder
+    - image: quay.io/openshift-storage-scale/openshift-storage-scale-must-gather@sha256:03db023ac2d725f995976fdd8c463e916c70f44a3bca13f0dd7fc12c6a846dd5
+      name: openshift-storage-scale-operator-must-gather
+    - image: quay.io/openshift-storage-scale/openshift-storage-scale-console@sha256:35cea907a7126af371dc1f0746fffc5a76e6bc0399a5a35a23c881ef1421f6e7
+      name: openshift-storage-scale-operator-console-plugin
+    - image: quay.io/openshift-storage-scale/openshift-storage-scale-operator@sha256:22c18f4e7552d8c3430db96b01eab117e01063e0f5a8baf0fdd5f4d4b762a2ed
+      name: manager
+    - image: registry.redhat.io/openshift4/ose-kube-rbac-proxy-rhel9@sha256:29201e85bd41642b72c7c0ce915e40aad90823d0efc3e7bbab9c351c92c74341
+      name: kube-rbac-proxy
   version: 0.0.5
   webhookdefinitions:
     - admissionReviewVersions:

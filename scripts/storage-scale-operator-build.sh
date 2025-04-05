@@ -33,12 +33,12 @@ wait_for_resource() {
         fi
         ret=$?
         set -e
-        
+
         if [[ $ret -eq 0 && "$resource_type" != "csv" ]]; then
             echo "✅ $resource_type: $name is available!"
             break
         fi
-        
+
         sleep 10
     done
 }
@@ -80,7 +80,7 @@ if [[ -n $(git status --porcelain) ]]; then
     exit 1
 fi
 
-make VERSION=${VERSION} IMAGE_TAG_BASE=${REGISTRY}/openshift-storage-scale CHANNELS=fast \
+make VERSION=${VERSION} IMAGE_TAG_BASE=${REGISTRY}/openshift-storage-scale CHANNELS=fast USE_IMAGE_DIGESTS="" \
     manifests bundle generate docker-build docker-push bundle-build bundle-push console-build console-push \
     devicefinder-docker-build devicefinder-docker-push catalog-build catalog-push catalog-install
 
