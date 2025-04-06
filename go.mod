@@ -4,14 +4,13 @@ go 1.23.6
 
 require (
 	github.com/Masterminds/semver/v3 v3.3.1
-	github.com/go-logr/logr v1.4.2
 	github.com/manifestival/controller-runtime-client v0.4.0
 	github.com/manifestival/manifestival v0.7.2
 	github.com/onsi/ginkgo/v2 v2.23.0
 	github.com/onsi/gomega v1.36.2
-	github.com/openshift/api v0.0.0-20250320115527-3aa9dd5b9002
+	github.com/openshift/api v0.0.0-20250320170726-75d64d71980b
 	github.com/openshift/client-go v0.0.0-20250324153519-f0faeb0f2f2e
-	github.com/openshift/library-go v0.0.0-20250325143551-78a24021cf40
+	github.com/openshift/library-go v0.0.0-20250402180609-ce2ba53fb2a4
 	github.com/openshift/machine-config-operator v0.0.1-0.20250305213842-5dcc44abebbf
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.80.1
@@ -48,6 +47,7 @@ require (
 	github.com/fsnotify/fsnotify v1.8.0 // indirect
 	github.com/fxamacker/cbor/v2 v2.7.0 // indirect
 	github.com/ghodss/yaml v1.0.1-0.20190212211648-25d852aebe32 // indirect
+	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/zapr v1.3.0 // indirect
 	github.com/go-openapi/jsonpointer v0.21.0 // indirect
 	github.com/go-openapi/jsonreference v0.21.0 // indirect
