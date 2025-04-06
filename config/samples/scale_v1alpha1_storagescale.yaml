@@ -3,7 +3,7 @@ kind: StorageScale
 metadata:
   name: storagescale-sample
 spec:
-  ibm_cnsa_version: "v5.2.2.1"
+  ibm_cnsa_version: "v5.2.3.0.rc1"
   mco_config:
     create: true
     labels:

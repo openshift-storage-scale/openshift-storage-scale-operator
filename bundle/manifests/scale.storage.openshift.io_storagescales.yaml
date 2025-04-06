@@ -68,6 +68,7 @@ spec:
                 - v5.2.1.1
                 - v5.2.2.0
                 - v5.2.2.1
+                - v5.2.3.0.rc1
                 type: string
               mco_config:
                 description: MachineConfig labeling for the installation of kernel-devel

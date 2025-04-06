@@ -23,22 +23,20 @@ import (
 	"path"
 	"strings"
 
+	mfc "github.com/manifestival/controller-runtime-client"
+	"github.com/manifestival/manifestival"
+	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
-	"k8s.io/client-go/rest"
-
-	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/client-go/kubernetes"
-
+	"k8s.io/client-go/rest"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	mfc "github.com/manifestival/controller-runtime-client"
-	"github.com/manifestival/manifestival"
 	scalev1alpha "github.com/openshift-storage-scale/openshift-storage-scale-operator/api/v1alpha1"
 	"github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/controller/console"
 	"github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/controller/localvolumediscovery"
@@ -247,7 +245,10 @@ type StorageScaleReconciler struct {
 //
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.17.3/pkg/reconcile
-func (r *StorageScaleReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+func (r *StorageScaleReconciler) Reconcile(
+	ctx context.Context,
+	req ctrl.Request,
+) (ctrl.Result, error) {
 	_ = log.FromContext(ctx)
 
 	// TODO(user): your logic here
@@ -310,7 +311,10 @@ func (r *StorageScaleReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		return ctrl.Result{}, err
 	}
 
-	installManifest, err := manifestival.NewManifest(install_path, manifestival.UseClient(mfc.NewClient(r.Client)))
+	installManifest, err := manifestival.NewManifest(
+		install_path,
+		manifestival.UseClient(mfc.NewClient(r.Client)),
+	)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
@@ -322,32 +326,50 @@ func (r *StorageScaleReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	}
 	log.Log.Info(fmt.Sprintf("Applied manifest from %s", install_path))
 
-	secretstring := fmt.Sprintf(`{"auths":{"quay.io/rhsysdeseng":{"auth":%q,"email":""}}}`, strings.TrimSpace(pull))
+	secretstring := strings.TrimSpace(pull)
 	// Create secrets in IBM namespaces to pull images from quay
 	secretData := map[string][]byte{
 		".dockerconfigjson": []byte(secretstring),
 	}
 
 	destSecretName := "ibm-entitlement-key" //nolint:gosec
-	destNamespaces := []string{"ibm-spectrum-scale", "ibm-spectrum-scale-dns", "ibm-spectrum-scale-csi", "ibm-spectrum-scale-operator"}
+	destNamespaces := []string{
+		"ibm-spectrum-scale",
+		"ibm-spectrum-scale-dns",
+		"ibm-spectrum-scale-csi",
+		"ibm-spectrum-scale-operator",
+	}
 	for _, destNamespace := range destNamespaces {
-		ibmPullSecret := newSecret(destSecretName, destNamespace, secretData, "kubernetes.io/dockerconfigjson", nil)
-		_, err = r.fullClient.CoreV1().Secrets(destNamespace).Get(ctx, destSecretName, metav1.GetOptions{})
-
+		ibmPullSecret := newSecret(
+			destSecretName,
+			destNamespace,
+			secretData,
+			"kubernetes.io/dockerconfigjson",
+			nil,
+		)
+		_, err = r.fullClient.CoreV1().
+			Secrets(destNamespace).
+			Get(ctx, destSecretName, metav1.GetOptions{})
 		if err != nil {
 			if kerrors.IsNotFound(err) {
 				// Resource does not exist, create it
-				_, err := r.fullClient.CoreV1().Secrets(destNamespace).Create(context.TODO(), ibmPullSecret, metav1.CreateOptions{})
+				_, err := r.fullClient.CoreV1().
+					Secrets(destNamespace).
+					Create(context.TODO(), ibmPullSecret, metav1.CreateOptions{})
 				if err != nil {
 					return ctrl.Result{}, err
 				}
-				log.Log.Info(fmt.Sprintf("Created Secret %s in ns %s", destSecretName, destNamespace))
+				log.Log.Info(
+					fmt.Sprintf("Created Secret %s in ns %s", destSecretName, destNamespace),
+				)
 				continue
 			}
 			return ctrl.Result{}, err
 		}
 		// The destination secret already exists so we upate it and return an error if they were different so the reconcile loop can restart
-		_, err = r.fullClient.CoreV1().Secrets(destNamespace).Update(context.TODO(), ibmPullSecret, metav1.UpdateOptions{})
+		_, err = r.fullClient.CoreV1().
+			Secrets(destNamespace).
+			Update(context.TODO(), ibmPullSecret, metav1.UpdateOptions{})
 		if err == nil {
 			log.Log.Info(fmt.Sprintf("Updated Secret %s in ns %s", destSecretName, destNamespace))
 			continue
@@ -385,7 +407,6 @@ func (r *StorageScaleReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		log.Log.Info("Creating cluster")
 
 		_, err = r.dynamicClient.Resource(gvr).Get(ctx, cluster.GetName(), metav1.GetOptions{})
-
 		if err != nil {
 			if kerrors.IsNotFound(err) {
 				// Resource does not exist, create it

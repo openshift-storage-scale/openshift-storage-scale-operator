@@ -16,6 +16,14 @@ func NewSpectrumCluster(daemon_nodeSelector map[string]string) *unstructured.Uns
 			"spec": map[string]any{
 				"daemon": map[string]any{
 					"nodeSelector": daemon_nodeSelector,
+					"nsdDevicesConfig": map[string]any{
+						"localDevicePaths": []any{
+							map[string]any{
+								"devicePath": "/dev/disk/by-id/*",
+								"deviceType": "generic",
+							},
+						},
+					},
 				},
 				"license": map[string]any{
 					"accept":  true,
