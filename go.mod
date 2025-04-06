@@ -8,8 +8,8 @@ require (
 	github.com/manifestival/manifestival v0.7.2
 	github.com/onsi/ginkgo/v2 v2.23.0
 	github.com/onsi/gomega v1.36.2
-	github.com/openshift/api v0.0.0-20250320170726-75d64d71980b
-	github.com/openshift/client-go v0.0.0-20250324153519-f0faeb0f2f2e
+	github.com/openshift/api v0.0.0-20250402094343-3d7abe90f97e
+	github.com/openshift/client-go v0.0.0-20250402181141-b3bad3b645f2
 	github.com/openshift/library-go v0.0.0-20250402180609-ce2ba53fb2a4
 	github.com/openshift/machine-config-operator v0.0.1-0.20250305213842-5dcc44abebbf
 	github.com/pkg/errors v0.9.1
