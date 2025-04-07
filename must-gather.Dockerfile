@@ -1,4 +1,4 @@
-FROM registry.redhat.io/multicluster-engine/must-gather-rhel9:v2.8@sha256:6eeee0c2ba7a267b01dd8544fe3d7b653b2448208a77ff9f2d0d1095fcfe2a97 AS builder
+FROM registry.redhat.io/multicluster-engine/must-gather-rhel9:v2.8 AS builder
 
 # Copy our scripts
 COPY collection-scripts/* /usr/bin/
