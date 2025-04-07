@@ -1,6 +1,6 @@
 ARG TARGETARCH=amd64
 
-FROM --platform=linux/$TARGETARCH brew.registry.redhat.io/rh-osbs/openshift-golang-builder:v1.23@sha256:0a070e4a8f2698b6aba3630a49eb995ff1b0a182d0c5fa264888acf9d535f384 AS builder
+FROM --platform=linux/$TARGETARCH brew.registry.redhat.io/rh-osbs/openshift-golang-builder:v1.23 AS builder
 
 WORKDIR /workspace
 COPY . .
@@ -8,7 +8,7 @@ COPY . .
 RUN make build-devicefinder
 
 # Change this once ubi10 moves out of beta
-FROM registry.redhat.io/ubi10-beta/ubi@sha256:f817eb70b083c93b4d6b47e1daae292d662e3427f5e73c5e8f513695e5afc7cc
+FROM registry.redhat.io/ubi10-beta/ubi:latest
 
 COPY --from=builder /workspace/_output/bin/devicefinder /usr/bin/
 
