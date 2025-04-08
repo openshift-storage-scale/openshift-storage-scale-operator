@@ -25,8 +25,8 @@ import (
 // +kubebuilder:validation:Enum=v5.2.1.1;v5.2.2.0;v5.2.2.1;v5.2.3.0.rc1
 type CNSAVersions string
 
-// StorageScaleSpec defines the desired state of StorageScale
-type StorageScaleSpec struct {
+// FusionAccessSpec defines the desired state of FusionAccess
+type FusionAccessSpec struct {
 	// MachineConfig labeling for the installation of kernel-devel package
 	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=1
 	MachineConfig MachineConfig `json:"mco_config,omitempty"`
@@ -69,8 +69,8 @@ type IBMSpectrumCluster struct {
 	Daemon_nodeSelector map[string]string `json:"daemon_nodeSelector,omitempty"`
 }
 
-// StorageScaleStatus defines the observed state of StorageScale
-type StorageScaleStatus struct {
+// FusionAccessStatus defines the observed state of FusionAccess
+type FusionAccessStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 	// Conditions is a list of conditions and their status.
@@ -85,26 +85,26 @@ type StorageScaleStatus struct {
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
 
-// StorageScale is the Schema for the storagescales API
-type StorageScale struct {
+// FusionAccess is the Schema for the fusionaccesses API
+type FusionAccess struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   StorageScaleSpec   `json:"spec,omitempty"`
-	Status StorageScaleStatus `json:"status,omitempty"`
+	Spec   FusionAccessSpec   `json:"spec,omitempty"`
+	Status FusionAccessStatus `json:"status,omitempty"`
 }
 
 //+kubebuilder:object:root=true
 
-// StorageScaleList contains a list of StorageScale
-type StorageScaleList struct {
+// FusionAccessList contains a list of FusionAccess
+type FusionAccessList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []StorageScale `json:"items"`
+	Items           []FusionAccess `json:"items"`
 }
 
 func init() {
-	SchemeBuilder.Register(&StorageScale{}, &StorageScaleList{})
+	SchemeBuilder.Register(&FusionAccess{}, &FusionAccessList{})
 }
 
 // DeviceMechanicalProperty holds the device's mechanical spec. It can be rotational or nonRotational

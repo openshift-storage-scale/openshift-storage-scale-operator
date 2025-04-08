@@ -5,7 +5,7 @@
 # It updates two specific lines for the metadata. If those lines are changed in the
 # go file this script needs to be amended as well
 
-API_GO_FILE="api/v1alpha1/storagescale_types.go"
+API_GO_FILE="api/v1alpha1/fusionaccess_types.go"
 TMP_FILE=$(mktemp)
 trap 'rm -f "${TMP_FILE}"' EXIT SIGINT SIGTERM
 

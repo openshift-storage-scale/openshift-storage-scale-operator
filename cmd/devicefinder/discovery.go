@@ -3,7 +3,7 @@ package main
 import (
 	"runtime"
 
-	"github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/devicefinder/discovery"
+	"github.com/openshift-storage-scale/openshift-fusion-access-operator/internal/devicefinder/discovery"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"k8s.io/klog/v2"

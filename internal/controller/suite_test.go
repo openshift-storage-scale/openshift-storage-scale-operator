@@ -39,7 +39,7 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	scalev1alpha "github.com/openshift-storage-scale/openshift-storage-scale-operator/api/v1alpha1"
+	fusionv1alpha "github.com/openshift-storage-scale/openshift-fusion-access-operator/api/v1alpha1"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -79,7 +79,7 @@ var _ = BeforeSuite(func() {
 	Expect(err).NotTo(HaveOccurred())
 	Expect(cfg).NotTo(BeNil())
 
-	// err = scalev1alpha.AddToScheme(scheme.Scheme)
+	// err = fusionv1alpha.AddToScheme(scheme.Scheme)
 	// Expect(err).NotTo(HaveOccurred())
 
 	// //+kubebuilder:scaffold:scheme
@@ -100,7 +100,7 @@ func createFakeScheme() *kruntime.Scheme {
 	s := scheme.Scheme
 	builder := append(kruntime.SchemeBuilder{},
 		machineconfigv1.AddToScheme,
-		scalev1alpha.AddToScheme,
+		fusionv1alpha.AddToScheme,
 		corev1.AddToScheme,
 		configv1.AddToScheme,
 		consolev1.AddToScheme,

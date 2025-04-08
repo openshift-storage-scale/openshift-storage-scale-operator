@@ -3,7 +3,7 @@ import { K8sGroupVersionKind, K8sResourceCommon } from '@openshift-console/dynam
 
 export const LocalVolumeDiscoveryResultKind: K8sGroupVersionKind = {
   version: 'v1alpha1',
-  group: 'scale.storage.openshift.io',
+  group: 'fusion.storage.openshift.io',
   kind: 'LocalVolumeDiscoveryResult',
 };
 

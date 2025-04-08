@@ -36,8 +36,8 @@ BUNDLE_CONTAINERFILE_TEMPLATE ?= new-bundle.Dockerfile
 # This variable is used to construct full image tags for bundle and catalog images.
 #
 # For example, running 'make bundle-build bundle-push catalog-build catalog-push' will build and push both
-# scale.storage.openshift.io/openshift-storage-scale-operator-bundle:$VERSION and scale.storage.openshift.io/openshift-storage-scale-operator-catalog:$VERSION.
-IMAGE_TAG_BASE ?= quay.io/openshift-storage-scale/openshift-storage-scale
+# fusion.storage.openshift.io/openshift-fusion-access-operator-bundle:$VERSION and fusion.storage.openshift.io/openshift-fusion-access-operator-catalog:$VERSION.
+IMAGE_TAG_BASE ?= quay.io/openshift-storage-scale/openshift-fusion-access
 
 
 # always release the console with the same tag as the operator and the other way around!
@@ -62,7 +62,7 @@ REV=$(shell git describe --long --tags --match='v*' --dirty 2>/dev/null || git r
 CURPATH=$(PWD)
 TARGET_DIR=$(CURPATH)/_output/bin
 
-CSV ?= ./bundle/manifests/openshift-storage-scale-operator.clusterserviceversion.yaml
+CSV ?= ./bundle/manifests/openshift-fusion-access-operator.clusterserviceversion.yaml
 
 
 # USE_IMAGE_DIGESTS defines if images are resolved via tags or digests
@@ -124,9 +124,9 @@ help: ## Display this help.
 .PHONY: manifests
 manifests: yq controller-gen ## Generate WebhookConfiguration, ClusterRole and CustomResourceDefinition objects.
 	$(CONTROLLER_GEN) rbac:roleName=manager-role crd webhook paths="./..." output:crd:artifacts:config=config/crd/bases
-	# This reads config/samples/scale_v1alpha1_storagescale.yaml and keeps it in sync
+	# This reads config/samples/fusion_v1alpha1_fusionaccess.yaml and keeps it in sync
 	# with the initialization-resource
-	sed -i "s|^\(.*operatorframework.io/initialization-resource:\).*|\1 '$$($(YQ) -o=json -I=0 config/samples/scale_v1alpha1_storagescale.yaml)'|" config/manifests/bases/openshift-storage-scale-operator.clusterserviceversion.yaml
+	sed -i "s|^\(.*operatorframework.io/initialization-resource:\).*|\1 '$$($(YQ) -o=json -I=0 config/samples/fusion_v1alpha1_fusionaccess.yaml)'|" config/manifests/bases/openshift-fusion-access-operator.clusterserviceversion.yaml
 
 .PHONY: cnsa-supported-versions
 cnsa-supported-versions: ## Generates CNSA supported version metadata from files/ folder
@@ -416,14 +416,14 @@ catalog-push: ## Push a catalog image.
 	$(CONTAINER_TOOL) push $(CATALOG_IMG)
 
 .PHONY: catalog-install
-catalog-install: config/samples/storagescale-catalog-$(VERSION).yaml ## Install the OLM catalog on a cluster (for testing).
-	-oc delete -f config/samples/storagescale-catalog-$(VERSION).yaml
-	oc create -f config/samples/storagescale-catalog-$(VERSION).yaml
+catalog-install: config/samples/fusionaccess-catalog-$(VERSION).yaml ## Install the OLM catalog on a cluster (for testing).
+	-oc delete -f config/samples/fusionaccess-catalog-$(VERSION).yaml
+	oc create -f config/samples/fusionaccess-catalog-$(VERSION).yaml
 
-.PHONY: config/samples/storagescale-catalog-$(VERSION).yaml
-config/samples/storagescale-catalog-$(VERSION).yaml:
-	cp config/samples/storagescale-catalog.yaml config/samples/storagescale-catalog-$(VERSION).yaml
-	sed -i -e "s@CATALOG_IMG@$(CATALOG_IMG)@g" config/samples/storagescale-catalog-$(VERSION).yaml
+.PHONY: config/samples/fusionaccess-catalog-$(VERSION).yaml
+config/samples/fusionaccess-catalog-$(VERSION).yaml:
+	cp config/samples/fusionaccess-catalog.yaml config/samples/fusionaccess-catalog-$(VERSION).yaml
+	sed -i -e "s@CATALOG_IMG@$(CATALOG_IMG)@g" config/samples/fusionaccess-catalog-$(VERSION).yaml
 
 .PHONY: fetchyaml
 fetchyaml: ## Fetches install yaml files
@@ -432,5 +432,5 @@ fetchyaml: ## Fetches install yaml files
 .PHONY: rbacs-generates
 rbacs-generate: ## Generates RBACs and injects them in .go file
 	CMD_OUTPUT=$$(go run scripts/create-rbacs.go "files/$(RBAC_VERSION)/install.yaml"); \
-	sed -i '/IBM_RBAC_MARKER_START/,/IBM_RBAC_MARKER_END/{//!d}' internal/controller/storagescale_controller.go; \
-	sed -i "/IBM_RBAC_MARKER_START/ r /dev/stdin" internal/controller/storagescale_controller.go <<< "$$CMD_OUTPUT"
+	sed -i '/IBM_RBAC_MARKER_START/,/IBM_RBAC_MARKER_END/{//!d}' internal/controller/fusionaccess_controller.go; \
+	sed -i "/IBM_RBAC_MARKER_START/ r /dev/stdin" internal/controller/fusionaccess_controller.go <<< "$$CMD_OUTPUT"

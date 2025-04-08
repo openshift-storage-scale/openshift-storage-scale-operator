@@ -11,7 +11,7 @@
     "type": "console.navigation/href",
     "properties": {
       "id": "main",
-      "name": "%plugin__openshift-storage-scale-console~plugin_name%",
+      "name": "%plugin__openshift-fusion-access-console~plugin_name%",
       "href": "/example",
       "perspective": "admin",
       "section": "storage"

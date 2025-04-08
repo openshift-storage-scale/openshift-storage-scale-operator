@@ -34,7 +34,7 @@ import (
 
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	scalev1alpha "github.com/openshift-storage-scale/openshift-storage-scale-operator/api/v1alpha1"
+	fusionv1alpha "github.com/openshift-storage-scale/openshift-fusion-access-operator/api/v1alpha1"
 )
 
 const (
@@ -42,11 +42,11 @@ const (
 	oscinitVersion = "v4.17.0"
 )
 
-var _ = Describe("StorageScale Controller", func() {
+var _ = Describe("FusionAccess Controller", func() {
 	var (
 		fakeClientBuilder *fake.ClientBuilder
 		scheme            = createFakeScheme()
-		namespace         = newNamespace("openshift-storage-scale-operator")
+		namespace         = newNamespace("openshift-fusion-access-operator")
 		version           = newOCPVersion(oscinitVersion)
 		clusterConsole    = &operatorv1.Console{ObjectMeta: metav1.ObjectMeta{Name: "cluster"}}
 	)
@@ -61,12 +61,12 @@ var _ = Describe("StorageScale Controller", func() {
 		}
 
 		BeforeEach(func() {
-			By("creating the custom resource for the Kind StorageScale")
-			os.Setenv("DEPLOYMENT_NAMESPACE", "openshift-storage-scale-operator")
+			By("creating the custom resource for the Kind FusionAccess")
+			os.Setenv("DEPLOYMENT_NAMESPACE", "openshift-fusion-access-operator")
 			fakeClientBuilder = fake.NewClientBuilder().
 				WithScheme(scheme).
 				WithRuntimeObjects(version, namespace, clusterConsole).
-				WithStatusSubresource(&scalev1alpha.StorageScale{})
+				WithStatusSubresource(&fusionv1alpha.FusionAccess{})
 
 		})
 
@@ -75,26 +75,26 @@ var _ = Describe("StorageScale Controller", func() {
 		})
 
 		It("should successfully reconcile the resource", func() {
-			resource := &scalev1alpha.StorageScale{
+			resource := &fusionv1alpha.FusionAccess{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      resourceName,
 					Namespace: "default",
 				},
-				Spec: scalev1alpha.StorageScaleSpec{
+				Spec: fusionv1alpha.FusionAccessSpec{
 					IbmCnsaVersion: "v5.2.2.1",
-					MachineConfig:  scalev1alpha.MachineConfig{
+					MachineConfig:  fusionv1alpha.MachineConfig{
 						// Create: false,
 						// Labels: map[string]string{
 						// 	"machineconfiguration.openshift.io/role": "worker",
 						// },
 					},
-					Cluster: scalev1alpha.IBMSpectrumCluster{
+					Cluster: fusionv1alpha.IBMSpectrumCluster{
 						// Create: false,
 						// Daemon_nodeSelector: map[string]string{
 						// 	"node-role.kubernetes.io/worker": "",
 						// },
 					},
-					LocalVolumeDiscovery: scalev1alpha.StorageDeviceDiscovery{
+					LocalVolumeDiscovery: fusionv1alpha.StorageDeviceDiscovery{
 						// Create: false,
 					},
 				},
@@ -103,14 +103,14 @@ var _ = Describe("StorageScale Controller", func() {
 			Expect(k8sClient).NotTo(BeNil())
 
 			By("Reconciling the custom resource created")
-			StorageScaleReconciler := &StorageScaleReconciler{
+			FusionAccessReconciler := &FusionAccessReconciler{
 				Client:     k8sClient,
 				Scheme:     k8sClient.Scheme(),
 				fullClient: kubeclient.NewSimpleClientset(),
 				// dynamicClient: k8sClient,
 			}
 
-			_, err := StorageScaleReconciler.Reconcile(ctx, reconcile.Request{
+			_, err := FusionAccessReconciler.Reconcile(ctx, reconcile.Request{
 				NamespacedName: typeNamespacedName,
 			})
 			Expect(err).To(Not(HaveOccurred()))

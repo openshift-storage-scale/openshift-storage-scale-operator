@@ -3,11 +3,11 @@
 # generate /must-gather/version file
 # shellcheck disable=SC1091
 . version
-echo "openshift-storage-scale/must-gather" > /must-gather/version # imageName - Source repo identifier
+echo "openshift-fusion-access/must-gather" > /must-gather/version # imageName - Source repo identifier
 version >> /must-gather/version # imageVersion  - Build version
 imageId >> /must-gather/version # imageID  -  repository@digest          
 
 # Run the Collection of Resources using inspect
-oc adm inspect --dest-dir must-gather --rotated-pod-logs --all-namespaces "ns/openshift-storage-scale"
+oc adm inspect --dest-dir must-gather --rotated-pod-logs --all-namespaces "ns/openshift-fusion-access"
 
 exit 0

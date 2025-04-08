@@ -6,8 +6,8 @@ spec:
   backend:
     service:
       basePath: /
-      name: openshift-storage-scale-operator-console-plugin
+      name: openshift-fusion-access-operator-console-plugin
       namespace: openshift-operators
       port: 9443
     type: Service
-  displayName: Storage Scale Plugin
+  displayName: Fusion Access Plugin

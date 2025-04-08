@@ -17,7 +17,7 @@ export IMAGE_TAG
 # Override this when building images for dev only!
 IMAGE_REGISTRY ?= quay.io/openshift-storage-scale
 # Image pullspec to use for all building/pushing image targets
-IMG ?= $(IMAGE_REGISTRY)/openshift-storage-scale-operator-console:$(IMAGE_TAG)
+IMG ?= $(IMAGE_REGISTRY)/openshift-fusion-access-operator-console:$(IMAGE_TAG)
 
 POCKER := $(shell command -v docker 2>/dev/null || command -v podman 2>/dev/null)
 ifeq ($(POCKER),)

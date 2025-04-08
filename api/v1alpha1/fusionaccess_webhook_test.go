@@ -20,9 +20,9 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 )
 
-var _ = Describe("StorageScale Webhook", func() {
+var _ = Describe("FusionAccess Webhook", func() {
 
-	Context("When creating StorageScale under Defaulting Webhook", func() {
+	Context("When creating FusionAccess under Defaulting Webhook", func() {
 		It("Should fill in the default value if a required field is empty", func() {
 
 			// TODO(user): Add your logic here
@@ -30,7 +30,7 @@ var _ = Describe("StorageScale Webhook", func() {
 		})
 	})
 
-	Context("When creating StorageScale under Validating Webhook", func() {
+	Context("When creating FusionAccess under Validating Webhook", func() {
 		It("Should deny if a required field is empty", func() {
 
 			// TODO(user): Add your logic here

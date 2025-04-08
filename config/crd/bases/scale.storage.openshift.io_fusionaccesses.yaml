@@ -4,20 +4,20 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.17.2
-  name: storagescales.scale.storage.openshift.io
+  name: fusionaccesses.fusion.storage.openshift.io
 spec:
-  group: scale.storage.openshift.io
+  group: fusion.storage.openshift.io
   names:
-    kind: StorageScale
-    listKind: StorageScaleList
-    plural: storagescales
+    kind: FusionAccess
+    listKind: FusionAccessList
+    plural: fusionaccesses
     singular: storagescale
   scope: Namespaced
   versions:
   - name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: StorageScale is the Schema for the storagescales API
+        description: FusionAccess is the Schema for the fusionaccesses API
         properties:
           apiVersion:
             description: |-
@@ -37,7 +37,7 @@ spec:
           metadata:
             type: object
           spec:
-            description: StorageScaleSpec defines the desired state of StorageScale
+            description: FusionAccessSpec defines the desired state of FusionAccess
             properties:
               ibm_cnsa_cluster:
                 properties:
@@ -82,7 +82,7 @@ spec:
                 type: object
             type: object
           status:
-            description: StorageScaleStatus defines the observed state of StorageScale
+            description: FusionAccessStatus defines the observed state of FusionAccess
             properties:
               conditions:
                 description: |-

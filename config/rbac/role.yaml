@@ -491,13 +491,13 @@ rules:
   - update
   - watch
 - apiGroups:
-  - scale.storage.openshift.io
+  - fusion.storage.openshift.io
   resources:
   - localvolumediscoveries
   - localvolumediscoveries/status
   - localvolumediscoveryresults
   - localvolumediscoveryresults/status
-  - storagescales
+  - fusionaccesses
   verbs:
   - create
   - delete
@@ -507,15 +507,15 @@ rules:
   - update
   - watch
 - apiGroups:
-  - scale.storage.openshift.io
+  - fusion.storage.openshift.io
   resources:
-  - storagescales/finalizers
+  - fusionaccesses/finalizers
   verbs:
   - update
 - apiGroups:
-  - scale.storage.openshift.io
+  - fusion.storage.openshift.io
   resources:
-  - storagescales/status
+  - fusionaccesses/status
   verbs:
   - get
   - patch

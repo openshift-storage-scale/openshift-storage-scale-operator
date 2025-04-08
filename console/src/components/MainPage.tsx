@@ -20,7 +20,7 @@ import StorageDomainIcon from '@patternfly/react-icons/dist/js/icons/storage-dom
 import ExternalLinkIcon from '@patternfly/react-icons/dist/js/icons/external-link-alt-icon';
 
 export default function ExamplePage() {
-  const { t } = useTranslation('plugin__openshift-storage-scale-console');
+  const { t } = useTranslation('plugin__openshift-fusion-access-console');
 
   return (
     <>

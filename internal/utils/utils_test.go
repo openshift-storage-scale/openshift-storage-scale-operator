@@ -110,7 +110,7 @@ func TestIsOpenShiftSupported(t *testing.T) {
 		{"5.2.2.0", "4.17.3", true},       // Supported
 		{"5.2.2.0", "4.18.1", false},      // Not supported
 		{"5.2.2.0", "4.15.17", true},      // Supported
-		{"invalid_version", "4.9", false}, // Invalid IBM Storage Scale version
+		{"invalid_version", "4.9", false}, // Invalid IBM Fusion Access version
 	}
 
 	for _, tt := range tests {

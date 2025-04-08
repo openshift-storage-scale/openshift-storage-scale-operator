@@ -1,7 +1,7 @@
 {
     "folders": [
         {
-            "name": "Openshift StorageScale Operator console plugin",
+            "name": "Openshift FusionAccess Operator console plugin",
             "path": "."
         },
         {
