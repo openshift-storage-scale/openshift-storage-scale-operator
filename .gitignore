@@ -38,3 +38,8 @@ bundle_tmp*/
 must-gather.local.*/
 
 build/*
+
+bundle.konflux.Dockerfile
+bundle/*
+
+bundle.Dockerfile
