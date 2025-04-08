@@ -39,7 +39,7 @@ require (
 	github.com/coreos/ign-converter v0.0.0-20241125185625-2f773079ca81 // indirect
 	github.com/coreos/ignition v0.35.0 // indirect
 	github.com/coreos/ignition/v2 v2.20.0 // indirect
-	github.com/coreos/vcontext v0.0.0-20230201181013-d72178a18687 // indirect
+	github.com/coreos/vcontext v0.0.0-20231102161604-685dc7299dc5 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/emicklei/go-restful/v3 v3.12.1 // indirect
 	github.com/evanphx/json-patch v5.8.1+incompatible // indirect
