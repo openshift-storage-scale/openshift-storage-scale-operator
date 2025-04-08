@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 # Source the environment values that contain the component image pullspecs coming from the  nudges
-for file in nudges/*.env
-do . $file
+for file in nudges/*.imagePullSpec.yaml
+do $(cat $file | tail -n+2 )
 done
 
 # Expose the operator's version as an env variable to be used when building the operator-sdk's bundle
