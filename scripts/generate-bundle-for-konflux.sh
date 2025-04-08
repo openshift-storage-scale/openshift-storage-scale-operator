@@ -5,6 +5,10 @@ for file in nudges/*.env
 do . $file
 done
 
+# Expose the operator's version as an env variable to be used when building the operator-sdk's bundle
+# manifests and also in the bundle.konflux.Dockerfile's label
+export VERSION=$(cat VERSION.txt)
+
 # Run the bundle generation flow, including replacing the image pullspecs in the config templates
 # to the ones from the nudges with the 'envsubst' command
 kustomize build config/manifests/ | \
@@ -12,7 +16,7 @@ envsubst | \
 operator-sdk generate bundle \
         -q \
         --overwrite \
-        --version $(cat VERSION.txt) \
+        --version $VERSION \
         --output-dir bundle \
         --channels development \
         --default-channel development \
