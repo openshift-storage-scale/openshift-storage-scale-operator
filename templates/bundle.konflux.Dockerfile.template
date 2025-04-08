@@ -50,8 +50,8 @@ LABEL \
     com.redhat.component="OpenShift Storage Scale Operator" \
     distribution-scope="public" \
     name="openshift-storage-scale-bundle" \
-    release="v1.0" \
-    version="v1.0" \
+    release="v${VERSION}" \
+    version="v${VERSION}" \
     maintainer="Red Hat jgil@redhat.com" \
     url="https://github.com/openshift-storage-scale/openshift-storage-scale-operator.git" \
     vendor="Red Hat, Inc." \
