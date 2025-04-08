@@ -1,24 +1,4 @@
-FROM quay.io/konflux-ci/operator-sdk-builder:latest as builder
 
-ARG OPERATOR_IMG=${OPERATOR_IMG}
-ARG DEVICEFINDER_IMAGE=${DEVICEFINDER_IMAGE}
-ARG CONSOLE_PLUGIN_IMAGE=${CONSOLE_PLUGIN_IMAGE}
-ARG MUST_GATHER_IMAGE=${MUST_GATHER_IMAGE}
-
-COPY ./ /repo
-WORKDIR /repo
-RUN \
-    kustomize build config/manifests/ \
-    | envsubst \
-    | operator-sdk generate bundle \
-        -q \
-        --overwrite \
-        --version $(cat VERSION.txt) \
-        --output-dir build \
-        --channels development \
-        --default-channel development \
-        --use-image-digests && \
-    operator-sdk bundle validate ./build
 
 FROM scratch
 
@@ -27,10 +7,11 @@ LABEL devicefinder=${DEVICEFINDER_IMAGE}
 LABEL console-plugin=${CONSOLE_PLUGIN_IMAGE}
 LABEL must-gather=${MUST_GATHER_IMAGE}
 
-COPY --from=builder /repo/build/manifests /manifests/
-COPY --from=builder /repo/build/metadata /metadata/
+COPY bundle/manifests /manifests/
+COPY bundle/metadata /metadata/
+COPY bundle/tests/scorecard /tests/scorecard/
 
-COPY --from=builder licenses /licenses/
+COPY LICENSE /licenses/licenses
 
 USER 1001
 # These are three labels needed to control how the pipeline should handle this container image

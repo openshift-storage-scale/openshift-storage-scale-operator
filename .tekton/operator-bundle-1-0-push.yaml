@@ -12,7 +12,7 @@ metadata:
       ".tekton/operator-bundle-1-0-push.yaml".pathChanged() ||
       "bundle/***".pathChanged() ||
       "nudges/***".pathChanged() ||
-      "scripts/generate-bundle-konflux-containerfile.sh".pathChanged())
+      "scripts/generate-bundle-for-konflux.sh".pathChanged())
   creationTimestamp: null
   labels:
     appstudio.openshift.io/application: operator-1-0
@@ -171,12 +171,12 @@ spec:
       workspaces:
       - name: basic-auth
         workspace: git-auth
-    - name: generate-bundle-containerfile
+    - name: generate-bundle
       params:
       - name: HERMETIC
         value: $(params.hermetic)
       - name: SCRIPT
-        value: ./scripts/generate-bundle-konflux-containerfile.sh
+        value: ./scripts/generate-bundle-for-konflux.sh
       - name: ociStorage
         value: $(params.output-image).prefetch
       - name: ociArtifactExpiresAfter
@@ -201,13 +201,13 @@ spec:
       - name: input
         value: $(params.prefetch-input)
       - name: SOURCE_ARTIFACT
-        value: $(tasks.generate-bundle-containerfile.results.SCRIPT_ARTIFACT)
+        value: $(tasks.generate-bundle.results.SCRIPT_ARTIFACT)
       - name: ociStorage
         value: $(params.output-image).prefetch
       - name: ociArtifactExpiresAfter
         value: $(params.image-expires-after)
       runAfter:
-      - generate-bundle-containerfile
+      - generate-bundle
       taskRef:
         params:
         - name: name
