@@ -1,2 +1,2 @@
 raw: |
-  export CONSOLE_PLUGIN_IMAGE="registry.stage.redhat.io/openshift-fusion-access-operator-tech-preview/fusion-access-operator-console-plugin-rhel9@sha256:322a29d5ecf8bd4e72ef811dd34ed4493a49e16306e98b1377c3d26e5fc53018"
+  export CONSOLE_PLUGIN_IMAGE="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/openshift-fusion-access-console-plugin-rhel9@sha256:322a29d5ecf8bd4e72ef811dd34ed4493a49e16306e98b1377c3d26e5fc53018"
