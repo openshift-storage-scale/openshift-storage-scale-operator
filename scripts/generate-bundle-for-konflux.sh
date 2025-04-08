@@ -28,4 +28,4 @@ operator-sdk bundle validate ./bundle
 # using the 'envsubst' command.
 # These labels are used in the release process to validate that the bundle related image pullspecs
 # match with the Snapshot component pullspecs.
-cat templates/bundle.konflux.Dockerfile.template | envsubst >bundle.konflux.Dockerfile
+ envsubst < templates/bundle.konflux.Dockerfile.template >bundle.konflux.Dockerfile
