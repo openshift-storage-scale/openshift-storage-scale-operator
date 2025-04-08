@@ -1,1 +1,1 @@
-# openshift-storage-scale-operator
+# openshift-fusion-access-operator

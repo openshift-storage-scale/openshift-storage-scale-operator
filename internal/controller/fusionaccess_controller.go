@@ -37,15 +37,15 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	scalev1alpha "github.com/openshift-storage-scale/openshift-storage-scale-operator/api/v1alpha1"
-	"github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/controller/console"
-	"github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/controller/localvolumediscovery"
-	"github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/controller/machineconfig"
-	"github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/utils"
+	fusionv1alpha "github.com/openshift-storage-scale/openshift-fusion-access-operator/api/v1alpha1"
+	"github.com/openshift-storage-scale/openshift-fusion-access-operator/internal/controller/console"
+	"github.com/openshift-storage-scale/openshift-fusion-access-operator/internal/controller/localvolumediscovery"
+	"github.com/openshift-storage-scale/openshift-fusion-access-operator/internal/controller/machineconfig"
+	"github.com/openshift-storage-scale/openshift-fusion-access-operator/internal/utils"
 )
 
-// StorageScaleReconciler reconciles a StorageScale object
-type StorageScaleReconciler struct {
+// FusionAccessReconciler reconciles a FusionAccess object
+type FusionAccessReconciler struct {
 	client.Client
 	Scheme        *runtime.Scheme
 	config        *rest.Config
@@ -53,12 +53,12 @@ type StorageScaleReconciler struct {
 	fullClient    kubernetes.Interface
 }
 
-// const storageScaleFinalizer = "scale.storage.openshift.io/finalizer"
+// const storageScaleFinalizer = "fusion.storage.openshift.io/finalizer"
 
 // Basic Operator RBACs
-//+kubebuilder:rbac:groups=scale.storage.openshift.io,resources=storagescales,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=scale.storage.openshift.io,resources=storagescales/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=scale.storage.openshift.io,resources=storagescales/finalizers,verbs=update
+//+kubebuilder:rbac:groups=fusion.storage.openshift.io,resources=fusionaccesses,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=fusion.storage.openshift.io,resources=fusionaccesses/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=fusion.storage.openshift.io,resources=fusionaccesses/finalizers,verbs=update
 
 // Operator needs to create some machine configs
 //+kubebuilder:rbac:groups=machineconfiguration.openshift.io,resources=machineconfigs,verbs=get;list;watch;create;update;patch;delete
@@ -239,21 +239,21 @@ type StorageScaleReconciler struct {
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
 // TODO(user): Modify the Reconcile function to compare the state specified by
-// the StorageScale object against the actual cluster state, and then
+// the FusionAccess object against the actual cluster state, and then
 // perform operations to make the cluster state reflect the state specified by
 // the user.
 //
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.17.3/pkg/reconcile
-func (r *StorageScaleReconciler) Reconcile(
+func (r *FusionAccessReconciler) Reconcile(
 	ctx context.Context,
 	req ctrl.Request,
 ) (ctrl.Result, error) {
 	_ = log.FromContext(ctx)
 
 	// TODO(user): your logic here
-	storagescale := &scalev1alpha.StorageScale{}
-	err := r.Get(ctx, req.NamespacedName, storagescale)
+	fusionaccess := &fusionv1alpha.FusionAccess{}
+	err := r.Get(ctx, req.NamespacedName, fusionaccess)
 	if err != nil {
 		if kerrors.IsNotFound(err) {
 			return ctrl.Result{}, nil
@@ -261,22 +261,22 @@ func (r *StorageScaleReconciler) Reconcile(
 		return ctrl.Result{}, err
 	}
 
-	// // Check if the StorageScale instance is marked to be deleted, which is
+	// // Check if the FusionAccess instance is marked to be deleted, which is
 	// // indicated by the deletion timestamp being set.
-	// isStorageScaleMarkedToBeDeleted := storagescale.GetDeletionTimestamp() != nil
-	// if isStorageScaleMarkedToBeDeleted {
-	// 	if controllerutil.ContainsFinalizer(storagescale, storageScaleFinalizer) {
+	// isFusionAccessMarkedToBeDeleted := fusionaccess.GetDeletionTimestamp() != nil
+	// if isFusionAccessMarkedToBeDeleted {
+	// 	if controllerutil.ContainsFinalizer(fusionaccess, storageScaleFinalizer) {
 	// 		// Run finalization logic for storageScaleFinalizer. If the
 	// 		// finalization logic fails, don't remove the finalizer so
 	// 		// that we can retry during the next reconciliation.
-	// 		if err := r.finalizeStorageScale(log.Log, storagescale); err != nil {
+	// 		if err := r.finalizeFusionAccess(log.Log, fusionaccess); err != nil {
 	// 			return ctrl.Result{}, err
 	// 		}
 
 	// 		// Remove memcachedFinalizer. Once all finalizers have been
 	// 		// removed, the object will be deleted.
-	// 		controllerutil.RemoveFinalizer(storagescale, storageScaleFinalizer)
-	// 		err := r.Update(ctx, storagescale)
+	// 		controllerutil.RemoveFinalizer(fusionaccess, storageScaleFinalizer)
+	// 		err := r.Update(ctx, fusionaccess)
 	// 		if err != nil {
 	// 			return ctrl.Result{}, err
 	// 		}
@@ -284,17 +284,17 @@ func (r *StorageScaleReconciler) Reconcile(
 	// 	return ctrl.Result{}, nil
 	// }
 	// // Add finalizer for this CR
-	// if !controllerutil.ContainsFinalizer(storagescale, storageScaleFinalizer) {
-	// 	controllerutil.AddFinalizer(storagescale, storageScaleFinalizer)
-	// 	err = r.Update(ctx, storagescale)
+	// if !controllerutil.ContainsFinalizer(fusionaccess, storageScaleFinalizer) {
+	// 	controllerutil.AddFinalizer(fusionaccess, storageScaleFinalizer)
+	// 	err = r.Update(ctx, fusionaccess)
 	// 	if err != nil {
 	// 		return ctrl.Result{}, err
 	// 	}
 	// }
 
 	// Create machineconfig to enable kernel modules if needed
-	if storagescale.Spec.MachineConfig.Create {
-		mc := machineconfig.NewMachineConfig(storagescale.Spec.MachineConfig.Labels)
+	if fusionaccess.Spec.MachineConfig.Create {
+		mc := machineconfig.NewMachineConfig(fusionaccess.Spec.MachineConfig.Labels)
 		err = machineconfig.CreateOrUpdateMachineConfig(ctx, mc, r.Client)
 		if err != nil {
 			return ctrl.Result{}, err
@@ -306,7 +306,7 @@ func (r *StorageScaleReconciler) Reconcile(
 	}
 
 	// Load and install manifests from ibm
-	install_path, err := getInstallPath(string(storagescale.Spec.IbmCnsaVersion))
+	install_path, err := getInstallPath(string(fusionaccess.Spec.IbmCnsaVersion))
 	if err != nil {
 		return ctrl.Result{}, err
 	}
@@ -385,7 +385,7 @@ func (r *StorageScaleReconciler) Reconcile(
 	}
 	log.Log.Info("Successfully enabled console plugin")
 
-	if storagescale.Spec.LocalVolumeDiscovery.Create {
+	if fusionaccess.Spec.LocalVolumeDiscovery.Create {
 		// Create Device discovery
 		ns, err := utils.GetDeploymentNamespace()
 		if err != nil {
@@ -396,9 +396,9 @@ func (r *StorageScaleReconciler) Reconcile(
 			return ctrl.Result{}, err
 		}
 	}
-	if storagescale.Spec.Cluster.Create {
+	if fusionaccess.Spec.Cluster.Create {
 		// Create IBM storage cluster
-		cluster := NewSpectrumCluster(storagescale.Spec.Cluster.Daemon_nodeSelector)
+		cluster := NewSpectrumCluster(fusionaccess.Spec.Cluster.Daemon_nodeSelector)
 		gvr := schema.GroupVersionResource{
 			Group:    "scale.spectrum.ibm.com",
 			Version:  "v1beta1",
@@ -442,7 +442,7 @@ func getInstallPath(cnsaVersion string) (string, error) {
 }
 
 // SetupWithManager sets up the controller with the Manager.
-func (r *StorageScaleReconciler) SetupWithManager(mgr ctrl.Manager) error {
+func (r *FusionAccessReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	var err error
 	r.config = mgr.GetConfig()
 	if r.dynamicClient, err = dynamic.NewForConfig(r.config); err != nil {
@@ -452,15 +452,15 @@ func (r *StorageScaleReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		return err
 	}
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&scalev1alpha.StorageScale{}).
+		For(&fusionv1alpha.FusionAccess{}).
 		Complete(r)
 }
 
-// func (r *StorageScaleReconciler) finalizeStorageScale(reqLogger logr.Logger, sc *v1alpha1.StorageScale) error {
+// func (r *FusionAccessReconciler) finalizeFusionAccess(reqLogger logr.Logger, sc *v1alpha1.FusionAccess) error {
 // 	// TODO(user): Add the cleanup steps that the operator
 // 	// needs to do before the CR can be deleted. Examples
 // 	// of finalizers include performing backups and deleting
 // 	// resources that are not owned by this CR, like a PVC.
-// 	reqLogger.Info("Successfully finalized StorageScale")
+// 	reqLogger.Info("Successfully finalized FusionAccess")
 // 	return nil
 // }

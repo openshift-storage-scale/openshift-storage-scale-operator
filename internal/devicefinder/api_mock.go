@@ -1,7 +1,7 @@
 package devicefinder
 
 import (
-	"github.com/openshift-storage-scale/openshift-storage-scale-operator/api/v1alpha1"
+	"github.com/openshift-storage-scale/openshift-fusion-access-operator/api/v1alpha1"
 	"k8s.io/apimachinery/pkg/runtime"
 )
 

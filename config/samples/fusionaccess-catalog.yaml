@@ -1,9 +1,9 @@
 apiVersion: operators.coreos.com/v1alpha1
 kind: CatalogSource
 metadata:
-  name: test-openshift-storage-scale-operator
+  name: test-openshift-fusion-access-operator
   namespace: openshift-marketplace
 spec:
-  displayName: Test Storage Scale Operator
+  displayName: Test Fusion Access Operator
   sourceType: grpc
   image: CATALOG_IMG

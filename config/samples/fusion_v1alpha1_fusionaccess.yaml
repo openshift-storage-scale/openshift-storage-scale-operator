@@ -1,7 +1,7 @@
-apiVersion: scale.storage.openshift.io/v1alpha1
-kind: StorageScale
+apiVersion: fusion.storage.openshift.io/v1alpha1
+kind: FusionAccess
 metadata:
-  name: storagescale-sample
+  name: fusionaccess-sample
 spec:
   ibm_cnsa_version: "v5.2.3.0.rc1"
   mco_config:

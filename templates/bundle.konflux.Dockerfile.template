@@ -47,17 +47,17 @@ LABEL operators.operatorframework.io.test.mediatype.v1=scorecard+v1
 
 
 LABEL \
-    com.redhat.component="OpenShift Storage Scale Operator" \
+    com.redhat.component="OpenShift Fusion Access Operator" \
     distribution-scope="public" \
-    name="openshift-storage-scale-bundle" \
+    name="openshift-fusion-access-bundle" \
     release="v${VERSION}" \
     version="v${VERSION}" \
     maintainer="Red Hat jgil@redhat.com" \
-    url="https://github.com/openshift-storage-scale/openshift-storage-scale-operator.git" \
+    url="https://github.com/openshift-storage-scale/openshift-fusion-access-operator.git" \
     vendor="Red Hat, Inc." \
     description="" \
     io.k8s.description="" \
     summary="" \
-    io.k8s.display-name="OpenShift Storage Scale Operator" \
+    io.k8s.display-name="OpenShift Fusion Access Operator" \
     io.openshift.tags="openshift,storage,scale" \
     License="Apache License 2.0" \

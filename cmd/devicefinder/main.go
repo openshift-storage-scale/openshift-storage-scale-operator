@@ -9,12 +9,12 @@ import (
 
 var rootCmd = &cobra.Command{
 	Use:   "devicefinder",
-	Short: "Used to start the devicefinder daemon for the storage-scale-operator",
+	Short: "Used to start the devicefinder daemon for the fusion-access-operator",
 }
 
 var discoveryDaemonCmd = &cobra.Command{
 	Use:   "discover",
-	Short: "Used to start device discovery to generate the StorageScaleDiscoveryResult CR",
+	Short: "Used to start device discovery to generate the FusionAccessDiscoveryResult CR",
 	RunE:  startDeviceDiscovery,
 }
 

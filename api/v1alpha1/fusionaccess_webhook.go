@@ -20,7 +20,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/utils"
+	"github.com/openshift-storage-scale/openshift-fusion-access-operator/internal/utils"
 	configclient "github.com/openshift/client-go/config/clientset/versioned"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -33,17 +33,17 @@ import (
 )
 
 // log is for logging in this package.
-var storagescalelog = logf.Log.WithName("storagescale-resource")
+var fusionaccesslog = logf.Log.WithName("fusionaccess-resource")
 
 // +kubebuilder:object:generate=false
 // +k8s:deepcopy-gen=false
 // +k8s:openapi-gen=false
-// StorageScaleValidator is responsible for setting default values on the StorageScale resources
+// FusionAccessValidator is responsible for setting default values on the FusionAccess resources
 // when created or updated.
 //
 // NOTE: The +kubebuilder:object:generate=false and +k8s:deepcopy-gen=false marker prevents controller-gen from generating DeepCopy methods,
 // as it is used only for temporary operations and does not need to be deeply copied.
-type StorageScaleValidator struct {
+type FusionAccessValidator struct {
 	Client       client.Client
 	config       *rest.Config
 	configClient configclient.Interface
@@ -51,12 +51,12 @@ type StorageScaleValidator struct {
 
 // FIXME(bandini): This needs to be reviewed more in detail. I added sideEffects=none to get it passing but not 100% sure about it
 //nolint:lll
-// +kubebuilder:webhook:verbs=create;update,path=/validate-scale-storage-openshift-io-v1alpha1-storagescale,mutating=false,failurePolicy=fail,groups=scale.storage.openshift.io,resources=storagescales,versions=v1alpha1,name=scale.storage.openshift.io,admissionReviewVersions=v1,sideEffects=none
+// +kubebuilder:webhook:verbs=create;update,path=/validate-fusion-storage-openshift-io-v1alpha1-fusionaccess,mutating=false,failurePolicy=fail,groups=fusion.storage.openshift.io,resources=fusionaccesses,versions=v1alpha1,name=fusion.storage.openshift.io,admissionReviewVersions=v1,sideEffects=none
 
-var _ webhook.CustomValidator = &StorageScaleValidator{}
+var _ webhook.CustomValidator = &FusionAccessValidator{}
 
 // SetupWebhookWithManager will setup the manager to manage the webhooks
-func (r *StorageScaleValidator) SetupWebhookWithManager(mgr ctrl.Manager) error {
+func (r *FusionAccessValidator) SetupWebhookWithManager(mgr ctrl.Manager) error {
 	r.Client = mgr.GetClient()
 	r.config = mgr.GetConfig()
 	var err error
@@ -64,26 +64,26 @@ func (r *StorageScaleValidator) SetupWebhookWithManager(mgr ctrl.Manager) error 
 		return err
 	}
 	return ctrl.NewWebhookManagedBy(mgr).
-		For(&StorageScale{}).
+		For(&FusionAccess{}).
 		WithValidator(r).
 		Complete()
 }
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (r *StorageScaleValidator) ValidateCreate(ctx context.Context, obj runtime.Object) (admission.Warnings, error) {
-	p, err := convertToStorageScale(obj)
+func (r *FusionAccessValidator) ValidateCreate(ctx context.Context, obj runtime.Object) (admission.Warnings, error) {
+	p, err := convertToFusionAccess(obj)
 	if err != nil {
-		storagescalelog.Error(err, "validate create", "name", p.Name)
+		fusionaccesslog.Error(err, "validate create", "name", p.Name)
 		return nil, err
 	}
 
-	// Make sure the StorageScale object is a singleton
-	var storagescales StorageScaleList
-	if err = r.Client.List(ctx, &storagescales); err != nil {
-		return nil, fmt.Errorf("failed to list StorageScale resources: %v", err)
+	// Make sure the FusionAccess object is a singleton
+	var fusionaccesses FusionAccessList
+	if err = r.Client.List(ctx, &fusionaccesses); err != nil {
+		return nil, fmt.Errorf("failed to list FusionAccess resources: %v", err)
 	}
-	if len(storagescales.Items) > 0 {
-		return nil, fmt.Errorf("only one StorageScale resource is allowed")
+	if len(fusionaccesses.Items) > 0 {
+		return nil, fmt.Errorf("only one FusionAccess resource is allowed")
 	}
 
 	clusterVersions, err := r.configClient.ConfigV1().ClusterVersions().Get(context.Background(), "version", metav1.GetOptions{})
@@ -98,24 +98,24 @@ func (r *StorageScaleValidator) ValidateCreate(ctx context.Context, obj runtime.
 	}
 	if !utils.IsOpenShiftSupported(string(p.Spec.IbmCnsaVersion), *ocpVersion) {
 		// FIXME(bandini): we currently only log this so QE can test on upcoming versions that are not yet supported by IBM
-		storagescalelog.Info("IBM CNSA version not supported", "OCP Version", ocpVersion, "IBM CNSA Version", p.Spec.IbmCnsaVersion)
+		fusionaccesslog.Info("IBM CNSA version not supported", "OCP Version", ocpVersion, "IBM CNSA Version", p.Spec.IbmCnsaVersion)
 		// FIXME(bandini): return nil, fmt.Errorf("IBM CNSA version %s is not supported", ocpVersion)
 	} else {
-		storagescalelog.Info("validate create", "name", p.Name, "OCP Version", ocpVersion, "IBM CNSA Version", p.Spec.IbmCnsaVersion)
+		fusionaccesslog.Info("validate create", "name", p.Name, "OCP Version", ocpVersion, "IBM CNSA Version", p.Spec.IbmCnsaVersion)
 	}
 	return nil, nil
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (r *StorageScaleValidator) ValidateUpdate(_ context.Context, oldObj, newObj runtime.Object) (admission.Warnings, error) {
-	p, err := convertToStorageScale(oldObj)
+func (r *FusionAccessValidator) ValidateUpdate(_ context.Context, oldObj, newObj runtime.Object) (admission.Warnings, error) {
+	p, err := convertToFusionAccess(oldObj)
 	if err != nil {
-		storagescalelog.Error(err, "validate update", "name", p.Name)
+		fusionaccesslog.Error(err, "validate update", "name", p.Name)
 		return nil, err
 	}
-	pNew, err := convertToStorageScale(newObj)
+	pNew, err := convertToFusionAccess(newObj)
 	if err != nil {
-		storagescalelog.Error(err, "validate update", "name", pNew.Name)
+		fusionaccesslog.Error(err, "validate update", "name", pNew.Name)
 		return nil, err
 	}
 
@@ -123,27 +123,27 @@ func (r *StorageScaleValidator) ValidateUpdate(_ context.Context, oldObj, newObj
 	if pNew.Spec.IbmCnsaVersion != p.Spec.IbmCnsaVersion {
 		return nil, fmt.Errorf("IBM CNSA version cannot be updated")
 	}
-	storagescalelog.Info("validate update", "name", p.Name)
+	fusionaccesslog.Info("validate update", "name", p.Name)
 
 	return nil, nil
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (r *StorageScaleValidator) ValidateDelete(_ context.Context, obj runtime.Object) (admission.Warnings, error) {
-	p, err := convertToStorageScale(obj)
+func (r *FusionAccessValidator) ValidateDelete(_ context.Context, obj runtime.Object) (admission.Warnings, error) {
+	p, err := convertToFusionAccess(obj)
 	if err != nil {
-		storagescalelog.Error(err, "validate delete", "name", p.Name)
+		fusionaccesslog.Error(err, "validate delete", "name", p.Name)
 		return nil, err
 	}
-	storagescalelog.Info("validate delete", "name", p.Name)
+	fusionaccesslog.Info("validate delete", "name", p.Name)
 
 	return nil, nil
 }
 
-func convertToStorageScale(obj runtime.Object) (*StorageScale, error) {
-	p, ok := obj.(*StorageScale)
+func convertToFusionAccess(obj runtime.Object) (*FusionAccess, error) {
+	p, ok := obj.(*FusionAccess)
 	if !ok {
-		return nil, fmt.Errorf("expected a StorageScale object but got %T", obj)
+		return nil, fmt.Errorf("expected a FusionAccess object but got %T", obj)
 	}
 	return p, nil
 }

@@ -26,7 +26,7 @@ import (
 )
 
 // Taken from https://www.ibm.com/docs/en/scalecontainernative/5.2.2?topic=planning-software-requirements
-type StorageScaleData struct {
+type FusionAccessData struct {
 	CSIVersion                string   `json:"csi_version"`
 	Architecture              []string `json:"architecture"`
 	RemoteStorageClusterLevel string   `json:"remote_storage_cluster_level"`
@@ -34,8 +34,8 @@ type StorageScaleData struct {
 	OpenShiftLevels           []string `json:"openshift_levels"`
 }
 
-// The dict key is the IBM Storage Scale Container Native version
-var storageScaleTable = map[string]StorageScaleData{
+// The dict key is the IBM Fusion Access Container Native version
+var storageScaleTable = map[string]FusionAccessData{
 	"5.1.5.0": {"2.7.0", []string{"x86_64", "ppc64le", "s390x"}, "5.1.3.0+", "29.00", []string{"4.9", "4.10", "4.11"}},
 	"5.1.6.0": {"2.8.0", []string{"x86_64", "ppc64le", "s390x"}, "5.1.3.0+", "30.00", []string{"4.9", "4.10", "4.11"}},
 	"5.1.7.0": {"2.9.0", []string{"x86_64", "ppc64le", "s390x"}, "5.1.3.0+", "31.00", []string{"4.10", "4.11", "4.12"}},
@@ -53,11 +53,11 @@ var storageScaleTable = map[string]StorageScaleData{
 	"5.2.2.1": {"2.13.1", []string{"x86_64", "ppc64le", "s390x"}, "5.1.9.0+", "36.00", []string{"4.15", "4.16", "4.17", "4.18"}},
 }
 
-func IsOpenShiftSupported(ibmStorageScaleVersion string, openShiftVersion semver.Version) bool {
-	// Strip the leading "v" from the IBM Storage Scale version
-	ibmVer := ibmStorageScaleVersion
-	if strings.HasPrefix(ibmStorageScaleVersion, "v") {
-		ibmVer = ibmStorageScaleVersion[1:] // Remove the first character
+func IsOpenShiftSupported(ibmFusionAccessVersion string, openShiftVersion semver.Version) bool {
+	// Strip the leading "v" from the IBM Fusion Access version
+	ibmVer := ibmFusionAccessVersion
+	if strings.HasPrefix(ibmFusionAccessVersion, "v") {
+		ibmVer = ibmFusionAccessVersion[1:] // Remove the first character
 	}
 
 	data, exists := storageScaleTable[ibmVer]

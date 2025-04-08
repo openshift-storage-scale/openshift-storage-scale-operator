@@ -244,6 +244,36 @@ rules:
   - list
   - watch
 - apiGroups:
+  - fusion.storage.openshift.io
+  resources:
+  - fusionaccesses
+  - localvolumediscoveries
+  - localvolumediscoveries/status
+  - localvolumediscoveryresults
+  - localvolumediscoveryresults/status
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - fusion.storage.openshift.io
+  resources:
+  - fusionaccesses/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - fusion.storage.openshift.io
+  resources:
+  - fusionaccesses/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
   - machineconfiguration.openshift.io
   resources:
   - machineconfigpools
@@ -490,36 +520,6 @@ rules:
   - patch
   - update
   - watch
-- apiGroups:
-  - scale.storage.openshift.io
-  resources:
-  - localvolumediscoveries
-  - localvolumediscoveries/status
-  - localvolumediscoveryresults
-  - localvolumediscoveryresults/status
-  - storagescales
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - scale.storage.openshift.io
-  resources:
-  - storagescales/finalizers
-  verbs:
-  - update
-- apiGroups:
-  - scale.storage.openshift.io
-  resources:
-  - storagescales/status
-  verbs:
-  - get
-  - patch
-  - update
 - apiGroups:
   - security.openshift.io
   resources:

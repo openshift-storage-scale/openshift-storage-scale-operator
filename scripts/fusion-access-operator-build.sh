@@ -1,9 +1,9 @@
 #!/bin/bash
 set -x -e -o pipefail
 
-CATALOGSOURCE="test-openshift-storage-scale-operator"
-NS="openshift-storage-scale"
-OPERATOR="openshift-storage-scale-operator"
+CATALOGSOURCE="test-openshift-fusion-access-operator"
+NS="openshift-fusion-access"
+OPERATOR="openshift-fusion-access-operator"
 VERSION="${VERSION:-6.6.6}"
 REGISTRY="${REGISTRY:-kuemper.int.rhx/bandini}"
 
@@ -55,7 +55,7 @@ EOF
     apiVersion: operators.coreos.com/v1
     kind: OperatorGroup
     metadata:
-      name: storage-scale-operator-group
+      name: fusion-access-operator-group
       namespace: ${NS}
     spec:
       upgradeStrategy: Default
@@ -80,7 +80,7 @@ if [[ -n $(git status --porcelain) ]]; then
     exit 1
 fi
 
-make VERSION=${VERSION} IMAGE_TAG_BASE=${REGISTRY}/openshift-storage-scale CHANNELS=fast USE_IMAGE_DIGESTS="" \
+make VERSION=${VERSION} IMAGE_TAG_BASE=${REGISTRY}/openshift-fusion-access CHANNELS=fast USE_IMAGE_DIGESTS="" \
     manifests bundle generate docker-build docker-push bundle-build bundle-push console-build console-push \
     devicefinder-docker-build devicefinder-docker-push catalog-build catalog-push catalog-install
 

@@ -4,7 +4,7 @@ metadata:
   name: controller-manager
   namespace: system
   labels:
-    app.kubernetes.io/name: openshift-storage-scale-operator
+    app.kubernetes.io/name: openshift-fusion-access-operator
     app.kubernetes.io/managed-by: kustomize
 spec:
   template:

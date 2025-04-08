@@ -5,13 +5,13 @@ import (
 )
 
 const (
-	defaultDeviceFinderImageVersion = "quay.io/openshift-storage-scale/openshift-storage-scale-devicefinder"
+	defaultDeviceFinderImageVersion = "quay.io/openshift-storage-scale/openshift-fusion-access-devicefinder"
 	defaultKubeProxyImage           = "quay.io/openshift/origin-kube-rbac-proxy:latest"
 
 	// OwnerNamespaceLabel references the owning object's namespace
-	OwnerNamespaceLabel = "scale.storage.openshift.io/owner-namespace"
+	OwnerNamespaceLabel = "fusion.storage.openshift.io/owner-namespace"
 	// OwnerNameLabel references the owning object
-	OwnerNameLabel = "scale.storage.openshift.io/owner-name"
+	OwnerNameLabel = "fusion.storage.openshift.io/owner-name"
 
 	// DeviceFinderImageEnv is used by the operator to read the RELATED_IMAGE_OPENSHIFT-STORAGE-SCALE-OPERATOR-DEVICEFINDER from the environment
 	DeviceFinderImageEnv = "RELATED_IMAGE_OPENSHIFT-STORAGE-SCALE-OPERATOR-DEVICEFINDER"

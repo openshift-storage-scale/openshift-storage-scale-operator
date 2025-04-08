@@ -2,23 +2,23 @@
 # This file is used to track the info used to scaffold your project
 # and allow the plugins properly work.
 # More info: https://book.kubebuilder.io/reference/project-config.html
-domain: scale.storage.openshift.io
+domain: fusion.storage.openshift.io
 layout:
 - go.kubebuilder.io/v4
 plugins:
   manifests.sdk.operatorframework.io/v2: {}
   scorecard.sdk.operatorframework.io/v2: {}
-projectName: openshift-storage-scale-operator
-repo: github.com/openshift-storage-scale/openshift-storage-scale-operator
+projectName: openshift-fusion-access-operator
+repo: github.com/openshift-storage-scale/openshift-fusion-access-operator
 resources:
 - api:
     crdVersion: v1
     namespaced: true
   controller: true
-  domain: scale.storage.openshift.io
-  group: scale
-  kind: StorageScale
-  path: github.com/openshift-storage-scale/openshift-storage-scale-operator/api/v1alpha1
+  domain: fusion.storage.openshift.io
+  group: fusion
+  kind: FusionAccess
+  path: github.com/openshift-storage-scale/openshift-fusion-access-operator/api/v1alpha1
   version: v1alpha1
   webhooks:
     defaulting: true

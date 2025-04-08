@@ -41,11 +41,11 @@ import (
 	consolev1 "github.com/openshift/api/console/v1"
 	operatorv1 "github.com/openshift/api/operator/v1"
 
-	lvdcontroller "github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/controller/localvolumediscovery"
+	lvdcontroller "github.com/openshift-storage-scale/openshift-fusion-access-operator/internal/controller/localvolumediscovery"
 
-	scalev1alpha "github.com/openshift-storage-scale/openshift-storage-scale-operator/api/v1alpha1"
-	"github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/controller"
-	"github.com/openshift-storage-scale/openshift-storage-scale-operator/version"
+	fusionv1alpha "github.com/openshift-storage-scale/openshift-fusion-access-operator/api/v1alpha1"
+	"github.com/openshift-storage-scale/openshift-fusion-access-operator/internal/controller"
+	"github.com/openshift-storage-scale/openshift-fusion-access-operator/version"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -57,7 +57,7 @@ var (
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
-	utilruntime.Must(scalev1alpha.AddToScheme(scheme))
+	utilruntime.Must(fusionv1alpha.AddToScheme(scheme))
 
 	utilruntime.Must(machineconfigv1.AddToScheme(scheme))
 
@@ -122,7 +122,7 @@ func main() {
 		WebhookServer:          webhookServer,
 		HealthProbeBindAddress: probeAddr,
 		LeaderElection:         enableLeaderElection,
-		LeaderElectionID:       "769abcff.scale.storage.openshift.io",
+		LeaderElectionID:       "769abcff.fusion.storage.openshift.io",
 		// LeaderElectionReleaseOnCancel defines if the leader should step down voluntarily
 		// when the Manager ends. This requires the binary to immediately end when the
 		// Manager is stopped, otherwise, this setting is unsafe. Setting this significantly
@@ -148,16 +148,16 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err = (&controller.StorageScaleReconciler{
+	if err = (&controller.FusionAccessReconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "StorageScale")
+		setupLog.Error(err, "unable to create controller", "controller", "FusionAccess")
 		os.Exit(1)
 	}
 	if os.Getenv("ENABLE_WEBHOOKS") != "false" {
-		if err = (&scalev1alpha.StorageScaleValidator{}).SetupWebhookWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create webhook", "webhook", "StorageScale")
+		if err = (&fusionv1alpha.FusionAccessValidator{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "FusionAccess")
 			os.Exit(1)
 		}
 	}

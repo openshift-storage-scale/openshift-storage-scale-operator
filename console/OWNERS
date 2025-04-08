@@ -3,4 +3,4 @@ approvers:
   - jkilzi@redhat.com
   - jgil@redhat.com
   - michele@acksyn.org
-component: Openshift StorageScale console plugin
+component: Openshift FusionAccess console plugin

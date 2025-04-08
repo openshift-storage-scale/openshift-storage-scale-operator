@@ -7,8 +7,8 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"github.com/openshift-storage-scale/openshift-storage-scale-operator/api/v1alpha1"
-	"github.com/openshift-storage-scale/openshift-storage-scale-operator/internal/diskutils"
+	"github.com/openshift-storage-scale/openshift-fusion-access-operator/api/v1alpha1"
+	"github.com/openshift-storage-scale/openshift-fusion-access-operator/internal/diskutils"
 )
 
 var _ = Describe("Device Discovery", func() {

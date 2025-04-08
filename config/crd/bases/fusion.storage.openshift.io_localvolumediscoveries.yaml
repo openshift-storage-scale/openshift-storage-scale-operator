@@ -4,9 +4,9 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.17.2
-  name: localvolumediscoveries.scale.storage.openshift.io
+  name: localvolumediscoveries.fusion.storage.openshift.io
 spec:
-  group: scale.storage.openshift.io
+  group: fusion.storage.openshift.io
   names:
     kind: LocalVolumeDiscovery
     listKind: LocalVolumeDiscoveryList

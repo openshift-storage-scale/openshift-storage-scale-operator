@@ -1,4 +1,4 @@
-module github.com/openshift-storage-scale/openshift-storage-scale-operator
+module github.com/openshift-storage-scale/openshift-fusion-access-operator
 
 go 1.23.6
 

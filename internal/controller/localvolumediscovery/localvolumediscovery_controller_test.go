@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	localv1alpha1 "github.com/openshift-storage-scale/openshift-storage-scale-operator/api/v1alpha1"
+	localv1alpha1 "github.com/openshift-storage-scale/openshift-fusion-access-operator/api/v1alpha1"
 	monitoringv1 "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
 	"github.com/stretchr/testify/assert"
 	appsv1 "k8s.io/api/apps/v1"

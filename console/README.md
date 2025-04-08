@@ -1,4 +1,4 @@
-# OpenShift StorageScale Operator console plugin
+# OpenShift FusionAccess Operator console plugin
 
 ## TL;DR
 

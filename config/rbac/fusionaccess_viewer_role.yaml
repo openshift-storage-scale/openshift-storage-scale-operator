@@ -1,20 +1,23 @@
+# permissions for end users to view fusionaccesses.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
     app.kubernetes.io/name: openshift-fusion-access-operator
     app.kubernetes.io/managed-by: kustomize
-  name: proxy-role
+  name: fusionaccess-viewer-role
 rules:
 - apiGroups:
-  - authentication.k8s.io
+  - fusion.storage.openshift.io
   resources:
-  - tokenreviews
+  - fusionaccesses
   verbs:
-  - create
+  - get
+  - list
+  - watch
 - apiGroups:
-  - authorization.k8s.io
+  - fusion.storage.openshift.io
   resources:
-  - subjectaccessreviews
+  - fusionaccesses/status
   verbs:
-  - create
+  - get

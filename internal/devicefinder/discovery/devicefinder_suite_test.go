@@ -59,7 +59,7 @@ var _ = BeforeSuite(func() {
 	// Expect(err).NotTo(HaveOccurred())
 	// Expect(cfg).NotTo(BeNil())
 
-	// err = scalev1alpha.AddToScheme(scheme.Scheme)
+	// err = fusionv1alpha.AddToScheme(scheme.Scheme)
 	// Expect(err).NotTo(HaveOccurred())
 
 	// //+kubebuilder:scaffold:scheme
@@ -80,7 +80,7 @@ var _ = AfterSuite(func() {
 // 	s := scheme.Scheme
 // 	builder := append(kruntime.SchemeBuilder{},
 // 		machineconfigv1.AddToScheme,
-// 		scalev1alpha.AddToScheme,
+// 		fusionv1alpha.AddToScheme,
 // 		corev1.AddToScheme,
 // 		configv1.AddToScheme,
 // 	)
