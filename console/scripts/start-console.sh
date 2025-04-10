@@ -8,16 +8,14 @@ script_path="$(realpath "$script_name")"
 script_dir_path="$(dirname "$script_path")"
 project_dir_path="$(dirname "$script_dir_path")"
 
-# TODO(jkilzi): This one brings PFv6
-# CONSOLE_IMAGE=${CONSOLE_IMAGE:="quay.io/openshift/origin-console:latest"}
-CONSOLE_IMAGE=${CONSOLE_IMAGE:="quay.io/openshift/origin-console@sha256:2606f1b316d7d74ae8f7b1b9162a73f6967ae65ad8214d6127b82b98a07254df"}
+CONSOLE_VERSION=${CONSOLE_VERSION:="latest"}
+CONSOLE_IMAGE=${CONSOLE_IMAGE:="quay.io/openshift/origin-console:$CONSOLE_VERSION"}
 CONSOLE_PORT=${CONSOLE_PORT:=9000}
 CONSOLE_IMAGE_PLATFORM=${CONSOLE_IMAGE_PLATFORM:="linux/amd64"}
 
-# Plugin metadata is declared in package.json
-PLUGIN_NAME="$(jq -r '.consolePlugin.name' "$project_dir_path/package.json")"
+PLUGIN_NAME="$(jq -r '.name' "$project_dir_path/package.json")"
 
-echo "Starting local OpenShift console..."
+echo "Starting local OpenShift console v${CONSOLE_VERSION}..."
 
 BRIDGE_USER_AUTH="disabled"
 BRIDGE_K8S_MODE="off-cluster"
@@ -51,12 +49,12 @@ if [ -x "$(command -v podman)" ]; then
     if [ "$(uname -s)" = "Linux" ]; then
         # Use host networking on Linux since host.containers.internal is unreachable in some environments.
         BRIDGE_PLUGINS="${PLUGIN_NAME}=http://localhost:9001"
-        podman run --pull always --platform $CONSOLE_IMAGE_PLATFORM --rm --network=host --env-file <(set | grep BRIDGE) $CONSOLE_IMAGE
+        podman run --pull always --platform $CONSOLE_IMAGE_PLATFORM --name "console-$CONSOLE_VERSION" --rm --network=host --env-file <(set | grep BRIDGE) $CONSOLE_IMAGE
     else
         BRIDGE_PLUGINS="${PLUGIN_NAME}=http://host.containers.internal:9001"
-        podman run --pull always --platform $CONSOLE_IMAGE_PLATFORM --rm -p "$CONSOLE_PORT":9000 --env-file <(set | grep BRIDGE) $CONSOLE_IMAGE
+        podman run --pull always --platform $CONSOLE_IMAGE_PLATFORM --name "console-$CONSOLE_VERSION" --rm -p "$CONSOLE_PORT":9000 --env-file <(set | grep BRIDGE) $CONSOLE_IMAGE
     fi
 else
     BRIDGE_PLUGINS="${PLUGIN_NAME}=http://host.docker.internal:9001"
-    docker run --pull always --platform $CONSOLE_IMAGE_PLATFORM --rm -p "$CONSOLE_PORT":9000 --env-file <(set | grep BRIDGE) $CONSOLE_IMAGE
+    docker run --pull always --platform $CONSOLE_IMAGE_PLATFORM --name "console-$CONSOLE_VERSION" --rm -p "$CONSOLE_PORT":9000 --env-file <(set | grep BRIDGE) $CONSOLE_IMAGE
 fi
