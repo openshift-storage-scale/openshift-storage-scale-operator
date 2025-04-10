@@ -1,8 +1,8 @@
 {
-  "Create StorageCluster": "Create StorageCluster",
+  "Create storage cluster": "Create storage cluster",
   "Explanation that no body will read": "Explanation that no body will read",
+  "Fusion Access for SAN": "Fusion Access for SAN",
   "Learn more about Fusion Access for SAN storage clusters": "Learn more about Fusion Access for SAN storage clusters",
-  "No StorageCluster": "No StorageCluster",
-  "plugin_name": "Fusion Access for SAN",
+  "No storage cluster": "No storage cluster",
   "You need to create a storage cluster before you'll be able to create file systems.": "You need to create a storage cluster before you'll be able to create file systems."
 }

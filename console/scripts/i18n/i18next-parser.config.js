@@ -1,6 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires, no-undef
 const { CustomJSONLexer } = require('./lexers');
-const pkgJson = require('../../package.json');
 
 // eslint-disable-next-line no-undef
 module.exports = {
@@ -10,7 +9,7 @@ module.exports = {
   locales: ['en'],
   namespaceSeparator: '~',
   reactNamespace: false,
-  defaultNamespace: `plugin__${pkgJson.name}`,
+  defaultNamespace: `plugin__openshift-fusion-access-console`,
   useKeysAsDefaultValue: true,
 
   // see below for more details
