@@ -7,7 +7,7 @@ import { type Configuration as WebpackDevServerConfiguration } from "webpack-dev
 import { ConsoleRemotePlugin } from "@openshift-console/dynamic-plugin-sdk-webpack";
 import CopyWebpackPlugin from "copy-webpack-plugin";
 import TsconfigPathsPlugin from "tsconfig-paths-webpack-plugin";
-import { extensions, pluginMetadata } from "./plugin.ts";
+import { extensions, pluginMetadata } from "./dynamic-plugin.config.ts";
 
 interface Configuration extends WebpackConfiguration {
   devServer?: WebpackDevServerConfiguration;
