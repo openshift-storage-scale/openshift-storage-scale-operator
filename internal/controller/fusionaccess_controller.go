@@ -37,6 +37,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
+	"github.com/openshift-storage-scale/openshift-fusion-access-operator/api/v1alpha1"
 	fusionv1alpha "github.com/openshift-storage-scale/openshift-fusion-access-operator/api/v1alpha1"
 	"github.com/openshift-storage-scale/openshift-fusion-access-operator/internal/controller/console"
 	"github.com/openshift-storage-scale/openshift-fusion-access-operator/internal/controller/localvolumediscovery"
@@ -292,6 +293,26 @@ func (r *FusionAccessReconciler) Reconcile(
 	// 	}
 	// }
 
+	currentNamespace, err := utils.GetDeploymentNamespace()
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+
+	// Check if can pull the image if we have not already
+	if fusionaccess.Status.ExternalImagePullStatus == v1alpha1.CheckNotRun {
+		ok, err := utils.CanPullImage(ctx, r.fullClient, currentNamespace, utils.GetExternalTestImage())
+		if ok {
+			fusionaccess.Status.ExternalImagePullStatus = v1alpha1.CheckSuccess
+		} else {
+			fusionaccess.Status.ExternalImagePullStatus = v1alpha1.CheckFailed
+			fusionaccess.Status.ExternalImagePullError = err.Error()
+		}
+		err = r.Status().Update(ctx, fusionaccess)
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+	}
+
 	// Create machineconfig to enable kernel modules if needed
 	if fusionaccess.Spec.MachineConfig.Create {
 		mc := machineconfig.NewMachineConfig(fusionaccess.Spec.MachineConfig.Labels)
@@ -387,11 +408,7 @@ func (r *FusionAccessReconciler) Reconcile(
 
 	if fusionaccess.Spec.LocalVolumeDiscovery.Create {
 		// Create Device discovery
-		ns, err := utils.GetDeploymentNamespace()
-		if err != nil {
-			return ctrl.Result{}, err
-		}
-		lvd := localvolumediscovery.NewLocalVolumeDiscovery(ns)
+		lvd := localvolumediscovery.NewLocalVolumeDiscovery(currentNamespace)
 		if err := localvolumediscovery.CreateOrUpdateLocalVolumeDiscovery(ctx, lvd, r.Client); err != nil {
 			return ctrl.Result{}, err
 		}

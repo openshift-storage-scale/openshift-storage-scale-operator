@@ -143,6 +143,12 @@ func GetDeploymentNamespace() (string, error) {
 	return ns, nil
 }
 
+// GetExternalTestImage returns the image to be used for testing external image pull.
+// FIXME(bandini): For now this is hardcoded, we should make sure this is
+func GetExternalTestImage() string {
+	return "quay.io/openshift-storage-scale/ibm-spectrum-scale-logs:5.2.3.0.rc1"
+}
+
 // CreateImageCheckPod creates a pod with the specified image and returns its name.
 func CreateImageCheckPod(ctx context.Context, client kubernetes.Interface, namespace, image string) (string, error) {
 	existingPod, err := client.CoreV1().Pods(namespace).Get(ctx, CheckPodName, metav1.GetOptions{})
