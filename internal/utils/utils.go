@@ -147,9 +147,9 @@ func GetDeploymentNamespace() (string, error) {
 }
 
 type ConfigMap struct {
-	Kind     string                 `yaml:"kind"`
-	Metadata map[string]interface{} `yaml:"metadata"`
-	Data     map[string]string      `yaml:"data"`
+	Kind     string            `yaml:"kind"`
+	Metadata map[string]any    `yaml:"metadata"`
+	Data     map[string]string `yaml:"data"`
 }
 
 type ControllerManagerConfig struct {

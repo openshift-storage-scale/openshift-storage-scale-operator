@@ -36,7 +36,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	"github.com/openshift-storage-scale/openshift-fusion-access-operator/api/v1alpha1"
-	fusionv1alpha "github.com/openshift-storage-scale/openshift-fusion-access-operator/api/v1alpha1"
 	"github.com/openshift-storage-scale/openshift-fusion-access-operator/internal/controller/console"
 	"github.com/openshift-storage-scale/openshift-fusion-access-operator/internal/controller/localvolumediscovery"
 	"github.com/openshift-storage-scale/openshift-fusion-access-operator/internal/controller/machineconfig"
@@ -56,7 +55,10 @@ type FusionAccessReconciler struct {
 	CanPullImage CanPullImageFunc
 }
 
-func NewFusionAccessReconciler(client client.Client, scheme *runtime.Scheme) *FusionAccessReconciler {
+func NewFusionAccessReconciler(
+	client client.Client,
+	scheme *runtime.Scheme,
+) *FusionAccessReconciler {
 	return &FusionAccessReconciler{
 		Client:       client,
 		Scheme:       scheme,
@@ -263,7 +265,7 @@ func (r *FusionAccessReconciler) Reconcile(
 	_ = log.FromContext(ctx)
 
 	// TODO(user): your logic here
-	fusionaccess := &fusionv1alpha.FusionAccess{}
+	fusionaccess := &v1alpha1.FusionAccess{}
 	err := r.Get(ctx, req.NamespacedName, fusionaccess)
 	if err != nil {
 		if kerrors.IsNotFound(err) {
@@ -462,7 +464,7 @@ func (r *FusionAccessReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		return err
 	}
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&fusionv1alpha.FusionAccess{}).
+		For(&v1alpha1.FusionAccess{}).
 		Complete(r)
 }
 
