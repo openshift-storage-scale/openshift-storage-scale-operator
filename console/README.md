@@ -3,21 +3,23 @@
 ## TL;DR
 
 ### Set up a development OpenShift cluster
-1. Follow the docs at the [aws-ibm-gpfs-playground](https://github.com/openshift-storage-scale/aws-ibm-gpfs-playground) repo.  
-    - Basically, that is:  
-      `make TAGS=1_ocp_install,2_aws,3_ebs,4_gpfs,4_operator install`  
-    - Once complete, the cluster credentials will be stored under:  
-      `~/aws-gpfs-playground/ocp_install_files/auth`
+
+1. Follow the docs at the [aws-ibm-gpfs-playground](https://github.com/openshift-storage-scale/aws-ibm-gpfs-playground) repo.
+
+   - Basically, that is:  
+     `make TAGS=1_ocp_install,2_aws,3_ebs,4_gpfs,4_operator install`
+   - Once complete, the cluster credentials will be stored under:  
+     `~/aws-gpfs-playground/ocp_install_files/auth`
 
 2. From a terminal execute:
+
    ```sh
-   oc login --token=... --server=...
-   cd console/
+   oc login --web --server=...
    npm install
    npm run start
    ```
 
-4. Your default browser should open automatically, otherwise navigate to http://localhost:9000.
+3. Your default browser should open automatically, otherwise navigate to http://localhost:9000.
 
 ## Additional information
 
@@ -82,15 +84,15 @@ In one terminal window, run:
 In another terminal window, run:
 
 1. `oc login` (requires [oc](https://console.redhat.com/openshift/downloads) and an [OpenShift cluster](https://console.redhat.com/openshift/create))
-2. `npm run start-console` (requires [Docker](https://www.docker.com) or [podman 3.2.0+](https://podman.io))
+2. `npm run start:console` (requires [Docker](https://www.docker.com) or [podman 3.2.0+](https://podman.io))
 
 This will run the OpenShift console in a container connected to the cluster
 you've logged into. The plugin HTTP server runs on port 9001 with CORS enabled.
 Navigate to <http://localhost:9000/example> to see the running plugin.
 
-##### Running start-console with Apple silicon and podman
+##### Running start:console with Apple silicon and podman
 
-If you are using podman on a Mac with Apple silicon, `npm run start-console`
+If you are using podman on a Mac with Apple silicon, `npm run start:console`
 might fail since it runs an amd64 image. You can workaround the problem with
 [qemu-user-static](https://github.com/multiarch/qemu-user-static) by running
 these commands:
@@ -194,14 +196,14 @@ the message for the current language from the `plugin__console-plugin-template`
 namespace. For example:
 
 ```json
-  {
-    "type": "console.navigation/section",
-    "properties": {
-      "id": "admin-demo-section",
-      "perspective": "admin",
-      "name": "%plugin__console-plugin-template~Plugin Template%"
-    }
+{
+  "type": "console.navigation/section",
+  "properties": {
+    "id": "admin-demo-section",
+    "perspective": "admin",
+    "name": "%plugin__console-plugin-template~Plugin Template%"
   }
+}
 ```
 
 Running `npm run i18n` updates the JSON files in the `locales` folder of the
@@ -230,7 +232,7 @@ Steps to generate reports
 
 1. In command prompt, navigate to root folder and execute the command `npm run cypress-merge`
 2. Then execute command `npm run cypress-generate`
-The cypress-report.html file is generated and should be in (/integration-tests/screenshots) directory
+   The cypress-report.html file is generated and should be in (/integration-tests/screenshots) directory
 
 ### References
 

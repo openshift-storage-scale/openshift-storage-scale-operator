@@ -11,11 +11,11 @@
   },
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "npm run clean && NODE_ENV=production npm run ts-webpack",
-    "build-dev": "npm run clean && npm run ts-webpack",
-    "start-devserver": "npm run ts-webpack serve --progress",
-    "start-console": "scripts/start-console.sh",
-    "start": "concurrently --kill-others -c auto -n \"proxy,fe\" -p \"{name}:{pid}\" \"npm run start-console\" \"npm run start-devserver\"",
+    "build": "npm run clean && NODE_ENV=production npm run ts:webpack -- -c config/webpack.config.ts",
+    "build:dev": "npm run clean && npm run ts:webpack -- -c config/webpack.config.ts",
+    "start": "concurrently --kill-others -c auto -n \"proxy,fe\" -p \"{name}:{pid}\" \"npm run start:console\" \"npm run start:devserver\"",
+    "start:devserver": "npm run ts:webpack -- serve --progress -c config/webpack.config.ts",
+    "start:console": "CONSOLE_VERSION=4.17.0 scripts/start-console.sh",
     "i18n": "i18next src/**/*.{js,jsx,ts,tsx,json} -c scripts/i18n/i18next-parser.config.js -o locales/\\$LOCALE/\\$NAMESPACE.json && node scripts/i18n/set-english-defaults.js",
     "lint": "eslint src integration-tests --fix && stylelint 'src/**/*.css' --allow-empty-input --fix",
     "test-cypress": "cypress open -p integration-tests",
@@ -25,7 +25,7 @@
     "cypress-merge": "mochawesome-merge ./integration-tests/screenshots/cypress_report*.json > ./integration-tests/screenshots/cypress.json",
     "cypress-generate": "marge -o ./integration-tests/screenshots/ -f cypress-report -t 'OpenShift Console Plugin Template Cypress Test Results' -p 'OpenShift Cypress Plugin Template Test Results' --showPassed false --assetsDir ./integration-tests/screenshots/cypress/assets ./integration-tests/screenshots/cypress.json",
     "cypress-postreport": "npm run cypress-merge && npm run cypress-generate",
-    "ts-webpack": "node -r ts-node/register ./node_modules/.bin/webpack"
+    "ts:webpack": "node -r ts-node/register ./node_modules/.bin/webpack"
   },
   "dependencies": {
     "@patternfly/react-catalog-view-extension": "^4.95.1"
@@ -34,8 +34,8 @@
     "@babel/core": "^7.0.1",
     "@babel/preset-env": "^7.0.0",
     "@cypress/webpack-preprocessor": "^5.15.5",
-    "@openshift-console/dynamic-plugin-sdk": "1.4.0",
-    "@openshift-console/dynamic-plugin-sdk-webpack": "1.1.1",
+    "@openshift-console/dynamic-plugin-sdk": "1.6.0",
+    "@openshift-console/dynamic-plugin-sdk-webpack": "1.2.0",
     "@patternfly/react-core": "^5.1.1",
     "@patternfly/react-icons": "^5.1.1",
     "@patternfly/react-styles": "^5.1.1",
@@ -77,21 +77,10 @@
     "stylelint-config-standard": "^31.0.0",
     "ts-loader": "^9.3.1",
     "ts-node": "^10.8.1",
-    "typescript": "^4.7.4",
+    "tsconfig-paths-webpack-plugin": "^4.2.0",
+    "typescript": "^5.8.3",
     "webpack": "5.75.0",
     "webpack-cli": "^4.9.2",
     "webpack-dev-server": "^4.7.4"
-  },
-  "consolePlugin": {
-    "name": "openshift-fusion-access-console",
-    "version": "0.0.1",
-    "displayName": "OpenShift Console Plugin Template",
-    "description": "Template project for OpenShift Console plugins. Edit package.json to change this message and the plugin name.",
-    "exposedModules": {
-      "MainPage": "./components/MainPage"
-    },
-    "dependencies": {
-      "@console/pluginAPI": "*"
-    }
   }
 }
