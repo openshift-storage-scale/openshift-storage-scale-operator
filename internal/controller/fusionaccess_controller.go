@@ -43,6 +43,8 @@ import (
 	"github.com/openshift-storage-scale/openshift-fusion-access-operator/internal/utils"
 )
 
+type CanPullImageFunc func(ctx context.Context, client kubernetes.Interface, ns, image string) (bool, error)
+
 // FusionAccessReconciler reconciles a FusionAccess object
 type FusionAccessReconciler struct {
 	client.Client
@@ -50,6 +52,16 @@ type FusionAccessReconciler struct {
 	config        *rest.Config
 	dynamicClient dynamic.Interface
 	fullClient    kubernetes.Interface
+	// Need this so I can mock it when needed
+	CanPullImage CanPullImageFunc
+}
+
+func NewFusionAccessReconciler(client client.Client, scheme *runtime.Scheme) *FusionAccessReconciler {
+	return &FusionAccessReconciler{
+		Client:       client,
+		Scheme:       scheme,
+		CanPullImage: utils.CanPullImage,
+	}
 }
 
 // const storageScaleFinalizer = "fusion.storage.openshift.io/finalizer"
@@ -302,7 +314,7 @@ func (r *FusionAccessReconciler) Reconcile(
 		if err != nil {
 			return ctrl.Result{}, err
 		}
-		ok, err := utils.CanPullImage(ctx, r.fullClient, currentNamespace, testImage)
+		ok, err := r.CanPullImage(ctx, r.fullClient, currentNamespace, testImage)
 		if ok {
 			fusionaccess.Status.ExternalImagePullStatus = v1alpha1.CheckSuccess
 		} else {

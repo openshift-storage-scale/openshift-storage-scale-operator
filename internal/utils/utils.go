@@ -259,7 +259,6 @@ func CreateImageCheckPod(ctx context.Context, client kubernetes.Interface, names
 func PollPodPullStatus(ctx context.Context, client kubernetes.Interface, namespace, podName string) (bool, error) {
 	ticker := time.NewTicker(2 * time.Second)
 	defer ticker.Stop()
-
 	for {
 		select {
 		case <-ctx.Done():
@@ -287,6 +286,24 @@ func PollPodPullStatus(ctx context.Context, client kubernetes.Interface, namespa
 	}
 }
 
+var createPodFunc = CreateImageCheckPod
+var pollStatusFunc = PollPodPullStatus
+
+// CanPullImage is a wrapper combining both steps.
+func CanPullImage(ctx context.Context, client kubernetes.Interface, namespace, image string) (bool, error) {
+	podName, err := createPodFunc(ctx, client, namespace, image)
+	if err != nil {
+		return false, err
+	}
+
+	// Ensure cleanup
+	defer func() {
+		_ = client.CoreV1().Pods(namespace).Delete(context.Background(), podName, metav1.DeleteOptions{})
+	}()
+
+	return pollStatusFunc(ctx, client, namespace, podName)
+}
+
 func GetInstallPath(cnsaVersion string) (string, error) {
 	// Install path when running tests
 	var err error
@@ -306,19 +323,4 @@ func GetInstallPath(cnsaVersion string) (string, error) {
 	}
 
 	return "", fmt.Errorf("could not find/open install file with version %s: %w", cnsaVersion, err)
-}
-
-// CanPullImage is a wrapper combining both steps.
-func CanPullImage(ctx context.Context, client kubernetes.Interface, namespace, image string) (bool, error) {
-	podName, err := CreateImageCheckPod(ctx, client, namespace, image)
-	if err != nil {
-		return false, err
-	}
-
-	// Ensure cleanup
-	defer func() {
-		_ = client.CoreV1().Pods(namespace).Delete(context.Background(), podName, metav1.DeleteOptions{})
-	}()
-
-	return PollPodPullStatus(ctx, client, namespace, podName)
 }
