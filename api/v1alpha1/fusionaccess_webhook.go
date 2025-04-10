@@ -120,16 +120,29 @@ func (r *FusionAccessValidator) ValidateUpdate(_ context.Context, oldObj, newObj
 	}
 
 	// FIXME(bandini): IBM CNSA version cannot be updated for now
-	if pNew.Spec.IbmCnsaVersion != p.Spec.IbmCnsaVersion {
-		return nil, fmt.Errorf("IBM CNSA version cannot be updated")
-	}
-	fusionaccesslog.Info("validate update", "name", p.Name)
+	// FIXME(bandini): Maybe here we could introduce code to double check which upgrades paths we allow
+	// but for now we just log things
+	// if pNew.Spec.IbmCnsaVersion != p.Spec.IbmCnsaVersion {
+	// 	return nil, fmt.Errorf("IBM CNSA version cannot be updated")
+	// }
+	fusionaccesslog.Info(
+		"validate update",
+		"name",
+		p.Name,
+		"new version",
+		pNew.Spec.IbmCnsaVersion,
+		"old version",
+		p.Spec.IbmCnsaVersion,
+	)
 
 	return nil, nil
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (r *FusionAccessValidator) ValidateDelete(_ context.Context, obj runtime.Object) (admission.Warnings, error) {
+func (r *FusionAccessValidator) ValidateDelete(
+	_ context.Context,
+	obj runtime.Object,
+) (admission.Warnings, error) {
 	p, err := convertToFusionAccess(obj)
 	if err != nil {
 		fusionaccesslog.Error(err, "validate delete", "name", p.Name)
