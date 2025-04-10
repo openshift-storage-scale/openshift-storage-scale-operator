@@ -167,7 +167,7 @@ func CreateImageCheckPod(ctx context.Context, client kubernetes.Interface, names
 				{
 					Name:    CheckPodContainerName,
 					Image:   image,
-					Command: []string{"exit", "0"},
+					Command: []string{"/bin/sh", "-c", "exit", "0"},
 				},
 			},
 		},
