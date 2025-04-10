@@ -17,12 +17,24 @@ limitations under the License.
 package utils
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/Masterminds/semver/v3"
 	configv1 "github.com/openshift/api/config/v1"
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
+)
+
+const (
+	CheckPodMaxImagePullTimeout = 180 * time.Second
+	CheckPodPullInterval        = 2 * time.Second
+	CheckPodName                = "image-check-fusion-access"
+	CheckPodContainerName       = "check"
 )
 
 // Taken from https://www.ibm.com/docs/en/scalecontainernative/5.2.2?topic=planning-software-requirements
@@ -129,4 +141,83 @@ func GetDeploymentNamespace() (string, error) {
 		return "", fmt.Errorf("%s must be set", deployNamespaceEnvVar)
 	}
 	return ns, nil
+}
+
+// CreateImageCheckPod creates a pod with the specified image and returns its name.
+func CreateImageCheckPod(ctx context.Context, client kubernetes.Interface, namespace, image string) (string, error) {
+	existingPod, err := client.CoreV1().Pods(namespace).Get(ctx, CheckPodName, metav1.GetOptions{})
+	if err == nil {
+		return existingPod.Name, nil // Pod already exists
+	}
+
+	pod := &corev1.Pod{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      CheckPodName,
+			Namespace: namespace,
+		},
+		Spec: corev1.PodSpec{
+			RestartPolicy: corev1.RestartPolicyNever,
+			Containers: []corev1.Container{
+				{
+					Name:    CheckPodContainerName,
+					Image:   image,
+					Command: []string{"exit", "0"},
+				},
+			},
+		},
+	}
+
+	createdPod, err := client.CoreV1().Pods(namespace).Create(ctx, pod, metav1.CreateOptions{})
+	if err != nil {
+		return "", fmt.Errorf("failed to create pod: %w", err)
+	}
+
+	return createdPod.Name, nil
+}
+
+// PollPodPullStatus checks if a pod successfully pulled its image or hit an error.
+func PollPodPullStatus(ctx context.Context, client kubernetes.Interface, namespace, podName string) (bool, error) {
+	ticker := time.NewTicker(2 * time.Second)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return false, fmt.Errorf("timeout while checking image pull status")
+		case <-ticker.C:
+			pod, err := client.CoreV1().Pods(namespace).Get(ctx, podName, metav1.GetOptions{})
+			if err != nil {
+				return false, fmt.Errorf("failed to get pod: %w", err)
+			}
+
+			if len(pod.Status.ContainerStatuses) == 0 {
+				continue
+			}
+
+			state := pod.Status.ContainerStatuses[0].State
+			if state.Waiting != nil {
+				switch state.Waiting.Reason {
+				case "ErrImagePull", "ImagePullBackOff":
+					return false, fmt.Errorf("image pull failed: %s", state.Waiting.Message)
+				}
+			} else if state.Running != nil || state.Terminated != nil {
+				return true, nil
+			}
+		}
+	}
+}
+
+// CanPullImage is a wrapper combining both steps.
+func CanPullImage(ctx context.Context, client kubernetes.Interface, namespace, image string) (bool, error) {
+	podName, err := CreateImageCheckPod(ctx, client, namespace, image)
+	if err != nil {
+		return false, err
+	}
+
+	// Ensure cleanup
+	defer func() {
+		_ = client.CoreV1().Pods(namespace).Delete(context.Background(), podName, metav1.DeleteOptions{})
+	}()
+
+	return PollPodPullStatus(ctx, client, namespace, podName)
 }

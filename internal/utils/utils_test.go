@@ -17,15 +17,25 @@ limitations under the License.
 package utils
 
 import (
+	"context"
 	"testing"
+	"time"
 
 	"github.com/Masterminds/semver/v3"
-	configv1 "github.com/openshift/api/config/v1"
-
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	configv1 "github.com/openshift/api/config/v1"
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes/fake"
 	//+kubebuilder:scaffold:imports
 )
+
+func TestDevicefinder(t *testing.T) {
+	RegisterFailHandler(Fail)
+
+	RunSpecs(t, "Utilities Suite")
+}
 
 var _ = Describe("GetCurrentClusterVersion", func() {
 	var (
@@ -120,3 +130,117 @@ func TestIsOpenShiftSupported(t *testing.T) {
 		}
 	}
 }
+
+var _ = Describe("Image Pull Checker", func() {
+	var (
+		client      *fake.Clientset
+		namespace   string
+		image       string
+		testTimeout time.Duration
+	)
+
+	BeforeEach(func() {
+		client = fake.NewSimpleClientset()
+		namespace = "default"
+		image = "test.registry.io/valid/image:latest"
+		testTimeout = 3 * time.Second
+	})
+
+	Describe("PollPodPullStatus", func() {
+		It("should detect ErrImagePull and return error", func() {
+			pod := &corev1.Pod{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "image-fail-pod",
+					Namespace: namespace,
+				},
+				Status: corev1.PodStatus{
+					ContainerStatuses: []corev1.ContainerStatus{
+						{
+							State: corev1.ContainerState{
+								Waiting: &corev1.ContainerStateWaiting{
+									Reason:  "ErrImagePull",
+									Message: "image not found",
+								},
+							},
+						},
+					},
+				},
+			}
+
+			_, err := client.CoreV1().Pods(namespace).Create(context.TODO(), pod, metav1.CreateOptions{})
+			Expect(err).NotTo(HaveOccurred())
+
+			ctx, cancel := context.WithTimeout(context.Background(), testTimeout)
+			defer cancel()
+
+			success, err := PollPodPullStatus(ctx, client, namespace, pod.Name)
+			Expect(success).To(BeFalse())
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("image pull failed"))
+		})
+
+		It("should detect success if pod is Running", func() {
+			pod := &corev1.Pod{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "image-success-pod",
+					Namespace: namespace,
+				},
+				Status: corev1.PodStatus{
+					ContainerStatuses: []corev1.ContainerStatus{
+						{
+							State: corev1.ContainerState{
+								Running: &corev1.ContainerStateRunning{
+									StartedAt: metav1.Now(),
+								},
+							},
+						},
+					},
+				},
+			}
+
+			_, err := client.CoreV1().Pods(namespace).Create(context.TODO(), pod, metav1.CreateOptions{})
+			Expect(err).NotTo(HaveOccurred())
+
+			ctx, cancel := context.WithTimeout(context.Background(), testTimeout)
+			defer cancel()
+
+			success, err := PollPodPullStatus(ctx, client, namespace, pod.Name)
+			Expect(success).To(BeTrue())
+			Expect(err).NotTo(HaveOccurred())
+		})
+
+		It("should timeout if pod never updates", func() {
+			pod := &corev1.Pod{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "image-hang-pod",
+					Namespace: namespace,
+				},
+				Status: corev1.PodStatus{}, // no ContainerStatuses
+			}
+
+			_, err := client.CoreV1().Pods(namespace).Create(context.TODO(), pod, metav1.CreateOptions{})
+			Expect(err).NotTo(HaveOccurred())
+
+			ctx, cancel := context.WithTimeout(context.Background(), testTimeout)
+			defer cancel()
+
+			success, err := PollPodPullStatus(ctx, client, namespace, pod.Name)
+			Expect(success).To(BeFalse())
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("timeout"))
+		})
+	})
+
+	Describe("CreateImageCheckPod", func() {
+		It("should create a pod successfully", func() {
+			ctx := context.Background()
+			podName, err := CreateImageCheckPod(ctx, client, namespace, image)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(podName).To(Equal(CheckPodName))
+
+			pod, err := client.CoreV1().Pods(namespace).Get(ctx, podName, metav1.GetOptions{})
+			Expect(err).NotTo(HaveOccurred())
+			Expect(pod.Spec.Containers[0].Image).To(Equal(image))
+		})
+	})
+})
