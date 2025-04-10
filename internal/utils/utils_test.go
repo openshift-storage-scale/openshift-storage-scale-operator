@@ -18,6 +18,10 @@ package utils
 
 import (
 	"context"
+	"fmt"
+	"io/fs"
+	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -243,6 +247,135 @@ var _ = Describe("Image Pull Checker", func() {
 			pod, err := client.CoreV1().Pods(namespace).Get(ctx, podName, metav1.GetOptions{})
 			Expect(err).NotTo(HaveOccurred())
 			Expect(pod.Spec.Containers[0].Image).To(Equal(image))
+		})
+	})
+})
+
+var _ = Describe("ParseYAMLAndExtractTestImage", func() {
+	Context("when YAML contains the correct ConfigMap with coreInit", func() {
+		It("should return the coreInit image", func() {
+			yaml := `
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ibm-spectrum-scale-manager-config
+data:
+  controller_manager_config.yaml: |
+    images:
+      coreInit: quay.io/example/core-init@sha256:abc123
+`
+			result, err := ParseYAMLAndExtractTestImage(yaml)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(result).To(Equal("quay.io/example/core-init@sha256:abc123"))
+		})
+	})
+
+	Context("when the ConfigMap exists but coreInit is missing", func() {
+		It("should return an error", func() {
+			yaml := `
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ibm-spectrum-scale-manager-config
+data:
+  controller_manager_config.yaml: |
+    images:
+      someOtherImage: quay.io/example/other
+`
+			_, err := ParseYAMLAndExtractTestImage(yaml)
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("coreInit not found"))
+		})
+	})
+
+	Context("when the ConfigMap exists but controller_manager_config.yaml is missing", func() {
+		It("should return an error", func() {
+			yaml := `
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ibm-spectrum-scale-manager-config
+data:
+  other.yaml: |
+    images:
+      coreInit: quay.io/example/core-init@sha256:abc123
+`
+			_, err := ParseYAMLAndExtractTestImage(yaml)
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("controller_manager_config.yaml not found"))
+		})
+	})
+
+	Context("when the embedded YAML is malformed", func() {
+		It("should return an error", func() {
+			yaml := `
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ibm-spectrum-scale-manager-config
+data:
+  controller_manager_config.yaml: |
+    images
+      coreInit: quay.io/example/core-init@sha256:abc123
+`
+			_, err := ParseYAMLAndExtractTestImage(yaml)
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("failed to parse embedded YAML"))
+		})
+	})
+
+	Context("when the ConfigMap is not present", func() {
+		It("should return an error", func() {
+			yaml := `
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: unrelated-config
+data:
+  controller_manager_config.yaml: |
+    images:
+      coreInit: quay.io/example/core-init@sha256:abc123
+`
+			_, err := ParseYAMLAndExtractTestImage(yaml)
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("ConfigMap object in install yaml not found"))
+		})
+	})
+
+	Context("check all the existing manifests", func() {
+		It("should return the coreInit image", func() {
+			var matches []string
+			absPath, err := filepath.Abs("../../files")
+			Expect(err).NotTo(HaveOccurred())
+
+			err = filepath.WalkDir(absPath, func(path string, d fs.DirEntry, err error) error {
+				if err != nil {
+					return err
+				}
+
+				if !d.IsDir() && d.Name() == "install.yaml" {
+					matches = append(matches, path)
+				}
+				return nil
+			})
+
+			Expect(err).NotTo(HaveOccurred())
+			Expect(matches).ToNot(BeEmpty())
+
+			for _, match := range matches {
+				fmt.Printf("Checking for image in file: %s -> ", match)
+				yaml, err := os.ReadFile(match)
+				Expect(err).NotTo(HaveOccurred())
+				result, err := ParseYAMLAndExtractTestImage(string(yaml))
+				Expect(err).NotTo(HaveOccurred())
+				Expect(result).To(Not(BeEmpty()))
+				fmt.Printf("%s\n", result)
+			}
 		})
 	})
 })

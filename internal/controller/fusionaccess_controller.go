@@ -19,8 +19,6 @@ package controller
 import (
 	"context"
 	"fmt"
-	"os"
-	"path"
 	"strings"
 
 	mfc "github.com/manifestival/controller-runtime-client"
@@ -300,7 +298,11 @@ func (r *FusionAccessReconciler) Reconcile(
 
 	// Check if can pull the image if we have not already
 	if fusionaccess.Status.ExternalImagePullStatus == v1alpha1.CheckNotRun {
-		ok, err := utils.CanPullImage(ctx, r.fullClient, currentNamespace, utils.GetExternalTestImage())
+		testImage, err := utils.GetExternalTestImage(string(fusionaccess.Spec.IbmCnsaVersion))
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+		ok, err := utils.CanPullImage(ctx, r.fullClient, currentNamespace, testImage)
 		if ok {
 			fusionaccess.Status.ExternalImagePullStatus = v1alpha1.CheckSuccess
 		} else {
@@ -327,7 +329,7 @@ func (r *FusionAccessReconciler) Reconcile(
 	}
 
 	// Load and install manifests from ibm
-	install_path, err := getInstallPath(string(fusionaccess.Spec.IbmCnsaVersion))
+	install_path, err := utils.GetInstallPath(string(fusionaccess.Spec.IbmCnsaVersion))
 	if err != nil {
 		return ctrl.Result{}, err
 	}
@@ -435,27 +437,6 @@ func (r *FusionAccessReconciler) Reconcile(
 		log.Log.Info("Cluster aleardy exists, considering immutable")
 	}
 	return ctrl.Result{}, nil
-}
-
-func getInstallPath(cnsaVersion string) (string, error) {
-	// Install path when running tests
-	var err error
-	install_path := path.Join("../../files/", cnsaVersion, "install.yaml")
-	if _, err := os.Stat(install_path); err == nil {
-		return install_path, nil
-	}
-	// Install path when running locally
-	install_path = path.Join("files/", cnsaVersion, "install.yaml")
-	if _, err := os.Stat(install_path); err == nil {
-		return install_path, nil
-	}
-	// Install path when running in container
-	install_path = path.Join("/files/", cnsaVersion, "install.yaml")
-	if _, err := os.Stat(install_path); err == nil {
-		return install_path, nil
-	}
-
-	return "", fmt.Errorf("could not find/open install file with version %s: %w", cnsaVersion, err)
 }
 
 // SetupWithManager sets up the controller with the Manager.
