@@ -105,31 +105,33 @@ var _ = Describe("ParseAndReturnVersion", func() {
 	})
 })
 
-func TestIsOpenShiftSupported(t *testing.T) {
-	tests := []struct {
-		ibmVersion string
-		ocpVersion string
-		expected   bool
-	}{
-		{"5.1.5.0", "4.9.0", true},        // Expected to be supported
-		{"5.1.5.0", "4.12.1", false},      // Not in the supported list
-		{"5.1.7.0", "4.11.43", true},      // Supported
-		{"5.1.7.0", "4.13.34", false},     // Not supported
-		{"5.1.9.1", "4.12.7", true},       // Supported
-		{"5.1.9.1", "4.15.0", false},      // Not supported
-		{"5.2.2.0", "4.17.3", true},       // Supported
-		{"5.2.2.0", "4.18.1", false},      // Not supported
-		{"5.2.2.0", "4.15.17", true},      // Supported
-		{"invalid_version", "4.9", false}, // Invalid IBM Fusion Access version
-	}
+var _ = Describe("IsOpenShiftSupported", func() {
+	DescribeTable("IBM version + OCP version matrix",
+		func(ibmVersion string, ocpVersion string, expected bool) {
+			version, err := semver.NewVersion(ocpVersion)
+			Expect(err).ToNot(HaveOccurred())
+			result := IsOpenShiftSupported(ibmVersion, *version)
+			Expect(result).To(Equal(expected))
+		},
 
-	for _, tt := range tests {
-		result := IsOpenShiftSupported(tt.ibmVersion, *semver.MustParse(tt.ocpVersion))
-		if result != tt.expected {
-			t.Errorf("IsOpenShiftSupported(%s, %s) = %v; expected %v", tt.ibmVersion, tt.ocpVersion, result, tt.expected)
-		}
-	}
-}
+		Entry("5.1.5.0 supports 4.9.0", "5.1.5.0", "4.9.0", true),
+		Entry("5.1.5.0 does not support 4.12.1", "5.1.5.0", "4.12.1", false),
+		Entry("5.1.7.0 supports 4.11.43", "5.1.7.0", "4.11.43", true),
+		Entry("5.1.7.0 does not support 4.13.34", "5.1.7.0", "4.13.34", false),
+		Entry("5.1.9.1 supports 4.12.7", "5.1.9.1", "4.12.7", true),
+		Entry("5.1.9.1 does not support 4.15.0", "5.1.9.1", "4.15.0", false),
+		Entry("5.2.2.0 supports 4.17.3", "5.2.2.0", "4.17.3", true),
+		Entry("5.2.2.0 does not support 4.18.1", "5.2.2.0", "4.18.1", false),
+		Entry("5.2.2.0 supports 4.15.17", "5.2.2.0", "4.15.17", true),
+	)
+
+	It("should return false for invalid IBM version", func() {
+		version, err := semver.NewVersion("4.9")
+		Expect(err).ToNot(HaveOccurred())
+		result := IsOpenShiftSupported("invalid_version", *version)
+		Expect(result).To(BeFalse())
+	})
+})
 
 var _ = Describe("Image Pull Checker", func() {
 	var (
