@@ -4,6 +4,9 @@
 .devcontainer/dev.env
 integration-tests/videos
 integration-tests/screenshots
+codegen
+.tmp
+.env
 
 # Modern Yarn with Zero-Installs
 .yarn/*
