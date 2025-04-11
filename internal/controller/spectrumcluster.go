@@ -4,6 +4,8 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
+// FIXME(bandini): We need to do the below due to a bug on 5.2.2.x - See OCPNAS-31
+// Once we only support 5.2.3.x we can go back at having only "/dev/disk/by-id/*"
 func NewSpectrumCluster(daemon_nodeSelector map[string]string) *unstructured.Unstructured {
 	return &unstructured.Unstructured{
 		Object: map[string]any{
