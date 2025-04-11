@@ -1,7 +1,7 @@
 {
     "folders": [
         {
-            "name": "Openshift Fusion Access console plugin",
+            "name": "Openshift Fusion Access Plugin",
             "path": "."
         },
         {
@@ -16,8 +16,9 @@
     "settings": {
         "window.title": "${folderName}",
         "typescript.tsdk": "./node_modules/typescript/lib",
+        "typescript.preferences.preferTypeOnlyAutoImports": true,
         "editor.formatOnSave": true,
-        "files.autoSave": "afterDelay"
+        "files.autoSave": "afterDelay",
     },
     "extensions": {
         "recommendations": [

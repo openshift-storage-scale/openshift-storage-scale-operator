@@ -1,21 +1,30 @@
 root: true
 env:
   browser: true
-  es2020: true
+  es2022: true
 plugins:
-  - '@typescript-eslint'
+  - "@typescript-eslint"
   - react
 extends:
   - eslint:recommended
   - plugin:@typescript-eslint/recommended
-  - plugin:react/recommended
+  - plugin:react/jsx-runtime
   - plugin:react-hooks/recommended-legacy
-parser: '@typescript-eslint/parser'
+parser: "@typescript-eslint/parser"
 parserOptions:
-  ecmaVersion: 2020
+  ecmaVersion: 2022
   ecmaFeatures:
     jsx: true
   sourceType: module
 settings:
   react:
     version: detect
+rules:
+  "no-debugger": error
+  "no-console": error
+  "@typescript-eslint/no-unused-vars":
+    - warn
+    - destructuredArrayIgnorePattern": "^_"
+      argsIgnorePattern": "^_"
+      varsIgnorePattern": "^_"
+

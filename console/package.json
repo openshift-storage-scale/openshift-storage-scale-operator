@@ -29,7 +29,8 @@
     "ts:webpack": "node -r ts-node/register ./node_modules/.bin/webpack"
   },
   "dependencies": {
-    "@patternfly/react-catalog-view-extension": "^4.95.1"
+    "@patternfly/react-catalog-view-extension": "^4.95.1",
+    "convert": "^5.9.0"
   },
   "devDependencies": {
     "@babel/core": "^7.0.1",

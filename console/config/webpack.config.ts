@@ -89,7 +89,7 @@ const config: Configuration = {
       writeToDisk: true,
     },
     open: {
-      target: "http://localhost:9000",
+      target: "http://localhost:9000/example",
     },
   },
   plugins: [

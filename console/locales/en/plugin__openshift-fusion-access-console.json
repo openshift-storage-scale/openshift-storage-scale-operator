@@ -4,5 +4,13 @@
   "Fusion Access for SAN": "Fusion Access for SAN",
   "Learn more about Fusion Access for SAN storage clusters": "Learn more about Fusion Access for SAN storage clusters",
   "No storage cluster": "No storage cluster",
-  "You need to create a storage cluster before you'll be able to create file systems.": "You need to create a storage cluster before you'll be able to create file systems."
+  "You need to create a storage cluster before you'll be able to create file systems.": "You need to create a storage cluster before you'll be able to create file systems.",
+  "Page description": "Page description",
+  "Download logs": "Download logs",
+  "Name": "Name",
+  "CPU": "CPU",
+  "Memory": "Memory",
+  "Role": "Role",
+  "Shared disks": "Shared disks",
+  "Make sure all nodes for the storage cluster are selected before you continue.<br/>Worker nodes will be rebooted while creating the storage cluster.": "Make sure all nodes for the storage cluster are selected before you continue.<br/>Worker nodes will be rebooted while creating the storage cluster."
 }
