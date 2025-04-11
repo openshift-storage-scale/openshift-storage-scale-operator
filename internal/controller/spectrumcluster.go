@@ -22,6 +22,42 @@ func NewSpectrumCluster(daemon_nodeSelector map[string]string) *unstructured.Uns
 								"devicePath": "/dev/disk/by-id/*",
 								"deviceType": "generic",
 							},
+							map[string]any{
+								"devicePath": "/dev/sd*",
+								"deviceType": "generic",
+							},
+							map[string]any{
+								"devicePath": "/dev/hd*",
+								"deviceType": "generic",
+							},
+							map[string]any{
+								"devicePath": "/dev/scini*",
+								"deviceType": "generic",
+							},
+							map[string]any{
+								"devicePath": "/dev/pmem*",
+								"deviceType": "generic",
+							},
+							map[string]any{
+								"devicePath": "/dev/nvm*",
+								"deviceType": "generic",
+							},
+							map[string]any{
+								"devicePath": "/dev/dm-*",
+								"deviceType": "generic",
+							},
+							map[string]any{
+								"devicePath": "/dev/vpath*",
+								"deviceType": "generic",
+							},
+							map[string]any{
+								"devicePath": "/dev/dasd*",
+								"deviceType": "generic",
+							},
+							map[string]any{
+								"devicePath": "/dev/emcpower*",
+								"deviceType": "generic",
+							},
 						},
 					},
 				},
