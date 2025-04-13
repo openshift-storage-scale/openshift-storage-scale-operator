@@ -24,7 +24,7 @@ export const getRole = (
     return [null, new Error("could not find node-role label")];
   }
 
-  const [_, role] = nodeRoleLabel.split("/");
+  const [, role] = nodeRoleLabel.split("/");
   return [role as NodeRole, null];
 };
 

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 const fs = require('fs');
 const path = require('path');
 
@@ -6,7 +7,7 @@ module.exports = {
     try {
       const stat = fs.lstatSync(filePath);
       return stat.isDirectory();
-    } catch (e) {
+    } catch {
       // lstatSync throws an error if path doesn't exist
       return false;
     }

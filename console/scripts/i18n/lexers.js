@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 const EventEmitter = require('events');
 const jsonc = require('comment-json');
 
