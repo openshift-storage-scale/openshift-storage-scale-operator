@@ -22,22 +22,17 @@ const config = {
   namespaceSeparator: "~",
   defaultNamespace: `plugin__${packageJson.name}`,
   defaultValue: (_locale, _namespace, key, _value) => key,
-
-  // see below for more details
   lexers: {
     hbs: ["HandlebarsLexer"],
     handlebars: ["HandlebarsLexer"],
-
     htm: ["HTMLLexer"],
     html: ["HTMLLexer"],
-
     mjs: ["JavascriptLexer"],
-    js: ["JavascriptLexer"], // if you're writing jsx inside .js files, change this to JsxLexer
+    js: ["JavascriptLexer"],
     ts: ["JavascriptLexer"],
     jsx: ["JsxLexer"],
     tsx: ["JsxLexer"],
     json: [CustomJsonLexer],
-
     default: ["JavascriptLexer"],
   },
 };
