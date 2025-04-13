@@ -1,23 +1,22 @@
-import React from 'react';
-import { Helmet } from 'react-helmet';
+import { Helmet } from "react-helmet";
 import {
   ListPageBody,
   ListPageHeader,
-} from '@openshift-console/dynamic-plugin-sdk';
+} from "@openshift-console/dynamic-plugin-sdk";
 
-type BasePageProps = {
+type ListPageProps = {
   docTitle: string;
   pageTitle: string;
   pageDescription?: string;
   pageActions?: React.ReactElement[];
 };
 
-export const ListPage: React.FC<BasePageProps> = (props) => {
+export const ListPage: React.FC<ListPageProps> = (props) => {
   const {
     children,
     docTitle,
     pageTitle,
-    pageDescription = '',
+    pageDescription = "",
     pageActions = [],
   } = props;
 
@@ -34,4 +33,4 @@ export const ListPage: React.FC<BasePageProps> = (props) => {
   );
 };
 
-ListPage.displayName = 'ListPage';
+ListPage.displayName = "ListPage";
