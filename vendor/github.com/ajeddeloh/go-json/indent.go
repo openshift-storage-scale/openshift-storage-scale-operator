@@ -1,12 +1,10 @@
-// Copyright 2010 The Go Authors. All rights reserved.
+// Copyright 2010 The Go Authors.  All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
 package json
 
-import (
-	"bytes"
-)
+import "bytes"
 
 // Compact appends to dst the JSON-encoded src with
 // insignificant space characters elided.
@@ -16,8 +14,8 @@ func Compact(dst *bytes.Buffer, src []byte) error {
 
 func compact(dst *bytes.Buffer, src []byte, escape bool) error {
 	origLen := dst.Len()
-	scan := newScanner()
-	defer freeScanner(scan)
+	var scan scanner
+	scan.reset()
 	start := 0
 	for i, c := range src {
 		if escape && (c == '<' || c == '>' || c == '&') {
@@ -30,7 +28,7 @@ func compact(dst *bytes.Buffer, src []byte, escape bool) error {
 			start = i + 1
 		}
 		// Convert U+2028 and U+2029 (E2 80 A8 and E2 80 A9).
-		if escape && c == 0xE2 && i+2 < len(src) && src[i+1] == 0x80 && src[i+2]&^1 == 0xA8 {
+		if c == 0xE2 && i+2 < len(src) && src[i+1] == 0x80 && src[i+2]&^1 == 0xA8 {
 			if start < i {
 				dst.Write(src[start:i])
 			}
@@ -38,7 +36,7 @@ func compact(dst *bytes.Buffer, src []byte, escape bool) error {
 			dst.WriteByte(hex[src[i+2]&0xF])
 			start = i + 3
 		}
-		v := scan.step(scan, c)
+		v := scan.step(&scan, int(c))
 		if v >= scanSkipSpace {
 			if v == scanError {
 				break
@@ -72,21 +70,17 @@ func newline(dst *bytes.Buffer, prefix, indent string, depth int) {
 // indented line beginning with prefix followed by one or more
 // copies of indent according to the indentation nesting.
 // The data appended to dst does not begin with the prefix nor
-// any indentation, to make it easier to embed inside other formatted JSON data.
-// Although leading space characters (space, tab, carriage return, newline)
-// at the beginning of src are dropped, trailing space characters
-// at the end of src are preserved and copied to dst.
-// For example, if src has no trailing spaces, neither will dst;
-// if src ends in a trailing newline, so will dst.
+// any indentation, and has no trailing newline, to make it
+// easier to embed inside other formatted JSON data.
 func Indent(dst *bytes.Buffer, src []byte, prefix, indent string) error {
 	origLen := dst.Len()
-	scan := newScanner()
-	defer freeScanner(scan)
+	var scan scanner
+	scan.reset()
 	needIndent := false
 	depth := 0
 	for _, c := range src {
 		scan.bytes++
-		v := scan.step(scan, c)
+		v := scan.step(&scan, int(c))
 		if v == scanSkipSpace {
 			continue
 		}
