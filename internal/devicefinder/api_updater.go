@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/openshift-storage-scale/openshift-fusion-access-operator/api/v1alpha1"
-
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
@@ -16,6 +14,8 @@ import (
 	"k8s.io/klog/v2"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
+
+	"github.com/openshift-storage-scale/openshift-fusion-access-operator/api/v1alpha1"
 )
 
 const componentName = "local-storage-devicefinder"
@@ -43,12 +43,12 @@ func NewAPIUpdater(scheme *runtime.Scheme) (ApiUpdater, error) {
 		return &sdkAPIUpdater{}, err
 	}
 
-	config, err := config.GetConfig()
+	myConfig, err := config.GetConfig()
 	if err != nil {
 		klog.Error(err, "failed to get rest.config")
 		return &sdkAPIUpdater{}, err
 	}
-	crClient, err := client.New(config, client.Options{})
+	crClient, err := client.New(myConfig, client.Options{})
 	if err != nil {
 		klog.Error(err, "failed to create controller-runtime client")
 		return &sdkAPIUpdater{}, err
@@ -63,18 +63,20 @@ func NewAPIUpdater(scheme *runtime.Scheme) (ApiUpdater, error) {
 
 func getEventRecorder(scheme *runtime.Scheme) (record.EventRecorder, error) {
 	var recorder record.EventRecorder
-	config, err := config.GetConfig()
+	myConfig, err := config.GetConfig()
 	if err != nil {
 		klog.Error(err, "failed to get rest.config")
 		return recorder, err
 	}
-	kubeClient, err := kubernetes.NewForConfig(config)
+	kubeClient, err := kubernetes.NewForConfig(myConfig)
 	if err != nil {
 		klog.Error(err, "could not build kubeclient")
 	}
 	eventBroadcaster := record.NewBroadcaster()
 	eventBroadcaster.StartLogging(klog.Infof)
-	eventBroadcaster.StartRecordingToSink(&typedcorev1.EventSinkImpl{Interface: kubeClient.CoreV1().Events("")})
+	eventBroadcaster.StartRecordingToSink(
+		&typedcorev1.EventSinkImpl{Interface: kubeClient.CoreV1().Events("")},
+	)
 	recorder = eventBroadcaster.NewRecorder(scheme, v1.EventSource{Component: componentName})
 	return recorder, nil
 }
@@ -89,9 +91,15 @@ func (s *sdkAPIUpdater) recordEvent(obj runtime.Object, e *DiskEvent) {
 	s.recorder.Eventf(obj, e.EventType, e.EventReason, message)
 }
 
-func (s *sdkAPIUpdater) GetDiscoveryResult(name, namespace string) (*v1alpha1.LocalVolumeDiscoveryResult, error) {
+func (s *sdkAPIUpdater) GetDiscoveryResult(
+	name, namespace string,
+) (*v1alpha1.LocalVolumeDiscoveryResult, error) {
 	discoveryResult := &v1alpha1.LocalVolumeDiscoveryResult{}
-	err := s.client.Get(context.TODO(), types.NamespacedName{Name: name, Namespace: namespace}, discoveryResult)
+	err := s.client.Get(
+		context.TODO(),
+		types.NamespacedName{Name: name, Namespace: namespace},
+		discoveryResult,
+	)
 	return discoveryResult, err
 }
 
@@ -99,7 +107,9 @@ func (s *sdkAPIUpdater) CreateDiscoveryResult(lvdr *v1alpha1.LocalVolumeDiscover
 	return s.client.Create(context.TODO(), lvdr)
 }
 
-func (s *sdkAPIUpdater) UpdateDiscoveryResultStatus(lvdr *v1alpha1.LocalVolumeDiscoveryResult) error {
+func (s *sdkAPIUpdater) UpdateDiscoveryResultStatus(
+	lvdr *v1alpha1.LocalVolumeDiscoveryResult,
+) error {
 	return s.client.Status().Update(context.TODO(), lvdr)
 }
 
@@ -107,8 +117,14 @@ func (s *sdkAPIUpdater) UpdateDiscoveryResult(lvdr *v1alpha1.LocalVolumeDiscover
 	return s.client.Update(context.TODO(), lvdr)
 }
 
-func (s *sdkAPIUpdater) GetLocalVolumeDiscovery(name, namespace string) (*v1alpha1.LocalVolumeDiscovery, error) {
+func (s *sdkAPIUpdater) GetLocalVolumeDiscovery(
+	name, namespace string,
+) (*v1alpha1.LocalVolumeDiscovery, error) {
 	discoveryCR := &v1alpha1.LocalVolumeDiscovery{}
-	err := s.client.Get(context.TODO(), types.NamespacedName{Name: name, Namespace: namespace}, discoveryCR)
+	err := s.client.Get(
+		context.TODO(),
+		types.NamespacedName{Name: name, Namespace: namespace},
+		discoveryCR,
+	)
 	return discoveryCR, err
 }

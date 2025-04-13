@@ -9,14 +9,14 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/openshift-storage-scale/openshift-fusion-access-operator/api/v1alpha1"
-	"github.com/openshift-storage-scale/openshift-fusion-access-operator/internal/devicefinder"
-	"github.com/openshift-storage-scale/openshift-fusion-access-operator/internal/diskutils"
-
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/klog/v2"
+
+	"github.com/openshift-storage-scale/openshift-fusion-access-operator/api/v1alpha1"
+	"github.com/openshift-storage-scale/openshift-fusion-access-operator/internal/devicefinder"
+	"github.com/openshift-storage-scale/openshift-fusion-access-operator/internal/diskutils"
 )
 
 const (
@@ -38,14 +38,14 @@ type DeviceDiscovery struct {
 
 // NewDeviceDiscovery returns a new DeviceDiscovery instance
 func NewDeviceDiscovery() (*DeviceDiscovery, error) {
-	scheme := scheme.Scheme
-	err := v1alpha1.AddToScheme(scheme)
+	myScheme := scheme.Scheme
+	err := v1alpha1.AddToScheme(myScheme)
 	if err != nil {
 		klog.Error(err, "failed to add scheme")
 		return nil, err
 	}
 
-	apiUpdater, err := devicefinder.NewAPIUpdater(scheme)
+	apiUpdater, err := devicefinder.NewAPIUpdater(myScheme)
 	if err != nil {
 		klog.Error(err, "failed to create new APIUpdater")
 		return &DeviceDiscovery{}, err
@@ -54,7 +54,10 @@ func NewDeviceDiscovery() (*DeviceDiscovery, error) {
 	dd := &DeviceDiscovery{}
 	dd.apiClient = apiUpdater
 	dd.eventSync = devicefinder.NewEventReporter(dd.apiClient)
-	lvd, err := dd.apiClient.GetLocalVolumeDiscovery(localVolumeDiscoveryComponent, os.Getenv("WATCH_NAMESPACE"))
+	lvd, err := dd.apiClient.GetLocalVolumeDiscovery(
+		localVolumeDiscoveryComponent,
+		os.Getenv("WATCH_NAMESPACE"),
+	)
 	if err != nil {
 		klog.Error(err, "failed to get LocalVolumeDiscovery object")
 		return &DeviceDiscovery{}, err
@@ -69,7 +72,11 @@ func (discovery *DeviceDiscovery) Start() error {
 	err := discovery.ensureDiscoveryResultCR()
 	if err != nil {
 		message := "failed to start device discovery"
-		e := devicefinder.NewEvent(devicefinder.ErrorCreatingDiscoveryResultObject, fmt.Sprintf("%s. Error: %+v", message, err), "")
+		e := devicefinder.NewEvent(
+			devicefinder.ErrorCreatingDiscoveryResultObject,
+			fmt.Sprintf("%s. Error: %+v", message, err),
+			"",
+		)
 		discovery.eventSync.Report(e, discovery.localVolumeDiscovery)
 		return errors.Wrapf(err, message)
 	}
@@ -114,7 +121,11 @@ func (discovery *DeviceDiscovery) discoverDevices() error {
 	validDevices, err := getValidBlockDevices()
 	if err != nil {
 		message := "failed to discover devices"
-		e := devicefinder.NewEvent(devicefinder.ErrorListingBlockDevices, fmt.Sprintf("%s. Error: %+v", message, err), "")
+		e := devicefinder.NewEvent(
+			devicefinder.ErrorListingBlockDevices,
+			fmt.Sprintf("%s. Error: %+v", message, err),
+			"",
+		)
 		discovery.eventSync.Report(e, discovery.localVolumeDiscovery)
 		return errors.Wrapf(err, message)
 	}
@@ -131,7 +142,11 @@ func (discovery *DeviceDiscovery) discoverDevices() error {
 		err = discovery.updateStatus()
 		if err != nil {
 			message := "failed to update LocalVolumeDiscoveryResult status"
-			e := devicefinder.NewEvent(devicefinder.ErrorUpdatingDiscoveryResultObject, fmt.Sprintf("%s. Error: %+v", message, err), "")
+			e := devicefinder.NewEvent(
+				devicefinder.ErrorUpdatingDiscoveryResultObject,
+				fmt.Sprintf("%s. Error: %+v", message, err),
+				"",
+			)
 			discovery.eventSync.Report(e, discovery.localVolumeDiscovery)
 			return errors.Wrapf(err, message)
 		}
@@ -167,13 +182,21 @@ func getDiscoverdDevices(blockDevices []diskutils.BlockDevice) []v1alpha1.Discov
 		}
 		deviceID, err := blockDevices[idx].GetPathByID()
 		if err != nil {
-			klog.Warningf("failed to get persistent ID for the device %q. Error %v", blockDevices[idx].Name, err)
+			klog.Warningf(
+				"failed to get persistent ID for the device %q. Error %v",
+				blockDevices[idx].Name,
+				err,
+			)
 			deviceID = ""
 		}
 
 		path, err := blockDevices[idx].GetDevPath()
 		if err != nil {
-			klog.Warningf("failed to parse path for the device %q. Error %v", blockDevices[idx].KName, err)
+			klog.Warningf(
+				"failed to parse path for the device %q. Error %v",
+				blockDevices[idx].KName,
+				err,
+			)
 		}
 		discoveredDevice := v1alpha1.DiscoveredDevice{
 			Path:     path,
@@ -251,7 +274,11 @@ func ignoreDevices(dev *diskutils.BlockDevice) bool {
 				return true
 			}
 			if dev.Children[idx].FSType != "" {
-				klog.Infof("ignoring device %q with filesystem %s", dev.Children[idx].Name, dev.Children[idx].FSType)
+				klog.Infof(
+					"ignoring device %q with filesystem %s",
+					dev.Children[idx].Name,
+					dev.Children[idx].FSType,
+				)
 				return true
 			}
 		}
