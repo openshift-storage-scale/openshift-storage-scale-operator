@@ -1,34 +1,36 @@
-/* eslint-disable @typescript-eslint/no-require-imports */
-const fs = require('fs');
-const path = require('path');
-const pluralize = require('pluralize');
-const common = require('./common.js');
+#!/usr/bin/env -S npx ts-node
+import process from "node:process";
+import fs from "node:fs";
+import path from "node:path";
+import pluralize from "pluralize";
+import * as common from "./i18n/common.ts";
 
-const publicDir = path.join(__dirname, '../../locales/');
+const pwd = process.cwd();
+const publicDir = path.join(pwd, "locales");
 
-function determineRule(key) {
-  if (key.includes('WithCount_plural')) {
+function determineRule(key: string) {
+  if (key.includes("WithCount_plural")) {
     return 0;
   }
-  if (key.includes('WithCount')) {
+  if (key.includes("WithCount")) {
     return 1;
   }
-  if (key.includes('_plural')) {
+  if (key.includes("_plural")) {
     return 2;
   }
   return 3;
 }
 
-function updateFile(fileName) {
-  const file = require(fileName);
+function updateFile(fileName: string) {
+  const file = JSON.parse(fs.readFileSync(fileName).toString());
   const updatedFile = {};
 
   const keys = Object.keys(file);
 
-  let originalKey;
+  let originalKey: string;
 
   for (let i = 0; i < keys.length; i++) {
-    if (file[keys[i]] === '') {
+    if (file[keys[i]] === "") {
       // follow i18next rules
       // "key": "item",
       // "key_plural": "items",
@@ -36,15 +38,15 @@ function updateFile(fileName) {
       // "keyWithCount_plural": "{{count}} items"
       switch (determineRule(keys[i])) {
         case 0:
-          [originalKey] = keys[i].split('WithCount_plural');
+          [originalKey] = keys[i].split("WithCount_plural");
           updatedFile[keys[i]] = `{{count}} ${pluralize(originalKey)}`;
           break;
         case 1:
-          [originalKey] = keys[i].split('WithCount');
+          [originalKey] = keys[i].split("WithCount");
           updatedFile[keys[i]] = `{{count}} ${originalKey}`;
           break;
         case 2:
-          [originalKey] = keys[i].split('_plural');
+          [originalKey] = keys[i].split("_plural");
           updatedFile[keys[i]] = pluralize(originalKey);
           break;
         default:
@@ -60,10 +62,12 @@ function updateFile(fileName) {
     .catch((e) => console.error(fileName, e));
 }
 
-function processLocalesFolder(filePath) {
-  if (path.basename(filePath) === 'en') {
+function processLocalesFolder(filePath: string) {
+  if (path.basename(filePath) === "en") {
     common.parseFolder(filePath, updateFile);
   }
 }
 
+console.log("Setting EN defaults...");
 common.parseFolder(publicDir, processLocalesFolder);
+console.log("Done");

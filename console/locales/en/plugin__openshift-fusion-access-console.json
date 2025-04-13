@@ -1,16 +1,17 @@
 {
+  "CPU": "CPU",
   "Create storage cluster": "Create storage cluster",
-  "Explanation that no body will read": "Explanation that no body will read",
+  "Download logs": "Download logs",
   "Fusion Access for SAN": "Fusion Access for SAN",
   "Learn more about Fusion Access for SAN storage clusters": "Learn more about Fusion Access for SAN storage clusters",
-  "No storage cluster": "No storage cluster",
-  "You need to create a storage cluster before you'll be able to create file systems.": "You need to create a storage cluster before you'll be able to create file systems.",
-  "Page description": "Page description",
-  "Download logs": "Download logs",
-  "Name": "Name",
-  "CPU": "CPU",
+  "Make sure all nodes for the storage cluster are selected before you continue.<1></1>Worker nodes will be rebooted while creating the storage cluster.": "Make sure all nodes for the storage cluster are selected before you continue.<1></1>Worker nodes will be rebooted while creating the storage cluster.",
   "Memory": "Memory",
+  "Name": "Name",
+  "No storage cluster": "No storage cluster",
+  "Page description": "Page description",
   "Role": "Role",
   "Shared disks": "Shared disks",
-  "Make sure all nodes for the storage cluster are selected before you continue.<br/>Worker nodes will be rebooted while creating the storage cluster.": "Make sure all nodes for the storage cluster are selected before you continue.<br/>Worker nodes will be rebooted while creating the storage cluster."
+  "Waiting for the CNSA resources to become available": "Waiting for the CNSA resources to become available",
+  "You need to create a storage cluster before you'll be able to create file systems.": "You need to create a storage cluster before you'll be able to create file systems.",
+  "You will be able to continue after the resources are detected.": "You will be able to continue after the resources are detected."
 }
