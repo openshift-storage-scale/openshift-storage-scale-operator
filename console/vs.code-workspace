@@ -1,30 +1,38 @@
 {
-    "folders": [
-        {
-            "name": "Openshift Fusion Access Plugin",
-            "path": "."
-        },
-        {
-            "name": "Tekton pipeline",
-            "path": "../.tekton"
-        },
-        {
-            "name": "Github Actions",
-            "path": "../.github"
-        }
-    ],
-    "settings": {
-        "window.title": "${folderName}",
-        "typescript.tsdk": "./node_modules/typescript/lib",
-        "typescript.preferences.preferTypeOnlyAutoImports": true,
-        "editor.formatOnSave": true,
-        "files.autoSave": "afterDelay",
+  "folders": [
+    {
+      "name": "Openshift Fusion Access Plugin",
+      "path": "."
     },
-    "extensions": {
-        "recommendations": [
-            "dbaeumer.vscode-eslint",
-            "esbenp.prettier-vscode",
-            "redhat.vscode-yaml"
-        ]
+    {
+      "name": "Tekton pipeline",
+      "path": "../.tekton"
+    },
+    {
+      "name": "Github Actions",
+      "path": "../.github"
     }
+  ],
+  "settings": {
+    "window.title": "${folderName}",
+    "typescript.tsdk": "./node_modules/typescript/lib",
+    "typescript.preferences.preferTypeOnlyAutoImports": true,
+    "editor.formatOnSave": true,
+    "eslint.options": {
+      "overrideConfigFile": "./config/eslint.config.mjs",
+    },
+    "files.autoSave": "afterDelay",
+    "eslint.workingDirectories": [
+      {
+        "directory": ".",
+      }
+    ],
+  },
+  "extensions": {
+    "recommendations": [
+      "dbaeumer.vscode-eslint",
+      "esbenp.prettier-vscode",
+      "redhat.vscode-yaml"
+    ]
+  }
 }
