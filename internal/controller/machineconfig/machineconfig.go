@@ -10,13 +10,12 @@ import (
 	machineconfigv1 "github.com/openshift/api/machineconfiguration/v1"
 	ctrlcommon "github.com/openshift/machine-config-operator/pkg/controller/common"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"sigs.k8s.io/controller-runtime/pkg/client"
-
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 // apiVersion: machineconfiguration.openshift.io/v1
@@ -59,7 +58,11 @@ func NewMachineConfigSpec() *machineconfigv1.MachineConfigSpec {
 	}
 }
 
-func CreateOrUpdateMachineConfig(ctx context.Context, mc *machineconfigv1.MachineConfig, cl client.Client) error {
+func CreateOrUpdateMachineConfig(
+	ctx context.Context,
+	mc *machineconfigv1.MachineConfig,
+	cl client.Client,
+) error {
 	old_mc := &machineconfigv1.MachineConfig{}
 	if err := cl.Get(ctx, client.ObjectKeyFromObject(mc), old_mc); err != nil {
 		if !apierrors.IsNotFound(err) {
@@ -81,7 +84,11 @@ func CreateOrUpdateMachineConfig(ctx context.Context, mc *machineconfigv1.Machin
 }
 
 // WaitForMachineConfigPoolUpdated polls the MachineConfigPool until it shows Updated=True
-func WaitForMachineConfigPoolUpdated(ctx context.Context, client dynamic.Interface, mcpName string) error {
+func WaitForMachineConfigPoolUpdated(
+	ctx context.Context,
+	dynamicClient dynamic.Interface,
+	mcpName string,
+) error {
 	mcpGVR := schema.GroupVersionResource{
 		Group:    "machineconfiguration.openshift.io",
 		Version:  "v1",
@@ -89,7 +96,7 @@ func WaitForMachineConfigPoolUpdated(ctx context.Context, client dynamic.Interfa
 	}
 
 	// 1. Get the latest MachineConfigPool object
-	mcp, err := client.Resource(mcpGVR).Get(ctx, mcpName, metav1.GetOptions{})
+	mcp, err := dynamicClient.Resource(mcpGVR).Get(ctx, mcpName, metav1.GetOptions{})
 	if err != nil {
 		return fmt.Errorf("failed to get MachineConfigPool %q: %w", mcpName, err)
 	}
@@ -107,7 +114,11 @@ func WaitForMachineConfigPoolUpdated(ctx context.Context, client dynamic.Interfa
 
 	// 3. Are both conditions satisfied?
 	if updated && machineCountsMatch {
-		fmt.Printf("MachineConfigPool %q is complete:\n  - Updated=True\n  - %s\n", mcpName, countMsg)
+		fmt.Printf(
+			"MachineConfigPool %q is complete:\n  - Updated=True\n  - %s\n",
+			mcpName,
+			countMsg,
+		)
 		return nil
 	}
 
@@ -155,7 +166,9 @@ func WaitForMachineConfigPoolUpdated(ctx context.Context, client dynamic.Interfa
 //     type: Updating
 //
 // isMachineConfigPoolUpdated checks the MCP's status conditions to see if it has Updated=True
-func isMachineConfigPoolUpdating(mcp *unstructured.Unstructured) (updating bool, reason string, err error) {
+func isMachineConfigPoolUpdating(
+	mcp *unstructured.Unstructured,
+) (updating bool, reason string, err error) {
 	conditions, found, err := unstructured.NestedSlice(mcp.Object, "status", "conditions")
 	if err != nil {
 		return false, "", err
@@ -185,7 +198,9 @@ func isMachineConfigPoolUpdating(mcp *unstructured.Unstructured) (updating bool,
 }
 
 // doMachineCountsMatch checks that machineCount == readyMachineCount == updatedMachineCount
-func doMachineCountsMatch(mcp *unstructured.Unstructured) (countsMatch bool, reason string, err error) {
+func doMachineCountsMatch(
+	mcp *unstructured.Unstructured,
+) (countsMatch bool, reason string, err error) {
 	var (
 		machineCount        int64
 		readyMachineCount   int64
