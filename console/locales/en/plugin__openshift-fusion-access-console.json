@@ -4,7 +4,7 @@
   "Download logs": "Download logs",
   "Fusion Access for SAN": "Fusion Access for SAN",
   "Learn more about Fusion Access for SAN storage clusters": "Learn more about Fusion Access for SAN storage clusters",
-  "Make sure all nodes for the storage cluster are selected before you continue.<1></1>Worker nodes will be rebooted while creating the storage cluster.": "Make sure all nodes for the storage cluster are selected before you continue.<1></1>Worker nodes will be rebooted while creating the storage cluster.",
+  "Make sure all nodes for the storage cluster are selected before you continue.": "Make sure all nodes for the storage cluster are selected before you continue.",
   "Memory": "Memory",
   "Name": "Name",
   "No storage cluster": "No storage cluster",
@@ -12,6 +12,9 @@
   "Role": "Role",
   "Shared disks": "Shared disks",
   "Waiting for the CNSA resources to become available": "Waiting for the CNSA resources to become available",
+  "Waiting for the FusionAccess instance to become available": "Waiting for the FusionAccess instance to become available",
+  "Worker nodes will be rebooted while creating the storage cluster.": "Worker nodes will be rebooted while creating the storage cluster.",
+  "You need to create a FusionAccess to continue.": "You need to create a FusionAccess to continue.",
   "You need to create a storage cluster before you'll be able to create file systems.": "You need to create a storage cluster before you'll be able to create file systems.",
   "You will be able to continue after the resources are detected.": "You will be able to continue after the resources are detected."
 }

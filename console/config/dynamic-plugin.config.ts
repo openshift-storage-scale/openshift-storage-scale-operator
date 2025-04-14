@@ -7,7 +7,7 @@ export const pluginMetadata: ConsolePluginBuildMetadata = {
   version: packageJson.version,
   displayName: "Fusion Access Plugin",
   exposedModules: {
-    FusionAccessPage: "./views/fusionaccess/FusionAccessPage.tsx",
+    FusionAccessPage: "./views/fusionaccess/components/FusionAccessPage.tsx",
   },
   dependencies: {
     "@console/pluginAPI": ">=4.17.0-0",

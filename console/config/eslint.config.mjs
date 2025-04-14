@@ -1,12 +1,12 @@
 // @ts-check
 import globals from "globals";
-import packageJson from "../package.json" with { type: "json" };
 import eslint from "@eslint/js";
 import tseslint from "typescript-eslint";
-import eslintConfigPrettier from "eslint-config-prettier/flat";
+import prettierPlugin from "eslint-config-prettier/flat";
 import reactPlugin from "eslint-plugin-react";
-import * as reactHooksPlugin from "eslint-plugin-react-hooks";
-import pluginCypress from "eslint-plugin-cypress/flat";
+import reactHooksPlugin from "eslint-plugin-react-hooks";
+import cypressPlugin from "eslint-plugin-cypress/flat";
+import packageJson from "../package.json" with { type: "json" };
 
 function detectSourceTypeFromPackageJson() {
   return "type" in packageJson && packageJson.type === "module"
@@ -17,6 +17,23 @@ function detectSourceTypeFromPackageJson() {
 let config = tseslint.config(
   eslint.configs.recommended,
   tseslint.configs.recommended,
+  {
+    rules: {
+      "no-unused-vars": "off",
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        {
+          args: "all",
+          argsIgnorePattern: "^_",
+          caughtErrors: "all",
+          caughtErrorsIgnorePattern: "^_",
+          destructuredArrayIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          ignoreRestSiblings: true,
+        },
+      ],
+    },
+  },
   {
     // @see https://eslint.org/docs/latest/use/configure/migration-guide#ignoring-files
     name: "Additional ignores",
@@ -32,24 +49,16 @@ let config = tseslint.config(
     },
   },
   {
-    name: "Files in src/",
-    files: ["src/*"],
+    files: ["src/**/*.{js,mjs,cjs,jsx,mjsx,ts,tsx,mtsx}"],
     ...reactPlugin.configs.flat["jsx-runtime"],
-    plugins: {
-      ...reactPlugin.configs.flat["jsx-runtime"].plugins,
-      "react-hooks": reactHooksPlugin,
-    },
-    linterOptions: {
-      // This is needed for src/models/kubernetes/types-*.ts
-      noInlineConfig: false,
-    },
+    ...reactHooksPlugin.configs["recommended-latest"],
   },
   {
     name: "Files in integration-tests/",
-    files: ["integration-tests/*"],
-    ...pluginCypress.configs.recommended,
+    files: ["integration-tests/**/*"],
+    ...cypressPlugin.configs.recommended,
   },
-  eslintConfigPrettier // Must be the last one
+  prettierPlugin // Must be the last one
 );
 
 export default config;

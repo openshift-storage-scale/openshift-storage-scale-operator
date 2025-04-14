@@ -1,4 +1,3 @@
-import process from "node:process";
 import fs from "node:fs";
 import { CustomJsonLexer } from "./i18n/lexers.mjs";
 
@@ -21,7 +20,7 @@ const config = {
   locales: ["en"],
   namespaceSeparator: "~",
   defaultNamespace: `plugin__${packageJson.name}`,
-  defaultValue: (_locale, _namespace, key, _value) => key,
+  defaultValue: (_locale, _namespace, key) => key,
   lexers: {
     hbs: ["HandlebarsLexer"],
     handlebars: ["HandlebarsLexer"],

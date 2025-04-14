@@ -1,6 +1,7 @@
 import type { IoK8sApimachineryPkgApiResourceQuantity } from "@/models/kubernetes/types-1.30";
-import type { SuffixBinarySI, SuffixDecimalSI } from "./unit";
 
+export type SuffixDecimalSI = "k" | "M" | "G" | "T" | "P" | "E";
+export type SuffixBinarySI = "Ki" | "Mi" | "Gi" | "Ti" | "Pi" | "Ei";
 export type QuantityDescriptorUnit =
   | "m"
   | "B"
@@ -27,7 +28,8 @@ export type QuantityDescriptorUnit =
  *
  * Notes:
  * 1. The sign is left apart, since it is expresed as part of the `value` field.
- * 2. Plain integers are interpreted as bytes therefore their unit is set to "B"
+ * 2. Plain integers are interpreted as bytes therefore their unit is set to "B".
+ * 3. The decimal SI fractional unit ('m') is not considered part of that suffix by this implementation.
  */
 export type QuantityDescriptor = {
   unit: QuantityDescriptorUnit;

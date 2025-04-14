@@ -11,6 +11,11 @@ export const useNodesSelectionTableColumns: UseNodesSelectionTableColumns =
     return React.useMemo(
       () => [
         {
+          id: "checkbox",
+          props: { className: "pf-v5-c-table__check" },
+          title: "",
+        },
+        {
           id: "name",
           title: t("Name"),
         },

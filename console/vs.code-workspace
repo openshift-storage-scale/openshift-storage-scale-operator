@@ -24,7 +24,8 @@
     "files.autoSave": "afterDelay",
     "eslint.workingDirectories": [
       {
-        "directory": ".",
+        "!cwd": true,
+        "directory": "${workspaceFolder}"
       }
     ],
   },
