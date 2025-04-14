@@ -19,7 +19,7 @@
     "lint:eslint": "eslint -c config/eslint.config.mjs",
     "lint:styles": "stylelint 'src/**/*.css' --allow-empty-input",
     "lint:inspect-config": "eslint --inspect-config -c config/eslint.config.mjs",
-    "start": "concurrently --kill-others -c auto -n \"proxy,fe\" -p \"{name}:{pid}\" \"npm run start:console\" \"npm run start:devserver\"",
+    "start": "concurrently --kill-others -c auto -n \"bridge,devsvr\" -p \"{name}:{pid}\" \"npm run start:console\" \"npm run start:devserver\"",
     "start:devserver": "npm run ts:webpack -- serve --progress -c config/webpack.config.ts",
     "start:console": "CONSOLE_VERSION=4.17.0 scripts/start-console.sh",
     "test-cypress": "cypress open -p integration-tests",
@@ -79,8 +79,8 @@
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.29.1",
     "webpack": "5.75.0",
-    "webpack-cli": "^4.9.2",
-    "webpack-dev-server": "^4.7.4"
+    "webpack-cli": "~5.1.0",
+    "webpack-dev-server": "~5.1.0"
   },
   "peerDependencies": {
     "@babel/core": "^7.0.1",

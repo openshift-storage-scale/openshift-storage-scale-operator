@@ -18,7 +18,7 @@ const paths = {
   src: path.join(pwd, "src"),
   dist: path.join(pwd, "dist"),
   locales: path.join(pwd, "locales"),
-  node_modules: path.join(pwd, "node_modules"),
+  nodeModules: path.join(pwd, "node_modules"),
   tsconfig: path.join(pwd, "tsconfig.json"),
 };
 
@@ -38,7 +38,7 @@ const config: Configuration = {
   },
   resolve: {
     extensions: [".ts", ".tsx", ".js", ".jsx"],
-    modules: [paths.node_modules],
+    modules: [paths.nodeModules],
     plugins: [new TsconfigPathsPlugin()],
   },
   module: {
