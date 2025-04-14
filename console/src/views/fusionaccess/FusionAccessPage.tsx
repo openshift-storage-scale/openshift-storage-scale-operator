@@ -10,7 +10,7 @@ import { usePluginTranslations } from "@/hooks/usePluginTranslations";
 import { ListPage } from "@/components/ListPage";
 import { EmptyStateSection } from "./components/states/EmptyStateSection";
 import { LoadingStateSection } from "./components/states/LoadingStateSection";
-import { NodesSelectionSection } from "./components/nodes-selection/NodesSelectionSection";
+import { NodesSelectionSection } from "./components/nodesselection/NodesSelectionSection";
 
 const FusionAccessPage: React.FC = () => {
   const { t } = usePluginTranslations();
