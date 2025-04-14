@@ -19,7 +19,7 @@ export const extensions: EncodedExtension[] = [
     type: "console.page/route",
     properties: {
       exact: true,
-      path: "/example",
+      path: "/plugin",
       component: { $codeRef: "FusionAccessPage" },
     },
   },
@@ -28,7 +28,7 @@ export const extensions: EncodedExtension[] = [
     properties: {
       id: "main",
       name: `%plugin__${packageJson.name}~Fusion Access for SAN%`,
-      href: "/example",
+      href: "/plugin",
       perspective: "admin",
       section: "storage",
     },
