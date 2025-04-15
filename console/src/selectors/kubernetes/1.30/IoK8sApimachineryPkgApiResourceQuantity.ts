@@ -1,4 +1,4 @@
-import type { IoK8sApimachineryPkgApiResourceQuantity } from "@/models/kubernetes/types-1.30";
+import type { IoK8sApimachineryPkgApiResourceQuantity } from "@/models/kubernetes/1.30/types";
 
 export type SuffixDecimalSI = "k" | "M" | "G" | "T" | "P" | "E";
 export type SuffixBinarySI = "Ki" | "Mi" | "Gi" | "Ti" | "Pi" | "Ei";

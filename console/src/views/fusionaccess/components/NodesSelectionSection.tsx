@@ -1,13 +1,16 @@
 import {
+  CodeEditor,
   VirtualizedTable,
   useK8sWatchResource,
 } from "@openshift-console/dynamic-plugin-sdk";
-import { Alert } from "@patternfly/react-core";
+import { Alert, PageSection } from "@patternfly/react-core";
 import { usePluginTranslations } from "@/hooks/usePluginTranslations";
-import type { IoK8sApiCoreV1Node } from "@/models/kubernetes/types-1.30";
+import type { IoK8sApiCoreV1Node } from "@/models/kubernetes/1.30/types";
 import { NodesSelectionTableRow } from "./NodesSelectionTableRow";
 import { useNodesSelectionTableColumns } from "../hooks/useNodesSelectionTableColumns";
 import { usePageContext } from "@/hooks/usePageContext";
+import { Trans } from "react-i18next";
+import { LocalVolumeDiscoveryResultModel } from "@/models/fusionstorage/LocalVolumeDiscoveryResultModel";
 
 export const NodesSelectionSection: React.FC = () => {
   usePageContext({ pageDescription: " " });
@@ -20,6 +23,22 @@ export const NodesSelectionSection: React.FC = () => {
       version: "v1",
       kind: "Node",
     },
+    // TODO(jkilzi): For now, we are allowing only to select workers.
+    selector: {
+      matchLabels: {
+        "node-role.kubernetes.io/worker": "",
+      },
+    },
+  });
+  const [
+    disksDiscoveryResult,
+    // // TODO(jkilzi): We need a UX for disksDiscoveryResultLoaded
+    // disksDiscoveryResultLoaded,
+    // // TODO(jkilzi): We need a UX for disksDiscoveryResultLoadedError
+    // disksDiscoveryResultLoadedError,
+  ] = useK8sWatchResource({
+    isList: true,
+    groupVersionKind: LocalVolumeDiscoveryResultModel.toGroupVersionKind(),
   });
 
   const columns = useNodesSelectionTableColumns();
@@ -29,15 +48,12 @@ export const NodesSelectionSection: React.FC = () => {
       <Alert
         variant="info"
         title={
-          <>
-            {t(
-              "Make sure all nodes for the storage cluster are selected before you continue."
-            )}
+          <Trans t={t}>
+            Make sure all nodes for the storage cluster are selected before you
+            continue.
             <br />
-            {t(
-              "Worker nodes will be rebooted while creating the storage cluster."
-            )}
-          </>
+            Worker nodes will be rebooted while creating the storage cluster.
+          </Trans>
         }
       />
       <VirtualizedTable<IoK8sApiCoreV1Node>
@@ -48,6 +64,12 @@ export const NodesSelectionSection: React.FC = () => {
         loadError={nodesLoadedError}
         Row={NodesSelectionTableRow}
       />
+      <PageSection>
+        <CodeEditor
+          minHeight="480px"
+          value={JSON.stringify(disksDiscoveryResult, null, 2)}
+        />
+      </PageSection>
     </>
   );
 };

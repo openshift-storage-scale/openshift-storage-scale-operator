@@ -2,16 +2,16 @@
   "folders": [
     {
       "name": "Openshift Fusion Access Plugin",
-      "path": "."
+      "path": ".",
     },
     {
       "name": "Tekton pipeline",
-      "path": "../.tekton"
+      "path": "../.tekton",
     },
     {
       "name": "Github Actions",
-      "path": "../.github"
-    }
+      "path": "../.github",
+    },
   ],
   "settings": {
     "window.title": "${folderName}",
@@ -25,15 +25,15 @@
     "eslint.workingDirectories": [
       {
         "!cwd": true,
-        "directory": "${workspaceFolder}"
-      }
+        "directory": "${workspaceFolder}",
+      },
     ],
   },
   "extensions": {
     "recommendations": [
       "dbaeumer.vscode-eslint",
       "esbenp.prettier-vscode",
-      "redhat.vscode-yaml"
-    ]
-  }
+      "redhat.vscode-yaml",
+    ],
+  },
 }

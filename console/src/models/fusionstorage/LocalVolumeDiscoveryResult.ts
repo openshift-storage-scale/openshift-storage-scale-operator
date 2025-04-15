@@ -1,18 +1,21 @@
-import type { K8sModel } from "@openshift-console/dynamic-plugin-sdk";
-import { K8sModelBase } from "../console/K8sModelBase";
+import type { K8sResourceKind } from "@openshift-console/dynamic-plugin-sdk";
 
-class LocalVolumeDiscoveryResultImpl extends K8sModelBase {
-  constructor(obj: K8sModel) {
-    super(obj);
-  }
+export interface LocalVolumeDiscoveryResult extends K8sResourceKind {
+  spec: {
+    nodeName: string;
+  };
+  status: {
+    discoveredDevices?: DiscoveredDevice[];
+    discoveredTimeStamp?: string;
+  };
 }
 
-export const LocalVolumeDiscoveryResult = new LocalVolumeDiscoveryResultImpl({
-  kind: "fusion.storage.openshift.io",
-  apiGroup: "v1alpha1",
-  apiVersion: "LocalVolumeDiscoveryResult",
-  abbr: "LVDR",
-  plural: "localvolumediscoveryresults",
-  label: "LocalVolumeDiscoveryResult",
-  labelPlural: "LocalVolumeDiscoveryResults",
-});
+export interface DiscoveredDevice {
+  WWN: string;
+  deviceID: string;
+  model: string;
+  path: string;
+  size: number;
+  type: string;
+  vendor: string;
+}

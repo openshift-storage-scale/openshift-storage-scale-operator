@@ -1,31 +1,28 @@
-import type { IoK8sApiCoreV1Node } from "@/models/kubernetes/types-1.30";
-import type { SuffixBinarySI, SuffixDecimalSI } from "./IoK8sApimachineryPkgApiResourceQuantity";
-import { parseQuantity } from "./IoK8sApimachineryPkgApiResourceQuantity";
 import convert, { type Unit } from "convert";
+import type { IoK8sApiCoreV1Node } from "@/models/kubernetes/1.30/types";
+import { hasLabel } from "@/selectors/console/K8sResourceCommon";
+import type {
+  SuffixBinarySI,
+  SuffixDecimalSI,
+} from "./IoK8sApimachineryPkgApiResourceQuantity";
+import { parseQuantity } from "./IoK8sApimachineryPkgApiResourceQuantity";
 
 export type NodeRole = "worker" | "master" | "control-plane";
 
-export const getRole = (
-  node: IoK8sApiCoreV1Node
-): [NodeRole, null] | [null, Error] => {
-  if (!("metadata" in node)) {
-    return [null, new Error("cannot read node's metadata")];
+export const getRole = (node: IoK8sApiCoreV1Node): NodeRole => {
+  let role: NodeRole = "worker";
+  switch (true) {
+    case hasLabel(node, "node-role.kubernetes.io/worker="):
+      break;
+    case hasLabel(node, "node-role.kubernetes.io/master="):
+      role = "master";
+      break;
+    case hasLabel(node, "node-role.kubernetes.io/control-plane="):
+      role = "control-plane";
+      break;
   }
 
-  if (!("labels" in node.metadata!)) {
-    return [null, new Error("cannot read node's metadata labels")];
-  }
-
-  const nodeRoleLabel = Object.keys(node.metadata!.labels!).find((label) =>
-    label.startsWith("node-role.kubernetes.io")
-  );
-
-  if (!nodeRoleLabel) {
-    return [null, new Error("could not find node-role label")];
-  }
-
-  const [, role] = nodeRoleLabel.split("/");
-  return [role as NodeRole, null];
+  return role;
 };
 
 export const getMemory = (
@@ -47,7 +44,7 @@ export const getMemory = (
   let adaptedValue: number = q.value;
   let adaptedUnit: Extract<"B" | `${SuffixBinarySI | SuffixDecimalSI}B`, Unit>;
   switch (q.unit) {
-    case "B": // refers to "bytes"
+    case "B":
       adaptedUnit = q.unit;
       break;
     case "E": // unsupported by "convert"

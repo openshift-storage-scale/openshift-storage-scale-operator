@@ -1,5 +1,5 @@
 import { usePluginTranslations } from "@/hooks/usePluginTranslations";
-import type { IoK8sApiCoreV1Node } from "@/models/kubernetes/types-1.30";
+import type { IoK8sApiCoreV1Node } from "@/models/kubernetes/1.30/types";
 import type { TableColumn } from "@openshift-console/dynamic-plugin-sdk";
 import React from "react";
 
