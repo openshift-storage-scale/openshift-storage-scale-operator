@@ -3,7 +3,12 @@
 # To re-generate a bundle for another specific version without changing the standard setup, you can:
 # - use the VERSION as arg of the bundle target (e.g make bundle VERSION=0.0.2)
 # - use environment variables to overwrite this value (e.g export VERSION=0.0.2)
-VERSION ?= $(shell cat VERSION.txt)
+export VERSION ?= $(shell cat VERSION.txt)
+
+
+OPERATOR_DOCKERFILE ?= Dockerfile
+DEVICEFINDER_DOCKERFILE ?= devicefinder.Dockerfile
+MUST_GATHER_DOCKERFILE ?= must-gather.Dockerfile
 
 # Version of yaml file to generate rbacs from
 RBAC_VERSION ?= v5.2.2.0
@@ -192,13 +197,30 @@ clean: ## Remove build artifacts and downloaded tools
 	find bin/ -exec chmod +w "{}" \;
 	rm -rf ./manager ./bin/* ./cover.out ./coverage.html
 
+# Generate Dockerfile using the template. It uses envsubst to replace the value of the version label in the container
+.PHONY: generate-dockefile-operator
+generate-dockefile-operator:
+	envsubst < templates/operator.Dockerfile.template > $(OPERATOR_DOCKERFILE)
+
+# Generate Dockerfile using the template. It uses envsubst to replace the value of the version label in the container
+.PHONY: generate-dockefile-devicefinder
+generate-dockefile-devicefinder:
+	envsubst < templates/devicefinder.Dockerfile.template > $(DEVICEFINDER_DOCKERFILE)
+
+# Generate Dockerfile using the template. It uses envsubst to replace the value of the version label in the container
+.PHONY: generate-dockefile-must-gather
+generate-dockefile-must-gather:
+	envsubst < templates/must-gather.Dockerfile.template > $(MUST_GATHER_DOCKERFILE)
+
+
+
 # If you wish to build the manager image targeting other platforms you can use the --platform flag.
 # (i.e. docker build --platform linux/arm64). However, you must enable docker buildKit for it.
 # More info: https://docs.docker.com/develop/develop-images/build_enhancements/
 TARGETARCH ?= amd64
 .PHONY: docker-build
-docker-build: ## Build docker image with the manager.
-	$(CONTAINER_TOOL) build --secret id=pull,src=$(PULLFILE) --build-arg TARGETARCH=$(TARGETARCH) -t $(OPERATOR_IMG) .
+docker-build: generate-dockefile-operator ## Build docker image with the manager.
+	$(CONTAINER_TOOL) build --secret id=pull,src=$(PULLFILE) --build-arg TARGETARCH=$(TARGETARCH) -t $(OPERATOR_IMG) -f $(CURPATH)/$(OPERATOR_DOCKERFILE) .
 	$(CONTAINER_TOOL) tag $(OPERATOR_IMG) $(IMAGE_TAG_BASE)-operator:latest
 
 .PHONY: docker-push
@@ -214,16 +236,16 @@ console-push: ## Push the console image
 	$(CONTAINER_TOOL) push $(CONSOLE_PLUGIN_IMAGE)
 
 .PHONY: devicefinder-docker-build
-devicefinder-docker-build: ## Build docker image of the devicefinder
-	$(CONTAINER_TOOL) build -t $(DEVICEFINDER_IMAGE) -f $(CURPATH)/devicefinder.Dockerfile .
+devicefinder-docker-build: generate-dockefile-devicefinder ## Build docker image of the devicefinder
+	$(CONTAINER_TOOL) build -t $(DEVICEFINDER_IMAGE) -f $(CURPATH)/${DEVICEFINDER_DOCKERFILE} .
 
 .PHONY: devicefinder-docker-push
 devicefinder-docker-push: ## Push docker image of the devicefinder
 	$(CONTAINER_TOOL) push $(DEVICEFINDER_IMAGE)
 
 .PHONY: must-gather-docker-build
-must-gather-docker-build: ## Build docker image of the must gather container
-	$(CONTAINER_TOOL) build --platform=linux/$(TARGETARCH) -t $(MUST_GATHER_IMAGE) -f $(CURPATH)/must-gather.Dockerfile .
+must-gather-docker-build: generate-dockefile-must-gather ## Build docker image of the must gather container
+	$(CONTAINER_TOOL) build --platform=linux/$(TARGETARCH) -t $(MUST_GATHER_IMAGE) -f $(CURPATH)/${MUST_GATHER_DOCKERFILE} .
 
 .PHONY: must-gather-docker-push
 must-gather-docker-push: ## Push docker image of the must gather container

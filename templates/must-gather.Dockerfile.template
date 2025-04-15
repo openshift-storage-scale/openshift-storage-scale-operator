@@ -1,5 +1,7 @@
 FROM registry.redhat.io/multicluster-engine/must-gather-rhel9:v2.8 AS builder
 
+ARG VERSION=1.0
+
 # Copy our scripts
 COPY collection-scripts/* /usr/bin/
 
@@ -13,8 +15,8 @@ LABEL \
     distribution-scope="public" \
     name="openshift-fusion-access-must-gather-rhel9" \
     vendor="Red Hat, Inc." \
-    version="v1.0" \
-    release="v1.0" \
+    release="v${VERSION}" \
+    version="v${VERSION}" \
     summary="Must gather image" \
     description="" \
     maintainer="Red Hat jgil@redhat.com" \
