@@ -37,8 +37,6 @@ spec:
       - description: Version of IBMs installation manifests found at https://github.com/IBM/ibm-spectrum-scale-container-native
         displayName: Ibm Cnsa Version
         path: ibm_cnsa_version
-      - displayName: Cluster
-        path: ibm_cnsa_cluster
       - description: Boolean to create the MachinConfig objects
         displayName: Create
         path: mco_config.create
@@ -53,17 +51,6 @@ spec:
         path: mco_config.labels
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:fieldDependency:mco_config.create:true
-      - description: Boolean to create the CNSA cluster object
-        displayName: Create
-        path: ibm_cnsa_cluster.create
-        x-descriptors:
-        - urn:alm:descriptor:com.tectonic.ui:booleanSwitch
-      - description: Nodes with this label will be part of the cluster, must have
-          at least 3 nodes with this
-        displayName: Daemon Node Selector
-        path: ibm_cnsa_cluster.daemon_nodeSelector
-        x-descriptors:
-        - urn:alm:descriptor:com.tectonic.ui:fieldDependency:ibm_cnsa_cluster.create:true
       version: v1alpha1
   description: Fusion Access Setup
   displayName: Fusion Access for SAN
