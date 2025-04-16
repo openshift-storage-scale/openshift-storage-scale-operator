@@ -21,12 +21,10 @@ import (
 	"fmt"
 	"os"
 	"path"
-	"strings"
 
 	mfc "github.com/manifestival/controller-runtime-client"
 	"github.com/manifestival/manifestival"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
@@ -311,55 +309,6 @@ func (r *FusionAccessReconciler) Reconcile(
 	}
 	log.Log.Info(fmt.Sprintf("Applied manifest from %s", install_path))
 
-	secretstring := strings.TrimSpace(pull)
-	// Create secrets in IBM namespaces to pull images from quay
-	secretData := map[string][]byte{
-		".dockerconfigjson": []byte(secretstring),
-	}
-
-	destSecretName := "ibm-entitlement-key" //nolint:gosec
-	destNamespaces := []string{
-		"ibm-spectrum-scale",
-		"ibm-spectrum-scale-dns",
-		"ibm-spectrum-scale-csi",
-		"ibm-spectrum-scale-operator",
-	}
-	for _, destNamespace := range destNamespaces {
-		ibmPullSecret := newSecret(
-			destSecretName,
-			destNamespace,
-			secretData,
-			"kubernetes.io/dockerconfigjson",
-			nil,
-		)
-		_, err = r.fullClient.CoreV1().
-			Secrets(destNamespace).
-			Get(ctx, destSecretName, metav1.GetOptions{})
-		if err != nil {
-			if kerrors.IsNotFound(err) {
-				// Resource does not exist, create it
-				_, err := r.fullClient.CoreV1().
-					Secrets(destNamespace).
-					Create(context.TODO(), ibmPullSecret, metav1.CreateOptions{})
-				if err != nil {
-					return ctrl.Result{}, err
-				}
-				log.Log.Info(
-					fmt.Sprintf("Created Secret %s in ns %s", destSecretName, destNamespace),
-				)
-				continue
-			}
-			return ctrl.Result{}, err
-		}
-		// The destination secret already exists so we upate it and return an error if they were different so the reconcile loop can restart
-		_, err = r.fullClient.CoreV1().
-			Secrets(destNamespace).
-			Update(context.TODO(), ibmPullSecret, metav1.UpdateOptions{})
-		if err == nil {
-			log.Log.Info(fmt.Sprintf("Updated Secret %s in ns %s", destSecretName, destNamespace))
-			continue
-		}
-	}
 	if err := console.CreateOrUpdatePlugin(ctx, r.Client); err != nil {
 		return ctrl.Result{}, err
 	}
