@@ -81,13 +81,7 @@ var _ = Describe("FusionAccess Controller", func() {
 					Namespace: "default",
 				},
 				Spec: fusionv1alpha.FusionAccessSpec{
-					IbmCnsaVersion: "v5.2.2.1",
-					MachineConfig:  fusionv1alpha.MachineConfig{
-						// Create: false,
-						// Labels: map[string]string{
-						// 	"machineconfiguration.openshift.io/role": "worker",
-						// },
-					},
+					IbmCnsaVersion:       "v5.2.2.1",
 					LocalVolumeDiscovery: fusionv1alpha.StorageDeviceDiscovery{
 						// Create: false,
 					},

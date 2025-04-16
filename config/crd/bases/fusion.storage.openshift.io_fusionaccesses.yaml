@@ -45,20 +45,6 @@ spec:
                 - v5.2.2.1
                 - v5.2.3.0.rc1
                 type: string
-              mco_config:
-                description: MachineConfig labeling for the installation of kernel-devel
-                  package
-                properties:
-                  create:
-                    default: true
-                    description: Boolean to create the MachinConfig objects
-                    type: boolean
-                  labels:
-                    additionalProperties:
-                      type: string
-                    description: Labels to be used for the machineconfigpool
-                    type: object
-                type: object
               storagedevicediscovery:
                 properties:
                   create:

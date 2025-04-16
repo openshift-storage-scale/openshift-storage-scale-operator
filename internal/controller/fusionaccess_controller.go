@@ -39,7 +39,6 @@ import (
 	fusionv1alpha "github.com/openshift-storage-scale/openshift-fusion-access-operator/api/v1alpha1"
 	"github.com/openshift-storage-scale/openshift-fusion-access-operator/internal/controller/console"
 	"github.com/openshift-storage-scale/openshift-fusion-access-operator/internal/controller/localvolumediscovery"
-	"github.com/openshift-storage-scale/openshift-fusion-access-operator/internal/controller/machineconfig"
 	"github.com/openshift-storage-scale/openshift-fusion-access-operator/internal/utils"
 )
 
@@ -290,19 +289,6 @@ func (r *FusionAccessReconciler) Reconcile(
 	// 		return ctrl.Result{}, err
 	// 	}
 	// }
-
-	// Create machineconfig to enable kernel modules if needed
-	if fusionaccess.Spec.MachineConfig.Create {
-		mc := machineconfig.NewMachineConfig(fusionaccess.Spec.MachineConfig.Labels)
-		err = machineconfig.CreateOrUpdateMachineConfig(ctx, mc, r.Client)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
-		err = machineconfig.WaitForMachineConfigPoolUpdated(ctx, r.dynamicClient, "worker")
-		if err != nil {
-			return ctrl.Result{}, err
-		}
-	}
 
 	// Load and install manifests from ibm
 	install_path, err := getInstallPath(string(fusionaccess.Spec.IbmCnsaVersion))
