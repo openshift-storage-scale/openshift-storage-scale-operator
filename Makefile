@@ -3,13 +3,13 @@
 # To re-generate a bundle for another specific version without changing the standard setup, you can:
 # - use the VERSION as arg of the bundle target (e.g make bundle VERSION=0.0.2)
 # - use environment variables to overwrite this value (e.g export VERSION=0.0.2)
-export VERSION = $(shell cat VERSION.txt)
+export VERSION ?= $(shell cat VERSION.txt)
 
 
 OPERATOR_DOCKERFILE ?= Dockerfile
 DEVICEFINDER_DOCKERFILE ?= devicefinder.Dockerfile
 MUST_GATHER_DOCKERFILE ?= must-gather.Dockerfile
-CONSOLE_PLUGIN_DOCKERFILE ?= console/docker/Dockerfile
+CONSOLE_PLUGIN_DOCKERFILE ?= console-plugin.Dockerfile
 
 # Version of yaml file to generate rbacs from
 RBAC_VERSION ?= v5.2.2.0
@@ -216,7 +216,6 @@ generate-dockefile-must-gather:
 # Generate Dockerfile using the template. It uses envsubst to replace the value of the version label in the container
 .PHONY: generate-dockerfile-console-plugin
 generate-dockerfile-console-plugin:
-	echo $(VERSION)
 	envsubst < templates/console-plugin.Dockerfile.template > $(CONSOLE_PLUGIN_DOCKERFILE)
 
 
