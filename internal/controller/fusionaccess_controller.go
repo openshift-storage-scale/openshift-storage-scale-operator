@@ -28,7 +28,6 @@ import (
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -395,27 +394,6 @@ func (r *FusionAccessReconciler) Reconcile(
 		if err := localvolumediscovery.CreateOrUpdateLocalVolumeDiscovery(ctx, lvd, r.Client); err != nil {
 			return ctrl.Result{}, err
 		}
-	}
-	if fusionaccess.Spec.Cluster.Create {
-		// Create IBM storage cluster
-		cluster := NewSpectrumCluster(fusionaccess.Spec.Cluster.Daemon_nodeSelector)
-		gvr := schema.GroupVersionResource{
-			Group:    "scale.spectrum.ibm.com",
-			Version:  "v1beta1",
-			Resource: "clusters",
-		}
-		log.Log.Info("Creating cluster")
-
-		_, err = r.dynamicClient.Resource(gvr).Get(ctx, cluster.GetName(), metav1.GetOptions{})
-		if err != nil {
-			if kerrors.IsNotFound(err) {
-				// Resource does not exist, create it
-				err = r.Create(ctx, cluster)
-				log.Log.Info("Created cluster")
-			}
-			return ctrl.Result{}, err
-		}
-		log.Log.Info("Cluster aleardy exists, considering immutable")
 	}
 	return ctrl.Result{}, nil
 }

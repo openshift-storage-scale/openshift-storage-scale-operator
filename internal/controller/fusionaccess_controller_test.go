@@ -88,12 +88,6 @@ var _ = Describe("FusionAccess Controller", func() {
 						// 	"machineconfiguration.openshift.io/role": "worker",
 						// },
 					},
-					Cluster: fusionv1alpha.IBMSpectrumCluster{
-						// Create: false,
-						// Daemon_nodeSelector: map[string]string{
-						// 	"node-role.kubernetes.io/worker": "",
-						// },
-					},
 					LocalVolumeDiscovery: fusionv1alpha.StorageDeviceDiscovery{
 						// Create: false,
 					},
