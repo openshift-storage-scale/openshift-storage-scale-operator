@@ -27,10 +27,6 @@ type CNSAVersions string
 
 // FusionAccessSpec defines the desired state of FusionAccess
 type FusionAccessSpec struct {
-	// MachineConfig labeling for the installation of kernel-devel package
-	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=1
-	MachineConfig MachineConfig `json:"mco_config,omitempty"`
-
 	// NOTE(bandini): If you change anything in the following three lines you need to update
 	// ./scripts/update-cnsa-versions-metadata.sh
 
@@ -44,16 +40,6 @@ type FusionAccessSpec struct {
 type StorageDeviceDiscovery struct {
 	// +kubebuilder:default:=true
 	Create bool `json:"create,omitempty"`
-}
-
-type MachineConfig struct {
-	// Boolean to create the MachinConfig objects
-	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=4,xDescriptors={"urn:alm:descriptor:com.tectonic.ui:booleanSwitch"}
-	// +kubebuilder:default:=true
-	Create bool `json:"create,omitempty"`
-	// Labels to be used for the machineconfigpool
-	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=5,xDescriptors={"urn:alm:descriptor:com.tectonic.ui:fieldDependency:mco_config.create:true"}
-	Labels map[string]string `json:"labels,omitempty"`
 }
 
 // FusionAccessStatus defines the observed state of FusionAccess

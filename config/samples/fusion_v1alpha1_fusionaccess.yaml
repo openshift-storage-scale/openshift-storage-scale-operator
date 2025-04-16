@@ -4,7 +4,3 @@ metadata:
   name: fusionaccess-sample
 spec:
   ibm_cnsa_version: "v5.2.3.0.rc1"
-  mco_config:
-    create: true
-    labels:
-      machineconfiguration.openshift.io/role: "worker"

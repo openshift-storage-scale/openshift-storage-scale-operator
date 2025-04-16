@@ -14,7 +14,7 @@ metadata:
     features.operators.openshift.io/token-auth-aws: "false"
     features.operators.openshift.io/token-auth-azure: "false"
     features.operators.openshift.io/token-auth-gcp: "false"
-    operatorframework.io/initialization-resource: '{"apiVersion":"fusion.storage.openshift.io/v1alpha1","kind":"FusionAccess","metadata":{"name":"fusionaccess-sample"},"spec":{"ibm_cnsa_version":"v5.2.3.0.rc1","mco_config":{"create":true,"labels":{"machineconfiguration.openshift.io/role":"worker"}}}}'
+    operatorframework.io/initialization-resource: '{"apiVersion":"fusion.storage.openshift.io/v1alpha1","kind":"FusionAccess","metadata":{"name":"fusionaccess-sample"},"spec":{"ibm_cnsa_version":"v5.2.3.0.rc1"}}'
     operatorframework.io/suggested-namespace: openshift-fusion-access
     operators.openshift.io/infrastructure-features: '["disconnected"]'
     operators.openshift.io/valid-subscription: '["Openshift Container Platform","OpenShift
@@ -31,26 +31,13 @@ spec:
       kind: FusionAccess
       name: fusionaccesses.fusion.storage.openshift.io
       specDescriptors:
-      - description: MachineConfig labeling for the installation of kernel-devel package
-        displayName: Machine Config
-        path: mco_config
       - description: Version of IBMs installation manifests found at https://github.com/IBM/ibm-spectrum-scale-container-native
         displayName: Ibm Cnsa Version
         path: ibm_cnsa_version
-      - description: Boolean to create the MachinConfig objects
-        displayName: Create
-        path: mco_config.create
-        x-descriptors:
-        - urn:alm:descriptor:com.tectonic.ui:booleanSwitch
       - description: Inherited from LVSet to provide control over node selector and
           device filtering capabilities
         displayName: Node Spec
         path: node_spec
-      - description: Labels to be used for the machineconfigpool
-        displayName: Labels
-        path: mco_config.labels
-        x-descriptors:
-        - urn:alm:descriptor:com.tectonic.ui:fieldDependency:mco_config.create:true
       version: v1alpha1
   description: Fusion Access Setup
   displayName: Fusion Access for SAN
