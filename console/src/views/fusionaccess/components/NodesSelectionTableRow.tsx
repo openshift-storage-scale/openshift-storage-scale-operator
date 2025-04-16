@@ -4,9 +4,9 @@ import {
 } from "@openshift-console/dynamic-plugin-sdk";
 import { Checkbox } from "@patternfly/react-core";
 import type { IoK8sApiCoreV1Node } from "@/models/kubernetes/1.30/types";
-import {} from "@/selectors/kubernetes/1.30/IoK8sApiCoreV1Node";
 import { useNodeSelectionState } from "../hooks/useNodeSelectionState";
 import type { NodesSelectionTableRowDataProps } from "./NodesSelectionSection";
+import { useNodeSharedDisksCount } from "../hooks/useNodeSharedDisksCount";
 
 type NodesSelectionTableRowProps = RowProps<
   IoK8sApiCoreV1Node,
@@ -16,7 +16,7 @@ export const NodesSelectionTableRow: React.FC<NodesSelectionTableRowProps> = (
   props
 ) => {
   const { obj, activeColumnIDs, rowData } = props;
-  const { nodeSharedDisksCounts } = rowData;
+  const { disksDiscoveryResults, selectedNodes } = rowData;
 
   const {
     uid,
@@ -27,6 +27,15 @@ export const NodesSelectionTableRow: React.FC<NodesSelectionTableRowProps> = (
     isSelected,
     handleNodeSelectionChange,
   } = useNodeSelectionState(obj);
+  const totalDisksCount = disksDiscoveryResults.find(
+    (result) => result.spec.nodeName === name
+  )?.status.discoveredDevices?.length;
+  const sharedDisksCount = useNodeSharedDisksCount(
+    name,
+    isSelected,
+    selectedNodes,
+    disksDiscoveryResults
+  );
 
   return (
     <>
@@ -53,8 +62,8 @@ export const NodesSelectionTableRow: React.FC<NodesSelectionTableRowProps> = (
       <TableData activeColumnIDs={activeColumnIDs} id="memory">
         {memory}
       </TableData>
-      <TableData activeColumnIDs={activeColumnIDs} id="shared-disks">
-        {nodeSharedDisksCounts.get(name)}
+      <TableData activeColumnIDs={activeColumnIDs} id="disks">
+        {sharedDisksCount} shared / {totalDisksCount} total
       </TableData>
     </>
   );
