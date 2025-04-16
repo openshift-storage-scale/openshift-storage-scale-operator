@@ -21,7 +21,7 @@ BRIDGE_I18N_NAMESPACES="plugin__${PLUGIN_NAME}"
 BRIDGE_USER_AUTH="disabled"
 BRIDGE_USER_SETTINGS_LOCATION="localstorage"
 BRIDGE_K8S_MODE="off-cluster"
-BRIDGE_K8S_AUTH_BEARER_TOKEN=$(oc whoami --show-token 2>/dev/null)
+BRIDGE_K8S_AUTH_BEARER_TOKEN="${OC_DEV_TOKEN:-$(oc whoami --show-token 2>/dev/null)}"
 BRIDGE_K8S_MODE_OFF_CLUSTER_ENDPOINT=$(oc whoami --show-server)
 BRIDGE_K8S_MODE_OFF_CLUSTER_SKIP_VERIFY_TLS=true
 # The monitoring operator is not always installed (e.g. for local OpenShift). Tolerate missing config maps.
