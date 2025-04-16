@@ -1,3 +1,4 @@
+
 ARG TARGETARCH=amd64
 
 FROM --platform=linux/$TARGETARCH brew.registry.redhat.io/rh-osbs/openshift-golang-builder:v1.23 AS builder
@@ -26,7 +27,7 @@ RUN mkdir licenses
 COPY LICENSE licenses/
 
 # Build
-RUN --mount=type=secret,id=pull hack/build.sh
+RUN --mount=type=secret,id=pull export SECRET_NAME=${SECRET_NAME}; hack/build.sh
 
 # UBI is larger (158Mb vs. 56Mb) but approved by RH
 FROM registry.access.redhat.com/ubi9/ubi-minimal:latest
@@ -35,6 +36,10 @@ COPY --from=builder /workspace/files/ /files/
 COPY --from=builder /workspace/manager .
 COPY --from=builder /workspace/licenses/ /licenses/
 USER 65532:65532
+
+ARG VERSION=1.0
+
+
 
 ENTRYPOINT ["/manager"]
 
@@ -47,8 +52,8 @@ LABEL \
     distribution-scope="public" \
     name="openshift-fusion-access-controller" \
     summary="Controller" \
-    release="v1.0" \
-    version="v1.0" \
+    release="v${VERSION}" \
+    version="v${VERSION}" \
     maintainer="Red Hat jgil@redhat.com" \
     url="https://github.com/openshift-storage-scale/openshift-fusion-access-operator.git" \
     vendor="Red Hat, Inc." \

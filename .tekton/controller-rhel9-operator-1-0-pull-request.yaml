@@ -33,7 +33,7 @@ spec:
   - name: image-expires-after
     value: 5d
   - name: dockerfile
-    value: Dockerfile
+    value: operator.Dockerfile
   pipelineSpec:
     description: |
       This pipeline is ideal for building container images from a Containerfile while maintaining trust after pipeline customization.
@@ -171,18 +171,43 @@ spec:
       workspaces:
       - name: basic-auth
         workspace: git-auth
+    - name: generate-dockerfile
+      params:
+      - name: HERMETIC
+        value: $(params.hermetic)
+      - name: SCRIPT
+        value: export SECRET_NAME=external-registry-pull-secret && scripts/generate-konflux-dockerfile.sh operator
+      - name: ociStorage
+        value: $(params.output-image).prefetch
+      - name: ociArtifactExpiresAfter
+        value: $(params.image-expires-after)
+      - name: SOURCE_ARTIFACT
+        value: $(tasks.clone-repository.results.SOURCE_ARTIFACT)
+      - name: SCRIPT_RUNNER_IMAGE
+        value: quay.io/konflux-ci/operator-sdk-builder:latest
+      runAfter:
+      - clone-repository
+      taskRef:
+        params:
+        - name: name
+          value: run-script-oci-ta
+        - name: bundle
+          value: quay.io/konflux-ci/tekton-catalog/task-run-script-oci-ta:0.1@sha256:c0f627069353ebd6d1ed03c8657e281eaf11be63706ea38cc53caf16cf4ffd65
+        - name: kind
+          value: task
+        resolver: bundles
     - name: prefetch-dependencies
       params:
       - name: input
         value: $(params.prefetch-input)
       - name: SOURCE_ARTIFACT
-        value: $(tasks.clone-repository.results.SOURCE_ARTIFACT)
+        value: $(tasks.generate-dockerfile.results.SCRIPT_ARTIFACT)
       - name: ociStorage
         value: $(params.output-image).prefetch
       - name: ociArtifactExpiresAfter
         value: $(params.image-expires-after)
       runAfter:
-      - clone-repository
+      - generate-dockerfile
       taskRef:
         params:
         - name: name
@@ -441,7 +466,7 @@ spec:
         - name: name
           value: sast-coverity-check-oci-ta
         - name: bundle
-          value: quay.io/konflux-ci/tekton-catalog/task-sast-coverity-check-oci-ta:0.2@sha256:07cb09253da53235f83d1a2327faebb8505091c509fc1e3af12a43cfe34f63a6
+          value: quay.io/konflux-ci/tekton-catalog/task-sast-coverity-check-oci-ta:0.2@sha256:8eb97a206debc398e4ffc58a112b04be32cfa59447e6ea9d650b29de858f96a2
         - name: kind
           value: task
         resolver: bundles

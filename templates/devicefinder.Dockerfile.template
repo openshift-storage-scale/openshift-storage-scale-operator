@@ -10,6 +10,8 @@ RUN make build-devicefinder
 # Change this once ubi10 moves out of beta
 FROM registry.redhat.io/ubi10-beta/ubi:latest
 
+ARG VERSION=1.0
+
 COPY --from=builder /workspace/_output/bin/devicefinder /usr/bin/
 
 ENTRYPOINT ["/usr/bin/devicefinder"]
@@ -23,8 +25,8 @@ LABEL \
     distribution-scope="public" \
     name="openshift-fusion-access-devicefinder" \
     summary="Device Finder" \
-    release="v1.0" \
-    version="v1.0" \
+    release="v${VERSION}" \
+    version="v${VERSION}" \
     maintainer="Red Hat jgil@redhat.com" \
     url="https://github.com/openshift-storage-scale/openshift-fusion-access-operator.git" \
     vendor="Red Hat, Inc." \
