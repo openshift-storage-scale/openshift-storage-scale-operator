@@ -11,7 +11,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 )
 
-const FUSIONPULLSECRETNAME = "fusion-pullsecret"
+const FUSIONPULLSECRETNAME = "fusion-pullsecret" //nolint:gosec
 const IBMENTITLEMENTNAME = "ibm-entitlement-key"
 
 func IbmEntitlementSecrets() []string {
@@ -57,7 +57,7 @@ func getPullSecretContent(name, namespace string, ctx context.Context, full kube
 func updateEntitlementPullSecrets(secret []byte, ctx context.Context, full kubernetes.Interface) error {
 	// Create secrets in IBM namespaces to pull images from quay
 	secretData := map[string][]byte{
-		".dockerconfigjson": []byte(secret),
+		".dockerconfigjson": secret,
 	}
 
 	destSecretName := IBMENTITLEMENTNAME //nolint:gosec
