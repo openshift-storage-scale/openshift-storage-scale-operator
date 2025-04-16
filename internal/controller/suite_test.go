@@ -24,13 +24,10 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-
 	configv1 "github.com/openshift/api/config/v1"
 	consolev1 "github.com/openshift/api/console/v1"
-	machineconfigv1 "github.com/openshift/api/machineconfiguration/v1"
 	operatorv1 "github.com/openshift/api/operator/v1"
 	corev1 "k8s.io/api/core/v1"
-
 	kruntime "k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
@@ -40,7 +37,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
 	fusionv1alpha "github.com/openshift-storage-scale/openshift-fusion-access-operator/api/v1alpha1"
-	//+kubebuilder:scaffold:imports
 )
 
 // These tests use Ginkgo (BDD-style Go testing framework). Refer to
@@ -99,7 +95,6 @@ var _ = AfterSuite(func() {
 func createFakeScheme() *kruntime.Scheme {
 	s := scheme.Scheme
 	builder := append(kruntime.SchemeBuilder{},
-		machineconfigv1.AddToScheme,
 		fusionv1alpha.AddToScheme,
 		corev1.AddToScheme,
 		configv1.AddToScheme,

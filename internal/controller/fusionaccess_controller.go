@@ -58,9 +58,6 @@ type FusionAccessReconciler struct {
 //+kubebuilder:rbac:groups=fusion.storage.openshift.io,resources=fusionaccesses/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=fusion.storage.openshift.io,resources=fusionaccesses/finalizers,verbs=update
 
-// Operator needs to create some machine configs
-//+kubebuilder:rbac:groups=machineconfiguration.openshift.io,resources=machineconfigs,verbs=get;list;watch;create;update;patch;delete
-
 // Below rules are inserted via `make rbac-generate` automatically
 // IBM_RBAC_MARKER_START
 //+kubebuilder:rbac:groups=admissionregistration.k8s.io,resources=mutatingwebhookconfigurations,verbs=list;watch;delete;update;get;create;patch
