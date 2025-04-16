@@ -22,7 +22,7 @@ import (
 
 // NOTE(bandini): If you change anything in the following two lines you need to update
 // ./scripts/update-cnsa-versions-metadata.sh
-// +kubebuilder:validation:Enum=v5.2.1.1;v5.2.2.0;v5.2.2.1;v5.2.3.0.rc1
+// +kubebuilder:validation:Enum=v5.2.2.1;v5.2.3.0.rc1
 type CNSAVersions string
 
 // FusionAccessSpec defines the desired state of FusionAccess
@@ -35,7 +35,7 @@ type FusionAccessSpec struct {
 	// ./scripts/update-cnsa-versions-metadata.sh
 
 	// Version of IBMs installation manifests found at https://github.com/IBM/ibm-spectrum-scale-container-native
-	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=2,xDescriptors={"urn:alm:descriptor:com.tectonic.ui:select:v5.2.1.1","urn:alm:descriptor:com.tectonic.ui:select:v5.2.2.0","urn:alm:descriptor:com.tectonic.ui:select:v5.2.2.1","urn:alm:descriptor:com.tectonic.ui:select:v5.2.3.0.rc1"}
+	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=2,xDescriptors={"urn:alm:descriptor:com.tectonic.ui:select:v5.2.2.1","urn:alm:descriptor:com.tectonic.ui:select:v5.2.3.0.rc1"}
 	IbmCnsaVersion CNSAVersions `json:"ibm_cnsa_version,omitempty"`
 
 	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=3
