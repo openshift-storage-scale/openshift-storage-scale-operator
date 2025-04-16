@@ -208,11 +208,10 @@ docker-push: ## Push docker image with the manager.
 
 .PHONY: console-build
 console-build: ## Build the console image
-	$(MAKE) -C console VERSION=$(VERSION) IMG=$(CONSOLE_PLUGIN_IMAGE) docker-build
-
+	$(CONTAINER_TOOL) build -f $(CURPATH)/console/docker/Dockerfile -t ${CONSOLE_PLUGIN_IMAGE} .
 .PHONY: console-push
 console-push: ## Push the console image
-	$(MAKE) -C console VERSION=$(VERSION) IMG=$(CONSOLE_PLUGIN_IMAGE) docker-push
+	$(CONTAINER_TOOL) push $(CONSOLE_PLUGIN_IMAGE)
 
 .PHONY: devicefinder-docker-build
 devicefinder-docker-build: ## Build docker image of the devicefinder
