@@ -8,30 +8,27 @@ script_path="$(realpath "$script_name")"
 script_dir_path="$(dirname "$script_path")"
 project_dir_path="$(dirname "$script_dir_path")"
 
-# TODO(jkilzi): This one brings PFv6
-# CONSOLE_IMAGE=${CONSOLE_IMAGE:="quay.io/openshift/origin-console:latest"}
-CONSOLE_IMAGE=${CONSOLE_IMAGE:="quay.io/openshift/origin-console@sha256:2606f1b316d7d74ae8f7b1b9162a73f6967ae65ad8214d6127b82b98a07254df"}
+PLUGIN_NAME="$(jq -r '.name' "$project_dir_path/package.json")"
+
+CONSOLE_VERSION=${CONSOLE_VERSION:="latest"}
+CONSOLE_IMAGE=${CONSOLE_IMAGE:="quay.io/openshift/origin-console:$CONSOLE_VERSION"}
 CONSOLE_PORT=${CONSOLE_PORT:=9000}
 CONSOLE_IMAGE_PLATFORM=${CONSOLE_IMAGE_PLATFORM:="linux/amd64"}
 
-# Plugin metadata is declared in package.json
-PLUGIN_NAME="$(jq -r '.consolePlugin.name' "$project_dir_path/package.json")"
+echo "Starting local OpenShift console v${CONSOLE_VERSION}..."
 
-echo "Starting local OpenShift console..."
-
+BRIDGE_I18N_NAMESPACES="plugin__${PLUGIN_NAME}"
 BRIDGE_USER_AUTH="disabled"
+BRIDGE_USER_SETTINGS_LOCATION="localstorage"
 BRIDGE_K8S_MODE="off-cluster"
-BRIDGE_K8S_AUTH="bearer-token"
-BRIDGE_K8S_MODE_OFF_CLUSTER_SKIP_VERIFY_TLS=true
+BRIDGE_K8S_AUTH_BEARER_TOKEN="${OC_DEV_TOKEN:-$(oc whoami --show-token 2>/dev/null)}"
 BRIDGE_K8S_MODE_OFF_CLUSTER_ENDPOINT=$(oc whoami --show-server)
+BRIDGE_K8S_MODE_OFF_CLUSTER_SKIP_VERIFY_TLS=true
 # The monitoring operator is not always installed (e.g. for local OpenShift). Tolerate missing config maps.
 set +e
 BRIDGE_K8S_MODE_OFF_CLUSTER_THANOS=$(oc -n openshift-config-managed get configmap monitoring-shared-config -o jsonpath='{.data.thanosPublicURL}' 2>/dev/null)
 BRIDGE_K8S_MODE_OFF_CLUSTER_ALERTMANAGER=$(oc -n openshift-config-managed get configmap monitoring-shared-config -o jsonpath='{.data.alertmanagerPublicURL}' 2>/dev/null)
 set -e
-BRIDGE_K8S_AUTH_BEARER_TOKEN=$(oc whoami --show-token 2>/dev/null)
-BRIDGE_USER_SETTINGS_LOCATION="localstorage"
-BRIDGE_I18N_NAMESPACES="plugin__${PLUGIN_NAME}"
 
 # Don't fail if the cluster doesn't have gitops.
 set +e
@@ -47,16 +44,29 @@ echo "Console URL: http://localhost:${CONSOLE_PORT}"
 echo "Console Platform: $CONSOLE_IMAGE_PLATFORM"
 
 # Prefer podman if installed. Otherwise, fall back to docker.
+function pocker {
+    $(command -v podman || command -v docker) "$@"
+}
+
+pocker_args=(
+    --rm
+    --pull=always
+    --platform="$CONSOLE_IMAGE_PLATFORM"
+    --name="console-$CONSOLE_VERSION"
+)
+
 if [ -x "$(command -v podman)" ]; then
     if [ "$(uname -s)" = "Linux" ]; then
         # Use host networking on Linux since host.containers.internal is unreachable in some environments.
         BRIDGE_PLUGINS="${PLUGIN_NAME}=http://localhost:9001"
-        podman run --pull always --platform $CONSOLE_IMAGE_PLATFORM --rm --network=host --env-file <(set | grep BRIDGE) $CONSOLE_IMAGE
+        pocker_args+=(--network=host)
     else
         BRIDGE_PLUGINS="${PLUGIN_NAME}=http://host.containers.internal:9001"
-        podman run --pull always --platform $CONSOLE_IMAGE_PLATFORM --rm -p "$CONSOLE_PORT":9000 --env-file <(set | grep BRIDGE) $CONSOLE_IMAGE
+        pocker_args+=(-p="$CONSOLE_PORT:9000")
     fi
 else
     BRIDGE_PLUGINS="${PLUGIN_NAME}=http://host.docker.internal:9001"
-    docker run --pull always --platform $CONSOLE_IMAGE_PLATFORM --rm -p "$CONSOLE_PORT":9000 --env-file <(set | grep BRIDGE) $CONSOLE_IMAGE
+    pocker_args+=(-p="$CONSOLE_PORT:9000")
 fi
+
+pocker run "${pocker_args[@]}" --env-file=<(set | grep BRIDGE) $CONSOLE_IMAGE
