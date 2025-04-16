@@ -38,9 +38,6 @@ type FusionAccessSpec struct {
 	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=2,xDescriptors={"urn:alm:descriptor:com.tectonic.ui:select:v5.2.2.1","urn:alm:descriptor:com.tectonic.ui:select:v5.2.3.0.rc1"}
 	IbmCnsaVersion CNSAVersions `json:"ibm_cnsa_version,omitempty"`
 
-	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=3
-	Cluster IBMSpectrumCluster `json:"ibm_cnsa_cluster,omitempty"`
-
 	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=4
 	LocalVolumeDiscovery StorageDeviceDiscovery `json:"storagedevicediscovery,omitempty"`
 }
@@ -57,16 +54,6 @@ type MachineConfig struct {
 	// Labels to be used for the machineconfigpool
 	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=5,xDescriptors={"urn:alm:descriptor:com.tectonic.ui:fieldDependency:mco_config.create:true"}
 	Labels map[string]string `json:"labels,omitempty"`
-}
-
-type IBMSpectrumCluster struct {
-	// Boolean to create the CNSA cluster object
-	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=6,xDescriptors={"urn:alm:descriptor:com.tectonic.ui:booleanSwitch"}
-	// +kubebuilder:default:=true
-	Create bool `json:"create,omitempty"`
-	// Nodes with this label will be part of the cluster, must have at least 3 nodes with this
-	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=7,xDescriptors={"urn:alm:descriptor:com.tectonic.ui:fieldDependency:ibm_cnsa_cluster.create:true"}
-	Daemon_nodeSelector map[string]string `json:"daemon_nodeSelector,omitempty"`
 }
 
 // FusionAccessStatus defines the observed state of FusionAccess

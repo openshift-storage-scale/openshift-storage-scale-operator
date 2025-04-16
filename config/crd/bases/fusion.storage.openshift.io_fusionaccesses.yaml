@@ -39,19 +39,6 @@ spec:
           spec:
             description: FusionAccessSpec defines the desired state of FusionAccess
             properties:
-              ibm_cnsa_cluster:
-                properties:
-                  create:
-                    default: true
-                    description: Boolean to create the CNSA cluster object
-                    type: boolean
-                  daemon_nodeSelector:
-                    additionalProperties:
-                      type: string
-                    description: Nodes with this label will be part of the cluster,
-                      must have at least 3 nodes with this
-                    type: object
-                type: object
               ibm_cnsa_version:
                 description: Version of IBMs installation manifests found at https://github.com/IBM/ibm-spectrum-scale-container-native
                 enum:

@@ -8,7 +8,3 @@ spec:
     create: true
     labels:
       machineconfiguration.openshift.io/role: "worker"
-  ibm_cnsa_cluster:
-    create: true
-    daemon_nodeSelector:
-      node-role.kubernetes.io/worker: "" # nodes with this label will be part of the cluster, must have at least 3 nodes with this
