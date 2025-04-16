@@ -14,6 +14,7 @@ import (
 var _ = Describe("Device Discovery", func() {
 	var (
 		deviceList7Disk           diskutils.BlockDeviceList
+		deviceList0Disk           diskutils.BlockDeviceList
 		deviceList2Disk2MultiPath diskutils.BlockDeviceList
 		deviceList0Disk0MultiPath diskutils.BlockDeviceList
 	)
@@ -28,6 +29,12 @@ var _ = Describe("Device Discovery", func() {
 			Expect(err).To(Not(HaveOccurred()))
 
 			LsblkOut7Disk, err := os.ReadFile("../../../test/data/7-available-disk.json")
+			Expect(err).To(Not(HaveOccurred()))
+
+			LsblkOut0Disk, err := os.ReadFile("../../../test/data/0-available-disk.json")
+			Expect(err).To(Not(HaveOccurred()))
+
+			err = json.Unmarshal(LsblkOut0Disk, &deviceList0Disk)
 			Expect(err).To(Not(HaveOccurred()))
 
 			err = json.Unmarshal(LsblkOut7Disk, &deviceList7Disk)
@@ -133,5 +140,11 @@ var _ = Describe("Device Discovery", func() {
 				},
 			))
 		})
+
+		It("should have the correct number of discovered disks (input data 4)", func() {
+			discoveredDisks := getDiscoverdDevices(deviceList0Disk.BlockDevices)
+			Expect(discoveredDisks).To(BeEmpty())
+		})
+
 	})
 })

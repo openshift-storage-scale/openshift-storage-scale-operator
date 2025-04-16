@@ -261,6 +261,16 @@ func ignoreDevices(dev *diskutils.BlockDevice) bool {
 		return true
 	}
 
+	if dev.Size == 0 {
+		klog.Infof("ignoring device %q with 0 size", dev.Name)
+		return true
+	}
+
+	if dev.WWN == "" {
+		klog.Infof("ignoring device %q without WWN", dev.Name)
+		return true
+	}
+
 	if dev.FSType != "" && dev.FSType != "mpath_member" {
 		klog.Infof("ignoring device %q with FS", dev.FSType)
 		return true
