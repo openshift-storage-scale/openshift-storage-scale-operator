@@ -21,12 +21,10 @@ import (
 	"fmt"
 	"os"
 	"path"
-	"strings"
 
 	mfc "github.com/manifestival/controller-runtime-client"
 	"github.com/manifestival/manifestival"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
@@ -286,7 +284,10 @@ func (r *FusionAccessReconciler) Reconcile(
 	// 		return ctrl.Result{}, err
 	// 	}
 	// }
-
+	ns, err := utils.GetDeploymentNamespace()
+	if err != nil {
+		return ctrl.Result{}, err
+	}
 	// Load and install manifests from ibm
 	install_path, err := getInstallPath(string(fusionaccess.Spec.IbmCnsaVersion))
 	if err != nil {
@@ -308,55 +309,22 @@ func (r *FusionAccessReconciler) Reconcile(
 	}
 	log.Log.Info(fmt.Sprintf("Applied manifest from %s", install_path))
 
-	secretstring := strings.TrimSpace(pull)
-	// Create secrets in IBM namespaces to pull images from quay
-	secretData := map[string][]byte{
-		".dockerconfigjson": []byte(secretstring),
+	// We try and create the entitlement secrets only if we found the "fusion-pullsecret" in our namespace
+	// If we don't find it, we don't create the entitlement secrets and we keep going as a user might be
+	// patching the global pull secret
+	secret, err := getPullSecretContent(FUSIONPULLSECRETNAME, ns, ctx, r.fullClient)
+	if err != nil {
+		log.Log.Info("Pull secret not found, skipping entitlement secret creation")
+	} else {
+		// Create entitlement secrets
+		err = updateEntitlementPullSecrets(secret, ctx, r.fullClient)
+		if err != nil {
+			log.Log.Error(err, "Error creating entitlement secrets")
+			return reconcile.Result{}, err
+		}
+		log.Log.Info("Entitlement secrets created")
 	}
 
-	destSecretName := "ibm-entitlement-key" //nolint:gosec
-	destNamespaces := []string{
-		"ibm-spectrum-scale",
-		"ibm-spectrum-scale-dns",
-		"ibm-spectrum-scale-csi",
-		"ibm-spectrum-scale-operator",
-	}
-	for _, destNamespace := range destNamespaces {
-		ibmPullSecret := newSecret(
-			destSecretName,
-			destNamespace,
-			secretData,
-			"kubernetes.io/dockerconfigjson",
-			nil,
-		)
-		_, err = r.fullClient.CoreV1().
-			Secrets(destNamespace).
-			Get(ctx, destSecretName, metav1.GetOptions{})
-		if err != nil {
-			if kerrors.IsNotFound(err) {
-				// Resource does not exist, create it
-				_, err := r.fullClient.CoreV1().
-					Secrets(destNamespace).
-					Create(context.TODO(), ibmPullSecret, metav1.CreateOptions{})
-				if err != nil {
-					return ctrl.Result{}, err
-				}
-				log.Log.Info(
-					fmt.Sprintf("Created Secret %s in ns %s", destSecretName, destNamespace),
-				)
-				continue
-			}
-			return ctrl.Result{}, err
-		}
-		// The destination secret already exists so we upate it and return an error if they were different so the reconcile loop can restart
-		_, err = r.fullClient.CoreV1().
-			Secrets(destNamespace).
-			Update(context.TODO(), ibmPullSecret, metav1.UpdateOptions{})
-		if err == nil {
-			log.Log.Info(fmt.Sprintf("Updated Secret %s in ns %s", destSecretName, destNamespace))
-			continue
-		}
-	}
 	if err := console.CreateOrUpdatePlugin(ctx, r.Client); err != nil {
 		return ctrl.Result{}, err
 	}
@@ -369,10 +337,7 @@ func (r *FusionAccessReconciler) Reconcile(
 
 	if fusionaccess.Spec.LocalVolumeDiscovery.Create {
 		// Create Device discovery
-		ns, err := utils.GetDeploymentNamespace()
-		if err != nil {
-			return ctrl.Result{}, err
-		}
+
 		lvd := localvolumediscovery.NewLocalVolumeDiscovery(ns)
 		if err := localvolumediscovery.CreateOrUpdateLocalVolumeDiscovery(ctx, lvd, r.Client); err != nil {
 			return ctrl.Result{}, err
