@@ -1,4 +1,4 @@
-import { K8sModelDecorator } from "../extensions/K8sModelDecorator";
+import { K8sModelDecorator } from "../console/K8sModelDecorator";
 
 export const LocalVolumeDiscoveryResultModel = new K8sModelDecorator({
   abbr: "LVDR",
