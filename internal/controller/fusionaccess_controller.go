@@ -17,6 +17,7 @@ limitations under the License.
 package controller
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"os"
@@ -24,14 +25,19 @@ import (
 
 	mfc "github.com/manifestival/controller-runtime-client"
 	"github.com/manifestival/manifestival"
+	corev1 "k8s.io/api/core/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/event"
+	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/log"
+	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	fusionv1alpha "github.com/openshift-storage-scale/openshift-fusion-access-operator/api/v1alpha1"
@@ -55,6 +61,8 @@ type FusionAccessReconciler struct {
 //+kubebuilder:rbac:groups=fusion.storage.openshift.io,resources=fusionaccesses,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=fusion.storage.openshift.io,resources=fusionaccesses/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=fusion.storage.openshift.io,resources=fusionaccesses/finalizers,verbs=update
+
+//+kubebuilder:rbac:groups="",namespace=openshift-fusion-access,resources=secrets,verbs=get;list;watch
 
 // Below rules are inserted via `make rbac-generate` automatically
 // IBM_RBAC_MARKER_START
@@ -314,7 +322,9 @@ func (r *FusionAccessReconciler) Reconcile(
 	// patching the global pull secret
 	secret, err := getPullSecretContent(FUSIONPULLSECRETNAME, ns, ctx, r.fullClient)
 	if err != nil {
-		log.Log.Info("Pull secret not found, skipping entitlement secret creation")
+		log.Log.Info(
+			"Pull secret not found, skipping entitlement secret creation, we will watch this secret",
+		)
 	} else {
 		// Create entitlement secrets
 		err = updateEntitlementPullSecrets(secret, ctx, r.fullClient)
@@ -379,7 +389,94 @@ func (r *FusionAccessReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	}
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&fusionv1alpha.FusionAccess{}).
+		Watches(
+			&corev1.Secret{},
+			handler.EnqueueRequestsFromMapFunc(r.getPullSecretSelector),
+			isItOurPullSecret(),
+		).
 		Complete(r)
+}
+
+func (r *FusionAccessReconciler) getPullSecretSelector(
+	ctx context.Context,
+	obj client.Object,
+) []reconcile.Request {
+	ns, err := utils.GetDeploymentNamespace()
+	if err != nil {
+		return []reconcile.Request{}
+	}
+	if _, err := getPullSecretContent(FUSIONPULLSECRETNAME, ns, ctx, r.fullClient); err != nil {
+		// The secret in the namespace is not there yet
+		return []reconcile.Request{}
+	}
+	fusionAccessList := &fusionv1alpha.FusionAccessList{}
+	if err := r.Client.List(ctx, fusionAccessList, client.InNamespace(ns)); err != nil {
+		return nil
+	}
+	// We enforce a single fusionAccess instance via webhooks
+	req := reconcile.Request{
+		NamespacedName: client.ObjectKeyFromObject(&fusionAccessList.Items[0]),
+	}
+	log.Log.Info("Enqueueing request for", "request", req)
+	return []reconcile.Request{req}
+}
+
+// isItOurPullSecret returns true for Create or changed Update events
+func isItOurPullSecret() builder.WatchesOption {
+	return builder.WithPredicates(predicate.Funcs{
+		CreateFunc: func(e event.CreateEvent) bool {
+			ns, err := utils.GetDeploymentNamespace()
+			if err != nil {
+				return false
+			}
+			newSecret, ok := e.Object.DeepCopyObject().(*corev1.Secret)
+			if !ok {
+				return false
+			}
+			return checkPullSecret(newSecret, ns)
+		},
+		UpdateFunc: func(e event.UpdateEvent) bool {
+			ns, err := utils.GetDeploymentNamespace()
+			if err != nil {
+				return false
+			}
+			newSecret, ok := e.ObjectNew.DeepCopyObject().(*corev1.Secret)
+			if !ok {
+				return false
+			}
+			oldSecret, ok := e.ObjectOld.DeepCopyObject().(*corev1.Secret)
+			if !ok {
+				return true
+			}
+			if !checkPullSecret(newSecret, ns) {
+				return false
+			}
+			return !bytes.Equal(
+				oldSecret.Data[".dockerconfigjson"],
+				newSecret.Data[".dockerconfigjson"],
+			)
+
+		},
+		DeleteFunc: func(e event.DeleteEvent) bool {
+			return false
+		},
+		GenericFunc: func(e event.GenericEvent) bool {
+			return false
+		},
+	})
+}
+
+func checkPullSecret(secret *corev1.Secret, ns string) bool {
+	if secret.Type != "kubernetes.io/dockerconfigjson" {
+		return false
+	}
+	if secret.Name != FUSIONPULLSECRETNAME {
+		return false
+	}
+	if secret.Namespace != ns {
+		return false
+	}
+	return true
 }
 
 // func (r *FusionAccessReconciler) finalizeFusionAccess(reqLogger logr.Logger, sc *v1alpha1.FusionAccess) error {
