@@ -168,18 +168,43 @@ spec:
       workspaces:
       - name: basic-auth
         workspace: git-auth
+    - name: generate-dockerfile
+      params:
+      - name: HERMETIC
+        value: $(params.hermetic)
+      - name: SCRIPT
+        value: export SECRET_NAME=external-registry-pull-secret && scripts/generate-konflux-dockerfile.sh operator
+      - name: ociStorage
+        value: $(params.output-image).prefetch
+      - name: ociArtifactExpiresAfter
+        value: $(params.image-expires-after)
+      - name: SOURCE_ARTIFACT
+        value: $(tasks.clone-repository.results.SOURCE_ARTIFACT)
+      - name: SCRIPT_RUNNER_IMAGE
+        value: quay.io/konflux-ci/operator-sdk-builder:latest
+      runAfter:
+      - clone-repository
+      taskRef:
+        params:
+        - name: name
+          value: run-script-oci-ta
+        - name: bundle
+          value: quay.io/konflux-ci/tekton-catalog/task-run-script-oci-ta:0.1@sha256:c0f627069353ebd6d1ed03c8657e281eaf11be63706ea38cc53caf16cf4ffd65
+        - name: kind
+          value: task
+        resolver: bundles
     - name: prefetch-dependencies
       params:
       - name: input
         value: $(params.prefetch-input)
       - name: SOURCE_ARTIFACT
-        value: $(tasks.clone-repository.results.SOURCE_ARTIFACT)
+        value: $(tasks.generate-dockerfile.results.SCRIPT_ARTIFACT)
       - name: ociStorage
         value: $(params.output-image).prefetch
       - name: ociArtifactExpiresAfter
         value: $(params.image-expires-after)
       runAfter:
-      - clone-repository
+      - generate-dockerfile
       taskRef:
         params:
         - name: name
