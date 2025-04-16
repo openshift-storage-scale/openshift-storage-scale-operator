@@ -40,4 +40,4 @@ must-gather.local.*/
 build/*
 bundle/*
 
-*Dockerfile
+*.Dockerfile
