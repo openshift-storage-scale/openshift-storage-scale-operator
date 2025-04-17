@@ -235,7 +235,7 @@ docker-push: ## Push docker image with the manager.
 
 .PHONY: console-build
 console-build: generate-dockerfile-console-plugin ## Build the console image
-	$(CONTAINER_TOOL) build -f $(CURPATH)/console/docker/Dockerfile -t ${CONSOLE_PLUGIN_IMAGE} .
+	$(CONTAINER_TOOL) build -f $(CURPATH)/$(CONSOLE_PLUGIN_DOCKERFILE) -t ${CONSOLE_PLUGIN_IMAGE} .
 .PHONY: console-push
 console-push: ## Push the console image
 	$(CONTAINER_TOOL) push $(CONSOLE_PLUGIN_IMAGE)
