@@ -107,6 +107,61 @@ var _ = Describe("FusionAccess Controller", func() {
 	})
 })
 
+var _ = Describe("checkPullSecret", func() {
+	const (
+		expectedName      = "fusion-pullsecret"
+		expectedNamespace = "default"
+	)
+
+	It("returns true for a valid pull secret", func() {
+		secret := &corev1.Secret{
+			Type: corev1.SecretTypeDockerConfigJson,
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      expectedName,
+				Namespace: expectedNamespace,
+			},
+		}
+
+		Expect(checkPullSecret(secret, expectedNamespace)).To(BeTrue())
+	})
+
+	It("returns false if secret type is incorrect", func() {
+		secret := &corev1.Secret{
+			Type: corev1.SecretTypeOpaque,
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      expectedName,
+				Namespace: expectedNamespace,
+			},
+		}
+
+		Expect(checkPullSecret(secret, expectedNamespace)).To(BeFalse())
+	})
+
+	It("returns false if secret name is incorrect", func() {
+		secret := &corev1.Secret{
+			Type: corev1.SecretTypeDockerConfigJson,
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "wrong-name",
+				Namespace: expectedNamespace,
+			},
+		}
+
+		Expect(checkPullSecret(secret, expectedNamespace)).To(BeFalse())
+	})
+
+	It("returns false if secret namespace is incorrect", func() {
+		secret := &corev1.Secret{
+			Type: corev1.SecretTypeDockerConfigJson,
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      expectedName,
+				Namespace: "other-namespace",
+			},
+		}
+
+		Expect(checkPullSecret(secret, expectedNamespace)).To(BeFalse())
+	})
+})
+
 func newNamespace(name string) *corev1.Namespace {
 	return &corev1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: name}}
 }
