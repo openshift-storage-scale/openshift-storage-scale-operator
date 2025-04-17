@@ -399,7 +399,7 @@ func (r *FusionAccessReconciler) SetupWithManager(mgr ctrl.Manager) error {
 
 func (r *FusionAccessReconciler) getPullSecretSelector(
 	ctx context.Context,
-	obj client.Object,
+	_ client.Object,
 ) []reconcile.Request {
 	ns, err := utils.GetDeploymentNamespace()
 	if err != nil {
@@ -410,7 +410,7 @@ func (r *FusionAccessReconciler) getPullSecretSelector(
 		return []reconcile.Request{}
 	}
 	fusionAccessList := &fusionv1alpha.FusionAccessList{}
-	if err := r.Client.List(ctx, fusionAccessList, client.InNamespace(ns)); err != nil {
+	if err := r.List(ctx, fusionAccessList, client.InNamespace(ns)); err != nil {
 		return nil
 	}
 	// We enforce a single fusionAccess instance via webhooks
@@ -455,12 +455,11 @@ func isItOurPullSecret() builder.WatchesOption {
 				oldSecret.Data[".dockerconfigjson"],
 				newSecret.Data[".dockerconfigjson"],
 			)
-
 		},
-		DeleteFunc: func(e event.DeleteEvent) bool {
+		DeleteFunc: func(_ event.DeleteEvent) bool {
 			return false
 		},
-		GenericFunc: func(e event.GenericEvent) bool {
+		GenericFunc: func(_ event.GenericEvent) bool {
 			return false
 		},
 	})
