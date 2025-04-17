@@ -18,6 +18,7 @@ export const getRole = (node: IoK8sApiCoreV1Node): NodeRole => {
   let role: NodeRole = VALUE_NOT_AVAILABLE;
   switch (true) {
     case hasLabel(node, "node-role.kubernetes.io/worker="):
+      role = "worker";
       break;
     case hasLabel(node, "node-role.kubernetes.io/master="):
       role = "master";
