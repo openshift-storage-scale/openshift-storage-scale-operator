@@ -1,2 +1,0 @@
-raw: |
-  export OPERATOR_IMG="registry.stage.redhat.io/openshift-storage-scale-operator-tech-preview/openshift-fusion-access-rhel9-operator@sha256:86ba3474ccb82bbbb1020a8ada3921bd3a7ad71fd293e7f8f769f82f09f4520a"
