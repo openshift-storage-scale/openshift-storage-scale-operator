@@ -7,8 +7,10 @@ metadata:
     build.appstudio.redhat.com/target_branch: '{{target_branch}}'
     pipelinesascode.tekton.dev/cancel-in-progress: "false"
     pipelinesascode.tekton.dev/max-keep-runs: "3"
-    pipelinesascode.tekton.dev/on-cel-expression: event == "push" && target_branch == "main" &&
-      ( ".tekton/must-gather-1-0-push.yaml".pathChanged() || "must-gather.Dockerfile".pathChanged() )
+    pipelinesascode.tekton.dev/on-cel-expression: event == "push" && target_branch == "main" && (
+      "collection-scripts/***".pathChanged() ||
+      "templates/must-gather.Dockerfile.template".pathChanged() ||
+      ".tekton/must-gather-1-0-push.yaml".pathChanged() )
   creationTimestamp: null
   labels:
     appstudio.openshift.io/application: operator-1-0

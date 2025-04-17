@@ -8,8 +8,10 @@ metadata:
     build.appstudio.redhat.com/target_branch: '{{target_branch}}'
     pipelinesascode.tekton.dev/cancel-in-progress: "true"
     pipelinesascode.tekton.dev/max-keep-runs: "3"
-    pipelinesascode.tekton.dev/on-cel-expression: event == "pull_request" && target_branch
-      == "main" && ( "console/***".pathChanged() || ".tekton/console-plugin-1-0-pull-request.yaml".pathChanged()
+    pipelinesascode.tekton.dev/on-cel-expression: event == "pull_request" && target_branch == "main" && (
+      "console/***".pathChanged() ||
+      ".tekton/console-plugin-1-0-pull-request.yaml".pathChanged() ||
+      "templates/console-plugin.Dockerfile.template.yaml".pathChanged()
       )
   creationTimestamp: null
   labels:
@@ -29,7 +31,7 @@ spec:
   - name: image-expires-after
     value: 5d
   - name: dockerfile
-    value: console/docker/Dockerfile
+    value: console-plugin.Dockerfile
   - name: prefetch-input
     value: [{"type": "npm", "path": "console/"},]
     # TODO switch to yarn at some point
@@ -171,18 +173,43 @@ spec:
       workspaces:
       - name: basic-auth
         workspace: git-auth
+    - name: generate-dockerfile
+      params:
+      - name: HERMETIC
+        value: $(params.hermetic)
+      - name: SCRIPT
+        value: scripts/generate-konflux-dockerfile.sh console-plugin
+      - name: ociStorage
+        value: $(params.output-image).prefetch
+      - name: ociArtifactExpiresAfter
+        value: $(params.image-expires-after)
+      - name: SOURCE_ARTIFACT
+        value: $(tasks.clone-repository.results.SOURCE_ARTIFACT)
+      - name: SCRIPT_RUNNER_IMAGE
+        value: quay.io/konflux-ci/operator-sdk-builder:latest
+      runAfter:
+      - clone-repository
+      taskRef:
+        params:
+        - name: name
+          value: run-script-oci-ta
+        - name: bundle
+          value: quay.io/konflux-ci/tekton-catalog/task-run-script-oci-ta:0.1@sha256:c0f627069353ebd6d1ed03c8657e281eaf11be63706ea38cc53caf16cf4ffd65
+        - name: kind
+          value: task
+        resolver: bundles
     - name: prefetch-dependencies
       params:
       - name: input
         value: $(params.prefetch-input)
       - name: SOURCE_ARTIFACT
-        value: $(tasks.clone-repository.results.SOURCE_ARTIFACT)
+        value: $(tasks.generate-dockerfile.results.SCRIPT_ARTIFACT)
       - name: ociStorage
         value: $(params.output-image).prefetch
       - name: ociArtifactExpiresAfter
         value: $(params.image-expires-after)
       runAfter:
-      - clone-repository
+      - generate-dockerfile
       taskRef:
         params:
         - name: name

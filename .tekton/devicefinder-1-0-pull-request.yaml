@@ -8,11 +8,12 @@ metadata:
     build.appstudio.redhat.com/target_branch: '{{target_branch}}'
     pipelinesascode.tekton.dev/cancel-in-progress: "true"
     pipelinesascode.tekton.dev/max-keep-runs: "3"
-    pipelinesascode.tekton.dev/on-cel-expression: event == "pull_request" && target_branch == "main" && ( "devicefinder.Dockerfile".pathChanged() ||
-      "internal/devicefinder/***".pathChanged()  ||
-      "internal/diskutils/***".pathChanged()  ||
+    pipelinesascode.tekton.dev/on-cel-expression: event == "pull_request" && target_branch == "main" && (
       "cmd/devicefinder/***".pathChanged() ||
       "go.mod".pathChanged() ||
+      "internal/devicefinder/***".pathChanged()  ||
+      "internal/diskutils/***".pathChanged()  ||
+      "templates/devicefinder.Dockerfile.template".pathChanged() ||
       ".tekton/devicefinder-1-0-pull-request.yaml".pathChanged())
   creationTimestamp: null
   labels:

@@ -8,7 +8,7 @@ metadata:
     pipelinesascode.tekton.dev/cancel-in-progress: "false"
     pipelinesascode.tekton.dev/max-keep-runs: "3"
     pipelinesascode.tekton.dev/on-cel-expression: event == "push" && target_branch == "main" &&
-      ("templates/bundle.konflux.Dockerfile.template".pathChanged() ||
+      ("templates/bundle.Dockerfile.template".pathChanged() ||
       ".tekton/operator-bundle-1-0-push.yaml".pathChanged() ||
       "bundle/***".pathChanged() ||
       "nudges/***".pathChanged() ||
@@ -29,7 +29,7 @@ spec:
   - name: output-image
     value: quay.io/redhat-user-workloads/storage-scale-releng-tenant/operator-bundle:{{revision}}
   - name: dockerfile
-    value: bundle.konflux.Dockerfile
+    value: bundle.Dockerfile
   pipelineSpec:
     description: |
       This pipeline is ideal for building container images from a Containerfile while maintaining trust after pipeline customization.
