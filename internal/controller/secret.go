@@ -36,7 +36,7 @@ func newSecret(name, namespace string, secret map[string][]byte, secretType core
 	return k8sSecret
 }
 
-func getPullSecretContent(name, namespace string, ctx context.Context, full kubernetes.Interface) ([]byte, error) {
+func getPullSecretContent(name, namespace string, ctx context.Context, full kubernetes.Interface) ([]byte, error) { //nolint:unparam
 	secret, err := full.CoreV1().Secrets(namespace).Get(ctx, name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err

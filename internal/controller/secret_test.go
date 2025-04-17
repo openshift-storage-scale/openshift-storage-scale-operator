@@ -51,7 +51,7 @@ var _ = Describe("FusionAccess Utilities", func() {
 	})
 
 	Describe("getPullSecretContent", func() {
-		const secretName = "fusion-pullsecret"
+		const secretName = "fusion-pullsecret" //nolint:gosec
 
 		It("should return error if secret doesn't exist", func() {
 			_, err := getPullSecretContent(secretName, "default", ctx, clientset)
@@ -61,7 +61,7 @@ var _ = Describe("FusionAccess Utilities", func() {
 
 		It("should return error for wrong secret type", func() {
 			secret := newSecret(secretName, "default", map[string][]byte{}, corev1.SecretTypeOpaque, nil)
-			clientset.CoreV1().Secrets("default").Create(ctx, secret, metav1.CreateOptions{})
+			_, _ = clientset.CoreV1().Secrets("default").Create(ctx, secret, metav1.CreateOptions{})
 
 			_, err := getPullSecretContent(secretName, "default", ctx, clientset)
 			Expect(err).To(MatchError(ContainSubstring("is not of type")))
@@ -69,7 +69,7 @@ var _ = Describe("FusionAccess Utilities", func() {
 
 		It("should return error if .dockerconfigjson is missing", func() {
 			secret := newSecret(secretName, "default", map[string][]byte{}, corev1.SecretTypeDockerConfigJson, nil)
-			clientset.CoreV1().Secrets("default").Create(ctx, secret, metav1.CreateOptions{})
+			_, _ = clientset.CoreV1().Secrets("default").Create(ctx, secret, metav1.CreateOptions{})
 
 			_, err := getPullSecretContent(secretName, "default", ctx, clientset)
 			Expect(err).To(MatchError(ContainSubstring("does not contain .dockerconfigjson")))
@@ -80,7 +80,7 @@ var _ = Describe("FusionAccess Utilities", func() {
 				".dockerconfigjson": []byte("my-secret-data"),
 			}
 			secret := newSecret(secretName, "default", data, corev1.SecretTypeDockerConfigJson, nil)
-			clientset.CoreV1().Secrets("default").Create(ctx, secret, metav1.CreateOptions{})
+			_, _ = clientset.CoreV1().Secrets("default").Create(ctx, secret, metav1.CreateOptions{})
 
 			content, err := getPullSecretContent(secretName, "default", ctx, clientset)
 			Expect(err).ToNot(HaveOccurred())
