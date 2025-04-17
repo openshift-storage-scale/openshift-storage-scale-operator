@@ -6,7 +6,7 @@
 export VERSION ?= $(shell cat VERSION.txt)
 
 
-OPERATOR_DOCKERFILE ?= Dockerfile
+OPERATOR_DOCKERFILE ?= operator.Dockerfile
 DEVICEFINDER_DOCKERFILE ?= devicefinder.Dockerfile
 MUST_GATHER_DOCKERFILE ?= must-gather.Dockerfile
 CONSOLE_PLUGIN_DOCKERFILE ?= console-plugin.Dockerfile
