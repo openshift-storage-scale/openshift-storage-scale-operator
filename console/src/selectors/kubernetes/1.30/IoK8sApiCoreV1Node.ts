@@ -6,11 +6,16 @@ import type {
   SuffixDecimalSI,
 } from "./IoK8sApimachineryPkgApiResourceQuantity";
 import { parseQuantity } from "./IoK8sApimachineryPkgApiResourceQuantity";
+import { VALUE_NOT_AVAILABLE } from "@/hooks/useConstants";
 
-export type NodeRole = "worker" | "master" | "control-plane";
+export type NodeRole =
+  | "worker"
+  | "master"
+  | "control-plane"
+  | typeof VALUE_NOT_AVAILABLE;
 
 export const getRole = (node: IoK8sApiCoreV1Node): NodeRole => {
-  let role: NodeRole = "worker";
+  let role: NodeRole = VALUE_NOT_AVAILABLE;
   switch (true) {
     case hasLabel(node, "node-role.kubernetes.io/worker="):
       break;

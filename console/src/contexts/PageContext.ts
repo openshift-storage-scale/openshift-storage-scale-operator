@@ -3,7 +3,7 @@ import { createContext } from "react";
 export type TPageContextGetters = {
   documentTitle: string;
   pageTitle: string;
-  pageDescription: string;
+  pageDescription: string | null;
   pageActions: React.ReactNode[];
 };
 

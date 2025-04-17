@@ -1,31 +1,35 @@
-import { Trans } from "react-i18next";
+import { useEffect } from "react";
 import {
   VirtualizedTable,
   useK8sWatchResource,
 } from "@openshift-console/dynamic-plugin-sdk";
-import { Alert, PageSection } from "@patternfly/react-core";
+import { Alert, Button, PageSection } from "@patternfly/react-core";
 import { usePluginTranslations } from "@/hooks/usePluginTranslations";
 import { usePageContext } from "@/hooks/usePageContext";
-import type { IoK8sApiCoreV1Node } from "@/models/kubernetes/1.30/types";
-import { LocalVolumeDiscoveryResultModel } from "@/models/fusionstorage/LocalVolumeDiscoveryResultModel";
-import { useNodesSelectionTableColumns } from "@/views/fusionaccess/hooks/useNodesSelectionTableColumns";
-import { NodesSelectionTableRow } from "./NodesSelectionTableRow";
-import type { LocalVolumeDiscoveryResult } from "@/models/fusionstorage/LocalVolumeDiscoveryResult";
-import { useNodeSharedDisksCounts } from "../hooks/useSharedDisksCount";
 import { useConstants } from "@/hooks/useConstants";
 import { useLabelKeyValue } from "@/hooks/useLabelKeyValue";
+import { LocalVolumeDiscoveryResultModel } from "@/models/fusionstorage/LocalVolumeDiscoveryResultModel";
+import type { IoK8sApiCoreV1Node } from "@/models/kubernetes/1.30/types";
+import type { LocalVolumeDiscoveryResult } from "@/models/fusionstorage/LocalVolumeDiscoveryResult";
+import { NodesSelectionTableRow } from "./NodesSelectionTableRow";
+import { useNodesSelectionTableColumns } from "../hooks/useNodesSelectionTableColumns";
+import { useNodesSelected } from "../hooks/useNodesSelected";
 
 export type NodesSelectionTableRowDataProps = {
-  nodeSharedDisksCounts: Map<string, number>;
+  disksDiscoveryResults: LocalVolumeDiscoveryResult[];
+  selectedNodes: IoK8sApiCoreV1Node[];
 };
 
 export const NodesSelectionSection: React.FC = () => {
-  usePageContext({ pageDescription: " " });
   const { t } = usePluginTranslations();
+  const pageContext = usePageContext({
+    pageDescription: t("Select at least 3 nodes to create a storage cluster."),
+  });
   const { WORKER_NODE_ROLE_LABEL } = useConstants();
   const [workerNodeRoleLabelKey, workerNodeRoleLabelValue] = useLabelKeyValue(
     WORKER_NODE_ROLE_LABEL
   );
+
   const [nodes, nodesLoaded, nodesLoadedError] = useK8sWatchResource<
     IoK8sApiCoreV1Node[]
   >({
@@ -52,22 +56,36 @@ export const NodesSelectionSection: React.FC = () => {
     isList: true,
     groupVersionKind: LocalVolumeDiscoveryResultModel.toGroupVersionKind(),
   });
-  const nodeSharedDisksCounts = useNodeSharedDisksCounts(disksDiscoveryResults);
-  const columns = useNodesSelectionTableColumns();
+
   const validationFailuresCount = 0; // TODO(jkilzi): Implement validation failures count
+  const selectedNodes = useNodesSelected(nodes);
+
+  useEffect(() => {
+    if (pageContext.pageActions.length === 1) {
+      pageContext.setPageActions((currentPageActions) => [
+        <Button
+          variant="primary"
+          key="create-storage-cluster-button"
+          isDisabled={selectedNodes.length === 0 || validationFailuresCount > 0}
+          onClick={() => {}}
+        >
+          {t("Create storage cluster")}
+        </Button>,
+        ...currentPageActions,
+      ]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedNodes, validationFailuresCount]);
+
+  const columns = useNodesSelectionTableColumns();
 
   return (
     <>
       <Alert
         variant="info"
-        title={
-          <Trans t={t}>
-            Make sure all nodes for the storage cluster are selected before you
-            continue.
-            <br />
-            Worker nodes will be rebooted while creating the storage cluster.
-          </Trans>
-        }
+        title={t(
+          "Worker nodes will be rebooted while creating the storage cluster."
+        )}
       />
       <VirtualizedTable<IoK8sApiCoreV1Node, NodesSelectionTableRowDataProps>
         data={nodes}
@@ -76,7 +94,7 @@ export const NodesSelectionSection: React.FC = () => {
         loaded={nodesLoaded}
         loadError={nodesLoadedError}
         Row={NodesSelectionTableRow}
-        rowData={{ nodeSharedDisksCounts }}
+        rowData={{ disksDiscoveryResults, selectedNodes }}
       />
       {validationFailuresCount > 0 && (
         <PageSection>

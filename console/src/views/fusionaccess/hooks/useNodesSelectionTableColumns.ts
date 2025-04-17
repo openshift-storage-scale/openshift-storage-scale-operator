@@ -32,10 +32,11 @@ export const useNodesSelectionTableColumns: UseNodesSelectionTableColumns =
           title: t("Memory"),
         },
         {
-          id: "shared-disks",
-          title: t("Shared disks"),
+          id: "disks",
+          title: t("Disks"),
         },
       ],
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       []
     );
   };

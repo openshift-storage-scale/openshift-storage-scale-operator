@@ -9,7 +9,7 @@ export const getLabels = <T extends K8sResourceCommon>(obj: T) =>
 export const hasLabel = <T extends K8sResourceCommon>(
   obj: T,
   label: string
-): boolean | null => {
+): boolean => {
   let result: boolean = false;
   const [k, v] = label.split("=");
   const labels = getLabels(obj);

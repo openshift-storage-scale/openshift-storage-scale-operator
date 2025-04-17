@@ -10,7 +10,7 @@ export const pluginMetadata: ConsolePluginBuildMetadata = {
     FusionAccessPage: "./views/fusionaccess/components/FusionAccessPage.tsx",
   },
   dependencies: {
-    "@console/pluginAPI": ">=4.17.0-0",
+    "@console/pluginAPI": ">=4.18.0-0",
   },
 };
 

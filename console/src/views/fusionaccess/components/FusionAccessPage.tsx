@@ -44,7 +44,7 @@ const FusionAccessPage: React.FC = () => {
     },
   });
 
-  const listPageSection = React.useMemo(() => {
+  const section = React.useMemo(() => {
     let element: React.ReactElement | null = null;
     switch (true) {
       case !spectrumScaleClusterLoaded:
@@ -88,14 +88,14 @@ const FusionAccessPage: React.FC = () => {
     <PageContextProvider
       documentTitle={t("Fusion Access for SAN")}
       pageTitle={t("Fusion Access for SAN")}
-      pageDescription={t("Page description")}
+      pageDescription={" "} // TODO(jkilzi): Add page description
       pageActions={[
-        <Button key="btn-download-logs" variant="link">
+        <Button key="download-logs-button" variant="link">
           <DownloadIcon /> {t("Download logs")}
         </Button>,
       ]}
     >
-      {listPageSection}
+      {section}
     </PageContextProvider>
   );
 };
