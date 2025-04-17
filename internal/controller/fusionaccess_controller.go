@@ -352,12 +352,15 @@ func (r *FusionAccessReconciler) Reconcile(
 	if fusionaccess.Status.ExternalImagePullStatus == fusionv1alpha1.CheckNotRun {
 		testImage, err := utils.GetExternalTestImage(string(fusionaccess.Spec.IbmCnsaVersion))
 		if err != nil {
+			log.Log.Error(err, "Could not figure out test image", "testImage", testImage)
 			return ctrl.Result{}, err
 		}
 		ok, err := r.CanPullImage(ctx, r.fullClient, ns, testImage)
 		if ok {
+			log.Log.Info("Image pull test succeeded", "ns", ns, "testImage", testImage)
 			fusionaccess.Status.ExternalImagePullStatus = fusionv1alpha1.CheckSuccess
 		} else {
+			log.Log.Error(err, "Image pull test failed", "ns", ns, "testImage", testImage)
 			fusionaccess.Status.ExternalImagePullStatus = fusionv1alpha1.CheckFailed
 			fusionaccess.Status.ExternalImagePullError = err.Error()
 		}
