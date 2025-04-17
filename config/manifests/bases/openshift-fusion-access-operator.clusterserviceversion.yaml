@@ -34,10 +34,13 @@ spec:
       - description: Version of IBMs installation manifests found at https://github.com/IBM/ibm-spectrum-scale-container-native
         displayName: Ibm Cnsa Version
         path: ibm_cnsa_version
-      - description: Inherited from LVSet to provide control over node selector and
-          device filtering capabilities
-        displayName: Node Spec
-        path: node_spec
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:select:v5.2.2.1
+        - urn:alm:descriptor:com.tectonic.ui:select:v5.2.3.0.rc1
+      - displayName: Local Volume Discovery
+        path: storagedevicediscovery
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:hidden
       version: v1alpha1
   description: Fusion Access Setup
   displayName: Fusion Access for SAN
