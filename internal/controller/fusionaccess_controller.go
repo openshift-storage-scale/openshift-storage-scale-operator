@@ -20,8 +20,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"os"
-	"path"
 
 	mfc "github.com/manifestival/controller-runtime-client"
 	"github.com/manifestival/manifestival"
@@ -40,11 +38,13 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	fusionv1alpha "github.com/openshift-storage-scale/openshift-fusion-access-operator/api/v1alpha1"
+	fusionv1alpha1 "github.com/openshift-storage-scale/openshift-fusion-access-operator/api/v1alpha1"
 	"github.com/openshift-storage-scale/openshift-fusion-access-operator/internal/controller/console"
 	"github.com/openshift-storage-scale/openshift-fusion-access-operator/internal/controller/localvolumediscovery"
 	"github.com/openshift-storage-scale/openshift-fusion-access-operator/internal/utils"
 )
+
+type CanPullImageFunc func(ctx context.Context, client kubernetes.Interface, ns, image string) (bool, error)
 
 // FusionAccessReconciler reconciles a FusionAccess object
 type FusionAccessReconciler struct {
@@ -53,6 +53,19 @@ type FusionAccessReconciler struct {
 	config        *rest.Config
 	dynamicClient dynamic.Interface
 	fullClient    kubernetes.Interface
+	// Need this for mocking when needed
+	CanPullImage CanPullImageFunc
+}
+
+func NewFusionAccessReconciler(
+	myClient client.Client,
+	scheme *runtime.Scheme,
+) *FusionAccessReconciler {
+	return &FusionAccessReconciler{
+		Client:       myClient,
+		Scheme:       scheme,
+		CanPullImage: utils.CanPullImage,
+	}
 }
 
 // const storageScaleFinalizer = "fusion.storage.openshift.io/finalizer"
@@ -253,7 +266,7 @@ func (r *FusionAccessReconciler) Reconcile(
 	_ = log.FromContext(ctx)
 
 	// TODO(user): your logic here
-	fusionaccess := &fusionv1alpha.FusionAccess{}
+	fusionaccess := &fusionv1alpha1.FusionAccess{}
 	err := r.Get(ctx, req.NamespacedName, fusionaccess)
 	if err != nil {
 		if kerrors.IsNotFound(err) {
@@ -297,7 +310,7 @@ func (r *FusionAccessReconciler) Reconcile(
 		return ctrl.Result{}, err
 	}
 	// Load and install manifests from ibm
-	install_path, err := getInstallPath(string(fusionaccess.Spec.IbmCnsaVersion))
+	install_path, err := utils.GetInstallPath(string(fusionaccess.Spec.IbmCnsaVersion))
 	if err != nil {
 		return ctrl.Result{}, err
 	}
@@ -335,6 +348,25 @@ func (r *FusionAccessReconciler) Reconcile(
 		log.Log.Info("Entitlement secrets created")
 	}
 
+	// Check if can pull the image if we have not already
+	if fusionaccess.Status.ExternalImagePullStatus == fusionv1alpha1.CheckNotRun {
+		testImage, err := utils.GetExternalTestImage(string(fusionaccess.Spec.IbmCnsaVersion))
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+		ok, err := r.CanPullImage(ctx, r.fullClient, ns, testImage)
+		if ok {
+			fusionaccess.Status.ExternalImagePullStatus = fusionv1alpha1.CheckSuccess
+		} else {
+			fusionaccess.Status.ExternalImagePullStatus = fusionv1alpha1.CheckFailed
+			fusionaccess.Status.ExternalImagePullError = err.Error()
+		}
+		err = r.Status().Update(ctx, fusionaccess)
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+	}
+
 	if err := console.CreateOrUpdatePlugin(ctx, r.Client); err != nil {
 		return ctrl.Result{}, err
 	}
@@ -356,27 +388,6 @@ func (r *FusionAccessReconciler) Reconcile(
 	return ctrl.Result{}, nil
 }
 
-func getInstallPath(cnsaVersion string) (string, error) {
-	// Install path when running tests
-	var err error
-	install_path := path.Join("../../files/", cnsaVersion, "install.yaml")
-	if _, err := os.Stat(install_path); err == nil {
-		return install_path, nil
-	}
-	// Install path when running locally
-	install_path = path.Join("files/", cnsaVersion, "install.yaml")
-	if _, err := os.Stat(install_path); err == nil {
-		return install_path, nil
-	}
-	// Install path when running in container
-	install_path = path.Join("/files/", cnsaVersion, "install.yaml")
-	if _, err := os.Stat(install_path); err == nil {
-		return install_path, nil
-	}
-
-	return "", fmt.Errorf("could not find/open install file with version %s: %w", cnsaVersion, err)
-}
-
 // SetupWithManager sets up the controller with the Manager.
 func (r *FusionAccessReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	var err error
@@ -388,7 +399,7 @@ func (r *FusionAccessReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		return err
 	}
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&fusionv1alpha.FusionAccess{}).
+		For(&fusionv1alpha1.FusionAccess{}).
 		Watches(
 			&corev1.Secret{},
 			handler.EnqueueRequestsFromMapFunc(r.getPullSecretSelector),
@@ -409,7 +420,7 @@ func (r *FusionAccessReconciler) getPullSecretSelector(
 		// The secret in the namespace is not there yet
 		return []reconcile.Request{}
 	}
-	fusionAccessList := &fusionv1alpha.FusionAccessList{}
+	fusionAccessList := &fusionv1alpha1.FusionAccessList{}
 	if err := r.List(ctx, fusionAccessList, client.InNamespace(ns)); err != nil {
 		return nil
 	}
