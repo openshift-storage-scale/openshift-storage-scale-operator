@@ -176,7 +176,7 @@ spec:
       - name: HERMETIC
         value: $(params.hermetic)
       - name: SCRIPT
-        value: export SECRET_NAME=external-registry-pull-secret && scripts/generate-konflux-dockerfile.sh operator
+        value: scripts/generate-konflux-dockerfile.sh operator
       - name: ociStorage
         value: $(params.output-image).prefetch
       - name: ociArtifactExpiresAfter
