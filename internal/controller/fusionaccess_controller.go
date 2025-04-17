@@ -348,8 +348,9 @@ func (r *FusionAccessReconciler) Reconcile(
 		log.Log.Info("Entitlement secrets created")
 	}
 
-	// Check if can pull the image if we have not already
-	if fusionaccess.Status.ExternalImagePullStatus == fusionv1alpha1.CheckNotRun {
+	// Check if can pull the image if we have not already or if it failed previously
+	if fusionaccess.Status.ExternalImagePullStatus == fusionv1alpha1.CheckNotRun ||
+		fusionaccess.Status.ExternalImagePullStatus == fusionv1alpha1.CheckFailed {
 		testImage, err := utils.GetExternalTestImage(string(fusionaccess.Spec.IbmCnsaVersion))
 		if err != nil {
 			log.Log.Error(err, "Could not figure out test image", "testImage", testImage)
