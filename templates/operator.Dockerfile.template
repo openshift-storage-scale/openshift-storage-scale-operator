@@ -48,7 +48,7 @@ LABEL \
     description="" \
     io.k8s.display-name="Red Hat OpenShift Fusion Access Operator" \
     io.k8s.description="" \
-    io.openshift.tags="openshift,storage,scale" \
+    io.openshift.tags="openshift,fusion,access,san" \
     distribution-scope="public" \
     name="openshift-fusion-access-controller" \
     summary="Controller" \

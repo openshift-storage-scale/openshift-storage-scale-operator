@@ -61,5 +61,5 @@ LABEL \
     io.k8s.description="" \
     summary="" \
     io.k8s.display-name="OpenShift Fusion Access Operator" \
-    io.openshift.tags="openshift,storage,scale" \
+    io.openshift.tags="openshift,fusion,access,san" \
     License="Apache License 2.0" \

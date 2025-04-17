@@ -11,7 +11,7 @@ LABEL \
     com.redhat.component="Must gather image for OpenShift Fusion Access Operator" \
     io.k8s.display-name="Must gather image for OpenShift Fusion Access Operator" \
     io.k8s.description="" \
-    io.openshift.tags="openshift,storage,scale" \
+    io.openshift.tags="openshift,fusion,access,san" \
     distribution-scope="public" \
     name="openshift-fusion-access-must-gather-rhel9" \
     vendor="Red Hat, Inc." \
