@@ -22,11 +22,14 @@ export type NodesSelectionTableRowDataProps = {
 
 export const NodesSelectionSection: React.FC = () => {
   const { t } = usePluginTranslations();
-  const pageContext = usePageContext({ pageDescription: t("Select at least 3 nodes to create a storage cluster.") });
+  const pageContext = usePageContext({
+    pageDescription: t("Select at least 3 nodes to create a storage cluster."),
+  });
   const { WORKER_NODE_ROLE_LABEL } = useConstants();
   const [workerNodeRoleLabelKey, workerNodeRoleLabelValue] = useLabelKeyValue(
     WORKER_NODE_ROLE_LABEL
   );
+
   const [nodes, nodesLoaded, nodesLoadedError] = useK8sWatchResource<
     IoK8sApiCoreV1Node[]
   >({
@@ -56,6 +59,7 @@ export const NodesSelectionSection: React.FC = () => {
 
   const validationFailuresCount = 0; // TODO(jkilzi): Implement validation failures count
   const selectedNodes = useNodesSelected(nodes);
+
   useEffect(() => {
     if (pageContext.pageActions.length === 1) {
       pageContext.setPageActions((currentPageActions) => [
