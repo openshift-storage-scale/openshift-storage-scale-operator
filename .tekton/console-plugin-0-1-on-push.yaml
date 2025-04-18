@@ -9,6 +9,7 @@ metadata:
     pipelinesascode.tekton.dev/max-keep-runs: "3"
     pipelinesascode.tekton.dev/on-cel-expression: event == "push" && target_branch== "main" && (
       "console/***".pathChanged() ||
+      "VERSION.txt".pathChanged() ||
       ".tekton/console-plugin-0-1-on-push.yaml".pathChanged() ||
       "templates/console-plugin.Dockerfile.template".pathChanged()
       )

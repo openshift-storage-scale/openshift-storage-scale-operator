@@ -8,8 +8,9 @@ metadata:
     pipelinesascode.tekton.dev/cancel-in-progress: "false"
     pipelinesascode.tekton.dev/max-keep-runs: "3"
     pipelinesascode.tekton.dev/on-cel-expression: event == "push" && target_branch == "main" && (
-      "cmd/devicefinder/***".pathChanged() ||
       "go.mod".pathChanged() ||
+      "VERSION.txt".pathChanged() ||
+      "cmd/devicefinder/***".pathChanged() ||
       "internal/devicefinder/***".pathChanged()  ||
       "internal/diskutils/***".pathChanged()  ||
       "templates/devicefinder.Dockerfile.template".pathChanged() ||
