@@ -2,7 +2,7 @@
 # This file is used to track the info used to scaffold your project
 # and allow the plugins properly work.
 # More info: https://book.kubebuilder.io/reference/project-config.html
-domain: fusion.storage.openshift.io
+domain: storage.openshift.io
 layout:
 - go.kubebuilder.io/v4
 plugins:
@@ -15,7 +15,7 @@ resources:
     crdVersion: v1
     namespaced: true
   controller: true
-  domain: fusion.storage.openshift.io
+  domain: storage.openshift.io
   group: fusion
   kind: FusionAccess
   path: github.com/openshift-storage-scale/openshift-fusion-access-operator/api/v1alpha1
