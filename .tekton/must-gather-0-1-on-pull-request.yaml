@@ -10,6 +10,7 @@ metadata:
     pipelinesascode.tekton.dev/max-keep-runs: "3"
     pipelinesascode.tekton.dev/on-cel-expression: event == "pull_request" && target_branch == "main" && (
       "collection-scripts/***".pathChanged() ||
+      "VERSION.txt".pathChanged() ||
       "templates/must-gather.Dockerfile.template".pathChanged() ||
       ".tekton/must-gather-0-1-on-pull-request.yaml".pathChanged() )
   creationTimestamp: null
