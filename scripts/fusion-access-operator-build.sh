@@ -80,6 +80,14 @@ if [[ -n $(git status --porcelain) ]]; then
     exit 1
 fi
 
+echo "Checking for cluster reachability:"
+OUT=$(oc cluster-info 2>&1)
+ret=$?
+if [ $ret -ne 0 ]; then
+    echo "Could not reach cluster: ${OUT}"
+    exit 1
+fi
+
 make VERSION=${VERSION} IMAGE_TAG_BASE=${REGISTRY}/openshift-fusion-access CHANNELS=fast USE_IMAGE_DIGESTS="" \
     manifests bundle generate docker-build docker-push bundle-build bundle-push console-build console-push \
     devicefinder-docker-build devicefinder-docker-push catalog-build catalog-push catalog-install
