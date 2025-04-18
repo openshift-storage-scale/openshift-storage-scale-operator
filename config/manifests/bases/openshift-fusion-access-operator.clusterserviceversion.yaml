@@ -2,7 +2,19 @@ apiVersion: operators.coreos.com/v1alpha1
 kind: ClusterServiceVersion
 metadata:
   annotations:
-    alm-examples: '[]'
+    alm-examples: |-
+      [
+        {
+          "apiVersion": "fusion.storage.openshift.io/v1alpha1",
+          "kind": "FusionAccess",
+          "metadata": {
+            "name": "fusionaccess-sample"
+          },
+          "spec": {
+            "ibm_cnsa_version": "v5.2.3.0.rc1"
+          }
+        }
+      ]
     capabilities: Basic Install
     features.operators.openshift.io/cnf: "false"
     features.operators.openshift.io/cni: "false"
