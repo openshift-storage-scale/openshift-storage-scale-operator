@@ -8,7 +8,6 @@ import { usePluginTranslations } from "@/hooks/usePluginTranslations";
 import { usePageContext } from "@/hooks/usePageContext";
 import { useConstants } from "@/hooks/useConstants";
 import { useLabelKeyValue } from "@/hooks/useLabelKeyValue";
-import { LocalVolumeDiscoveryResultModel } from "@/models/fusionstorage/LocalVolumeDiscoveryResultModel";
 import type { IoK8sApiCoreV1Node } from "@/models/kubernetes/1.30/types";
 import type { LocalVolumeDiscoveryResult } from "@/models/fusionstorage/LocalVolumeDiscoveryResult";
 import { NodesSelectionTableRow } from "./NodesSelectionTableRow";
@@ -23,7 +22,9 @@ export type NodesSelectionTableRowDataProps = {
 export const NodesSelectionSection: React.FC = () => {
   const { t } = usePluginTranslations();
   const pageContext = usePageContext({
-    pageDescription: t("Select at least 3 nodes to create a storage cluster."),
+    pageDescription: t(
+      "To create a storage cluster select at least 3 nodes that share the same amount of disks."
+    ),
   });
   const { WORKER_NODE_ROLE_LABEL } = useConstants();
   const [workerNodeRoleLabelKey, workerNodeRoleLabelValue] = useLabelKeyValue(
@@ -54,26 +55,32 @@ export const NodesSelectionSection: React.FC = () => {
     // disksDiscoveryResultsLoadedError,
   ] = useK8sWatchResource<LocalVolumeDiscoveryResult[]>({
     isList: true,
-    groupVersionKind: LocalVolumeDiscoveryResultModel.toGroupVersionKind(),
+    groupVersionKind: {
+      group: "fusion.storage.openshift.io",
+      version: "v1alpha1",
+      kind: "LocalVolumeDiscoveryResult",
+    },
   });
 
   const validationFailuresCount = 0; // TODO(jkilzi): Implement validation failures count
   const selectedNodes = useNodesSelected(nodes);
 
   useEffect(() => {
-    if (pageContext.pageActions.length === 1) {
-      pageContext.setPageActions((currentPageActions) => [
-        <Button
-          variant="primary"
-          key="create-storage-cluster-button"
-          isDisabled={selectedNodes.length === 0 || validationFailuresCount > 0}
-          onClick={() => {}}
-        >
-          {t("Create storage cluster")}
-        </Button>,
-        ...currentPageActions,
-      ]);
-    }
+    const downloadLogsButton = pageContext.pageActions.find(
+      ({ key }) => key === "download-logs-button"
+    );
+    pageContext.setPageActions(() => [
+      <Button
+        variant="primary"
+        key="create-storage-cluster-button"
+        isDisabled={selectedNodes.length < 3 || validationFailuresCount > 0}
+        onClick={() => {}}
+      >
+        {t("Create storage cluster")}
+      </Button>,
+      downloadLogsButton!,
+    ]);
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedNodes, validationFailuresCount]);
 

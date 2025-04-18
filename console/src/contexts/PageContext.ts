@@ -4,7 +4,7 @@ export type TPageContextGetters = {
   documentTitle: string;
   pageTitle: string;
   pageDescription: string | null;
-  pageActions: React.ReactNode[];
+  pageActions: React.ReactElement[];
 };
 
 export type TPageContextSetters = {

@@ -3,11 +3,11 @@ import {
   k8sPatch,
   type RowProps,
   TableData,
+  useK8sModel,
 } from "@openshift-console/dynamic-plugin-sdk";
 import { Checkbox } from "@patternfly/react-core";
 import { useConstants } from "@/hooks/useConstants";
 import { useLabelKeyValue } from "@/hooks/useLabelKeyValue";
-import { NodeModel } from "@/models/console/NodeModel";
 import type { IoK8sApiCoreV1Node } from "@/models/kubernetes/1.30/types";
 import { getLabels, hasLabel } from "@/selectors/console/K8sResourceCommon";
 import type { NodesSelectionTableRowDataProps } from "./NodesSelectionSection";
@@ -46,6 +46,12 @@ export const NodesSelectionTableRow: React.FC<NodesSelectionTableRowProps> = (
     disksDiscoveryResults
   );
 
+  const [nodeModel, _] = useK8sModel({
+    group: "io.k8s.api.core",
+    version: "v1",
+    kind: "Node",
+  });
+
   const handleNodeSelectionChange = useCallback<NodeSelectionChangeHandler>(
     (_, checked) => {
       if (isSelectionInProgress) {
@@ -73,7 +79,7 @@ export const NodesSelectionTableRow: React.FC<NodesSelectionTableRowProps> = (
             value: labels,
           },
         ],
-        model: NodeModel,
+        model: nodeModel,
         resource: node,
       })
         .then(() => {
