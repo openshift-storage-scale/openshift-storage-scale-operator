@@ -360,6 +360,7 @@ func (r *FusionAccessReconciler) Reconcile(
 		if ok {
 			log.Log.Info("Image pull test succeeded", "ns", ns, "testImage", testImage)
 			fusionaccess.Status.ExternalImagePullStatus = fusionv1alpha1.CheckSuccess
+			fusionaccess.Status.ExternalImagePullError = ""
 		} else {
 			log.Log.Error(err, "Image pull test failed", "ns", ns, "testImage", testImage)
 			fusionaccess.Status.ExternalImagePullStatus = fusionv1alpha1.CheckFailed
