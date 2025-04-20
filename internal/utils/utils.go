@@ -317,7 +317,7 @@ func GetExternalTestImage(cnsaVersion string) (string, error) {
 func CreateImageCheckPod(
 	ctx context.Context,
 	client kubernetes.Interface,
-	namespace, image string,
+	namespace, image, imagePullSecretName string,
 ) (string, error) {
 	existingPod, err := client.CoreV1().Pods(namespace).Get(ctx, CheckPodName, metav1.GetOptions{})
 	if err == nil {
@@ -340,7 +340,12 @@ func CreateImageCheckPod(
 			},
 		},
 	}
-
+	// Only add ImagePullSecrets if a secret name is provided
+	if imagePullSecretName != "" {
+		pod.Spec.ImagePullSecrets = []corev1.LocalObjectReference{
+			{Name: imagePullSecretName},
+		}
+	}
 	createdPod, err := client.CoreV1().Pods(namespace).Create(ctx, pod, metav1.CreateOptions{})
 	if err != nil {
 		return "", fmt.Errorf("failed to create pod: %w", err)
@@ -391,9 +396,9 @@ var pollStatusFunc = PollPodPullStatus
 func CanPullImage(
 	ctx context.Context,
 	client kubernetes.Interface,
-	namespace, image string,
+	namespace, image, imagePullSecret string,
 ) (bool, error) {
-	podName, err := createPodFunc(ctx, client, namespace, image)
+	podName, err := createPodFunc(ctx, client, namespace, image, imagePullSecret)
 	if err != nil {
 		return false, err
 	}
