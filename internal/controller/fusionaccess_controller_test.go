@@ -98,7 +98,7 @@ var _ = Describe("FusionAccess Controller", func() {
 				Client:     k8sClient,
 				Scheme:     k8sClient.Scheme(),
 				fullClient: kubeclient.NewSimpleClientset(),
-				CanPullImage: func(ctx context.Context, client kubernetes.Interface, ns, image string) (bool, error) {
+				CanPullImage: func(ctx context.Context, client kubernetes.Interface, ns, image, pullSecret string) (bool, error) {
 					return true, nil
 				},
 			}

@@ -247,7 +247,7 @@ var _ = Describe("Image Pull Checker", func() {
 	Describe("CreateImageCheckPod", func() {
 		It("should create a pod successfully", func() {
 			ctx := context.Background()
-			podName, err := CreateImageCheckPod(ctx, client, namespace, image)
+			podName, err := CreateImageCheckPod(ctx, client, namespace, image, "")
 			Expect(err).NotTo(HaveOccurred())
 			Expect(podName).To(Equal(CheckPodName))
 
@@ -264,7 +264,7 @@ var _ = Describe("CanPullImage", func() {
 		client         *fake.Clientset
 		namespace      string
 		image          string
-		originalCreate func(context.Context, kubernetes.Interface, string, string) (string, error)
+		originalCreate func(context.Context, kubernetes.Interface, string, string, string) (string, error)
 		originalPoll   func(context.Context, kubernetes.Interface, string, string) (bool, error)
 	)
 
@@ -277,7 +277,6 @@ var _ = Describe("CanPullImage", func() {
 	})
 
 	AfterEach(func() {
-
 		defer func() {
 			createPodFunc = originalCreate
 			pollStatusFunc = originalPoll
@@ -285,7 +284,7 @@ var _ = Describe("CanPullImage", func() {
 	})
 
 	It("returns true when pod is created and image is pullable", func() {
-		createPodFunc = func(ctx context.Context, clientset kubernetes.Interface, ns, img string) (string, error) {
+		createPodFunc = func(ctx context.Context, clientset kubernetes.Interface, ns, img, pullSecret string) (string, error) {
 			// Simulate pod creation
 			pod := &corev1.Pod{
 				ObjectMeta: metav1.ObjectMeta{
@@ -304,7 +303,7 @@ var _ = Describe("CanPullImage", func() {
 		ctx, cancel := context.WithTimeout(context.Background(), MaxPullTimeout)
 		defer cancel()
 
-		ok, err := CanPullImage(ctx, client, namespace, image)
+		ok, err := CanPullImage(ctx, client, namespace, image, "")
 		Expect(err).ToNot(HaveOccurred())
 		Expect(ok).To(BeTrue())
 
@@ -313,7 +312,7 @@ var _ = Describe("CanPullImage", func() {
 	})
 
 	It("returns error if image cannot be pulled", func() {
-		createPodFunc = func(ctx context.Context, clientset kubernetes.Interface, ns, img string) (string, error) {
+		createPodFunc = func(ctx context.Context, clientset kubernetes.Interface, ns, img, pullSecret string) (string, error) {
 			return "fail-pod", nil
 		}
 		pollStatusFunc = func(ctx context.Context, clientset kubernetes.Interface, ns, podName string) (bool, error) {
@@ -322,19 +321,19 @@ var _ = Describe("CanPullImage", func() {
 		ctx, cancel := context.WithTimeout(context.Background(), MaxPullTimeout)
 		defer cancel()
 
-		ok, err := CanPullImage(ctx, client, namespace, image)
+		ok, err := CanPullImage(ctx, client, namespace, image, "")
 		Expect(err).To(HaveOccurred())
 		Expect(ok).To(BeFalse())
 	})
 
 	It("returns error if pod creation fails", func() {
-		createPodFunc = func(ctx context.Context, clientset kubernetes.Interface, ns, img string) (string, error) {
+		createPodFunc = func(ctx context.Context, clientset kubernetes.Interface, ns, img, pullSecret string) (string, error) {
 			return "", errors.New("create failed")
 		}
 		ctx, cancel := context.WithTimeout(context.Background(), MaxPullTimeout)
 		defer cancel()
 
-		ok, err := CanPullImage(ctx, client, namespace, image)
+		ok, err := CanPullImage(ctx, client, namespace, image, "")
 		Expect(err).To(HaveOccurred())
 		Expect(ok).To(BeFalse())
 	})
