@@ -1,9 +1,7 @@
-import { useCallback, useEffect } from "react";
+import { useEffect } from "react";
 import {
   TableData,
-  useK8sModel,
   VirtualizedTable,
-  k8sPatch,
   type RowProps,
 } from "@openshift-console/dynamic-plugin-sdk";
 import { Alert, Checkbox, Stack, StackItem } from "@patternfly/react-core";
@@ -13,17 +11,16 @@ import { useNodesSelectionTableColumns } from "../hooks/useNodesSelectionTableCo
 import { useGlobalStateContext } from "@/fusion-access/contexts/global-state/GlobalStateContext";
 import { useWatchNode } from "../hooks/useWatchNode";
 import { useWatchLocalVolumeDiscoveryResult } from "../hooks/useWatchLocalVolumeDiscoveryResult";
-import { getLabels, hasLabel } from "@/selectors/console/K8sResourceCommon";
 import {
   MINIMUM_AMOUNT_OF_MEMORY,
   MINIMUM_AMOUNT_OF_NODES,
-  STORAGE_ROLE_LABEL,
 } from "../constants";
 import { useNodeSelectionState } from "../hooks/useNodeSelectionState";
 import { useSharedDisksCount } from "../hooks/useSharedDisksCount";
 import { useSelectedNodes } from "../hooks/useSelectedNodes";
 import { useTriggerAlertsOnErrors } from "../hooks/useTriggerAlertsOnErrors";
 import { useNodesWithMinimumAmountOfMemory } from "../hooks/useNodesWithMinimumAmountOfMemory";
+import { useNodeSelectionHandler } from "../hooks/useNodeSelectionHandler";
 
 export const NodesSelection: React.FC = () => {
   const { t } = usePluginTranslations();
@@ -127,14 +124,6 @@ export const NodesSelection: React.FC = () => {
 };
 NodesSelection.displayName = "NodesSelection";
 
-const [storageRoleLabelKey, storageRoleLabelValue] =
-  STORAGE_ROLE_LABEL.split("=");
-
-type NodeSelectionChangeHandler = (
-  event: React.FormEvent<HTMLInputElement>,
-  checked: boolean
-) => void;
-
 type NodesSelectionTableRowProps = RowProps<
   IoK8sApiCoreV1Node,
   Array<IoK8sApiCoreV1Node>
@@ -143,8 +132,6 @@ const NodesSelectionTableRow: React.FC<NodesSelectionTableRowProps> = (
   props
 ) => {
   const { obj: node, activeColumnIDs, rowData: nodes } = props;
-  const [, dispatch] = useGlobalStateContext();
-  const { t } = usePluginTranslations();
 
   const [disksDiscoveryResults, , disksDiscoveryResultsError] =
     useWatchLocalVolumeDiscoveryResult({ isList: true });
@@ -165,76 +152,11 @@ const NodesSelectionTableRow: React.FC<NodesSelectionTableRowProps> = (
     disksDiscoveryResults
   );
 
-  const [nodeModel, _] = useK8sModel({
-    version: "v1",
-    kind: "Node",
+  const handleNodeSelection = useNodeSelectionHandler({
+    node,
+    isSelectionInProgress,
+    setNodeSelectionState,
   });
-
-  const handleNodeSelectionChange = useCallback<NodeSelectionChangeHandler>(
-    async (_, checked) => {
-      if (isSelectionInProgress) {
-        return;
-      }
-
-      const labels = getLabels(node);
-      if (!labels) {
-        return;
-      }
-
-      if (checked) {
-        labels[storageRoleLabelKey] = storageRoleLabelValue;
-      } else {
-        if (storageRoleLabelKey in labels) {
-          delete labels[storageRoleLabelKey];
-        }
-      }
-
-      try {
-        setNodeSelectionState((s) => ({
-          ...s,
-          isSelectionInProgress: true,
-          isSelected: checked,
-        }));
-
-        await k8sPatch({
-          data: [
-            {
-              op: "replace",
-              path: "/metadata/labels",
-              value: labels,
-            },
-          ],
-          model: nodeModel,
-          resource: node,
-        });
-
-        setNodeSelectionState((s) => ({
-          ...s,
-          isSelectionInProgress: false,
-          selectionError: null,
-          isSelected: checked,
-        }));
-      } catch (e) {
-        setNodeSelectionState((s) => ({
-          ...s,
-          isSelectionInProgress: false,
-          isSelected: hasLabel(node, STORAGE_ROLE_LABEL),
-        }));
-        dispatch({
-          type: "addAlert",
-          payload: {
-            key: Date.now(),
-            variant: "danger",
-            title: t("An error occurred when selecting a node "),
-            description: (e as Error).message,
-            dismissable: false,
-          },
-        });
-      }
-    },
-    // Safe to ignore: 't', 'dispatch', 'nodeModel' and 'setNodeSelectionState'
-    [node, isSelectionInProgress]
-  );
 
   return (
     <>
@@ -247,7 +169,7 @@ const NodesSelectionTableRow: React.FC<NodesSelectionTableRowProps> = (
           id={`node-${uid}`}
           isChecked={isSelected}
           isDisabled={isSelectionInProgress}
-          onChange={handleNodeSelectionChange}
+          onChange={handleNodeSelection}
         />
       </TableData>
       <TableData activeColumnIDs={activeColumnIDs} id="name">
