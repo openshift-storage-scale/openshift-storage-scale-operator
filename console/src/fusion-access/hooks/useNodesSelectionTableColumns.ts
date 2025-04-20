@@ -12,8 +12,8 @@ export const useNodesSelectionTableColumns: UseNodesSelectionTableColumns =
       () => [
         {
           id: "checkbox",
-          props: { className: "pf-v5-c-table__check" },
           title: "",
+          props: { className: "pf-v5-c-table__check" },
         },
         {
           id: "name",
@@ -22,21 +22,25 @@ export const useNodesSelectionTableColumns: UseNodesSelectionTableColumns =
         {
           id: "role",
           title: t("Role"),
+          props: { className: "pf-v5-u-text-align-center" },
         },
         {
           id: "cpu",
           title: t("CPU"),
+          props: { className: "pf-v5-u-text-align-center" },
         },
         {
           id: "memory",
           title: t("Memory"),
+          props: { className: "pf-v5-u-text-align-center" },
         },
         {
-          id: "disks",
-          title: t("Disks"),
+          id: "shared-disks",
+          title: t("Shared disks"),
+          props: { className: "pf-v5-u-text-align-center" },
         },
       ],
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+      // Safe to ignore: 't'
       []
     );
   };

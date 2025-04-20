@@ -8,6 +8,24 @@ export type QuantityDescriptorUnit =
   | SuffixBinarySI
   | SuffixDecimalSI;
 
+export enum DecimalSI {
+  k = 1000,
+  M = 1000 ** 2,
+  G = 1000 ** 3,
+  T = 1000 ** 4,
+  P = 1000 ** 5,
+  E = 1000 ** 6,
+}
+
+export enum BinarySI {
+  Ki = 1024,
+  Mi = 1024 ** 2,
+  Gi = 1024 ** 3,
+  Ti = 1024 ** 4,
+  Pi = 1024 ** 5,
+  Ei = 1024 ** 6,
+}
+
 /**
  * A Kubernetes resource quantity.
  * @see https://pkg.go.dev/k8s.io/apimachinery/pkg/api/resource#Quantity

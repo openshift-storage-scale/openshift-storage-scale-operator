@@ -6,7 +6,12 @@ import type {
   SuffixDecimalSI,
 } from "./IoK8sApimachineryPkgApiResourceQuantity";
 import { parseQuantity } from "./IoK8sApimachineryPkgApiResourceQuantity";
-import { VALUE_NOT_AVAILABLE } from "@/hooks/useConstants";
+import {
+  CPLANE_NODE_ROLE_LABEL,
+  MASTER_NODE_ROLE_LABEL,
+  VALUE_NOT_AVAILABLE,
+  WORKER_NODE_ROLE_LABEL,
+} from "@/fusion-access/constants";
 
 export type NodeRole =
   | "worker"
@@ -17,13 +22,13 @@ export type NodeRole =
 export const getRole = (node: IoK8sApiCoreV1Node): NodeRole => {
   let role: NodeRole = VALUE_NOT_AVAILABLE;
   switch (true) {
-    case hasLabel(node, "node-role.kubernetes.io/worker="):
+    case hasLabel(node, `${WORKER_NODE_ROLE_LABEL}=`):
       role = "worker";
       break;
-    case hasLabel(node, "node-role.kubernetes.io/master="):
+    case hasLabel(node, `${MASTER_NODE_ROLE_LABEL}=`):
       role = "master";
       break;
-    case hasLabel(node, "node-role.kubernetes.io/control-plane="):
+    case hasLabel(node, `${CPLANE_NODE_ROLE_LABEL}=`):
       role = "control-plane";
       break;
   }
