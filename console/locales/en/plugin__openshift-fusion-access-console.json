@@ -18,7 +18,7 @@
   "Role": "Role",
   "Shared disks": "Shared disks",
   "Storage cluster requirements": "Storage cluster requirements",
-  "To create a storage cluster select at least 3 nodes that share the same amount of disks. Only nodes with a minimum of {{MINIMUM_AMOUNT_OF_MEMORY}} of RAM are dispalyed.": "To create a storage cluster select at least 3 nodes that share the same amount of disks. Only nodes with a minimum of {{MINIMUM_AMOUNT_OF_MEMORY}} of RAM are dispalyed.",
+  "To create a storage cluster select at least 3 nodes that share the same amount of disks. Only nodes with a minimum of {{MINIMUM_AMOUNT_OF_MEMORY}} of RAM are displayed.": "To create a storage cluster select at least 3 nodes that share the same amount of disks. Only nodes with a minimum of {{MINIMUM_AMOUNT_OF_MEMORY}} of RAM are displayed.",
   "Worker nodes will be rebooted while creating the storage cluster.": "Worker nodes will be rebooted while creating the storage cluster.",
   "You need to create a storage cluster before you'll be able to create file systems.": "You need to create a storage cluster before you'll be able to create file systems.",
   "You will be able to continue once the instace is loaded.": "You will be able to continue once the instace is loaded.",

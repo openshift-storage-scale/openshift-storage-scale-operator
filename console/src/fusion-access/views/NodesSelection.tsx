@@ -31,7 +31,7 @@ export const NodesSelection: React.FC = () => {
       dispatch({
         type: "updatePageDescription",
         payload: t(
-          "To create a storage cluster select at least 3 nodes that share the same amount of disks. Only nodes with a minimum of {{MINIMUM_AMOUNT_OF_MEMORY}} of RAM are dispalyed.",
+          "To create a storage cluster select at least 3 nodes that share the same amount of disks. Only nodes with a minimum of {{MINIMUM_AMOUNT_OF_MEMORY}} of RAM are displayed.",
           { MINIMUM_AMOUNT_OF_MEMORY }
         ),
       });
