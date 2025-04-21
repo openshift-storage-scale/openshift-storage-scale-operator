@@ -9,7 +9,7 @@ require (
 	github.com/onsi/ginkgo/v2 v2.23.0
 	github.com/onsi/gomega v1.36.2
 	github.com/openshift/api v0.0.0-20250418132733-f636181788a9
-	github.com/openshift/client-go v0.0.0-20250402181141-b3bad3b645f2
+	github.com/openshift/client-go v0.0.0-20250416201115-ab7eedf8c1f2
 	github.com/openshift/library-go v0.0.0-20250416130344-ac3ba9eb16a2
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.80.1
