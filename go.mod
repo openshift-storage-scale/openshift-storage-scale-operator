@@ -10,7 +10,7 @@ require (
 	github.com/onsi/gomega v1.36.2
 	github.com/openshift/api v0.0.0-20250418132733-f636181788a9
 	github.com/openshift/client-go v0.0.0-20250402181141-b3bad3b645f2
-	github.com/openshift/library-go v0.0.0-20250402180609-ce2ba53fb2a4
+	github.com/openshift/library-go v0.0.0-20250416130344-ac3ba9eb16a2
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.80.1
 	github.com/spf13/cobra v1.9.1
