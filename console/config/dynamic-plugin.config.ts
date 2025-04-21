@@ -7,7 +7,7 @@ export const pluginMetadata: ConsolePluginBuildMetadata = {
   version: packageJson.version,
   displayName: "Fusion Access Plugin",
   exposedModules: {
-    FusionAccessRoot: "./fusion-access/components/Root.tsx",
+    FusionAccess: "./views/FusionAccess.tsx",
   },
   dependencies: {
     "@console/pluginAPI": ">=4.18.0-0",
@@ -20,7 +20,7 @@ export const extensions: EncodedExtension[] = [
     properties: {
       exact: true,
       path: "/plugin",
-      component: { $codeRef: "FusionAccessRoot" },
+      component: { $codeRef: "FusionAccess" },
     },
   },
   {
@@ -31,6 +31,7 @@ export const extensions: EncodedExtension[] = [
       href: "/plugin",
       perspective: "admin",
       section: "storage",
+      insertBefore: "persistentvolumes",
     },
   },
 ];

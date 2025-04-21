@@ -1,6 +1,5 @@
-// This file was auto-generated from filesystem-schema.yaml OpenAPI v3 schema.
+// This file was auto-generated from the filesystem CRD schema.
 // Do not edit manually. Update the schema and regenerate if needed.
-
 import type { K8sResourceCommon } from "@openshift-console/dynamic-plugin-sdk";
 
 // ---
