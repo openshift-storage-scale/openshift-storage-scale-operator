@@ -429,7 +429,12 @@ func (r *FusionAccessReconciler) getPullSecretSelector(
 	if err := r.List(ctx, fusionAccessList, client.InNamespace(ns)); err != nil {
 		return nil
 	}
-	// We enforce a single fusionAccess instance via webhooks
+	if len(fusionAccessList.Items) == 0 {
+		log.Log.Info("No FusionAccess instance found, skipping pull secret")
+		return []reconcile.Request{}
+	}
+
+	// We enforce a single fusionAccess instance via webhooks so we can take the first
 	req := reconcile.Request{
 		NamespacedName: client.ObjectKeyFromObject(&fusionAccessList.Items[0]),
 	}
