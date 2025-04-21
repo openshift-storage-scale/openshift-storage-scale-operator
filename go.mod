@@ -87,3 +87,8 @@ require (
 	sigs.k8s.io/structured-merge-diff/v4 v4.6.0 // indirect
 	sigs.k8s.io/yaml v1.4.0 // indirect
 )
+
+replace (
+	golang.org/x/net => golang.org/x/net v0.38.0 // https://go.dev/cl/662715 and https://nvd.nist.gov/vuln/detail/CVE-2025-22872
+	golang.org/x/oauth2 => golang.org/x/oauth2 v0.27.0 // https://go.dev/cl/652155
+)
