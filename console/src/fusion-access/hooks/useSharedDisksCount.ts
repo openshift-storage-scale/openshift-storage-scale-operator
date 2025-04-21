@@ -49,7 +49,12 @@ export const useSharedDisksCount = (
     }
 
     // Count the number of shared disks
-    const sharedDisksCount = nodeWwns.intersection(otherNodesWwns).size;
+    let sharedDisksCount = 0;
+    otherNodesWwns.forEach((wwn) => {
+      if (nodeWwns.has(wwn)) {
+        sharedDisksCount++;
+      }
+    });
 
     return sharedDisksCount;
   }, [isSelected, selectedNodes, discoveryResults, nodeName]);
