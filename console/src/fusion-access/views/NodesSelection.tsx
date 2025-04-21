@@ -31,8 +31,8 @@ export const NodesSelection: React.FC = () => {
       dispatch({
         type: "updatePageDescription",
         payload: t(
-          "To create a storage cluster select at least 3 nodes that share the same amount of disks. Only nodes with a minimum of {{MINIMUM_AMOUNT_OF_MEMORY}} of RAM are displayed.",
-          { MINIMUM_AMOUNT_OF_MEMORY }
+          "To create a storage cluster select at least {{MINIMUM_AMOUNT_OF_NODES}} nodes that share the same amount of disks.",
+          { MINIMUM_AMOUNT_OF_NODES }
         ),
       });
       dispatch({
@@ -104,7 +104,8 @@ export const NodesSelection: React.FC = () => {
           isInline
           variant="info"
           title={t(
-            "Worker nodes will be rebooted while creating the storage cluster."
+            "Only worker nodes with a minimum of {{MINIMUM_AMOUNT_OF_MEMORY}} of RAM are displayed.",
+            { MINIMUM_AMOUNT_OF_MEMORY }
           )}
         />
       </StackItem>
