@@ -24,7 +24,8 @@ export const Page: React.FC = () => {
   const [state, dispatch] = useGlobalStateContext();
 
   useLayoutEffect(() => {
-    // Ensure the body takes full height, to allow displaying warnings at the bottom of the same section
+    // Ensure the <ListPageBody> takes full height, to allow displaying warnings at the bottom of the same section
+    // It's a workaround for the <ListPageBody> not forwarding the styles prop
     const listPageBody = document.querySelector<HTMLDivElement>(
       "#content-scrollable > section > div.co-m-pane__body"
     );
@@ -71,7 +72,7 @@ export const Page: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title data-testid="document-title">{state.page?.documentTitle}</title>
+        <title data-testid="document-title">{state.page.documentTitle}</title>
       </Helmet>
 
       <ListPageHeader

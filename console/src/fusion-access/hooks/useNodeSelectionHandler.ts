@@ -5,7 +5,7 @@ import { STORAGE_ROLE_LABEL } from "../constants";
 import { usePluginTranslations } from "@/hooks/usePluginTranslations";
 import { useGlobalStateContext } from "../contexts/global-state/GlobalStateContext";
 import type { IoK8sApiCoreV1Node } from "@/models/kubernetes/1.30/types";
-import type { NodeSelectionState } from "./useNodeSelectionState";
+import type { NodeSelectionActions } from "./useNodeSelectionState";
 
 const [storageRoleLabelKey, storageRoleLabelValue] =
   STORAGE_ROLE_LABEL.split("=");
@@ -17,16 +17,14 @@ type NodeSelectionHandler = (
 
 export type UseNodeSelectionHandler = (options: {
   node: IoK8sApiCoreV1Node;
-  isSelectionInProgress: boolean;
-  setNodeSelectionState: React.Dispatch<
-    React.SetStateAction<NodeSelectionState>
-  >;
+  isSelectionPending: boolean;
+  nodeSelectionActions: NodeSelectionActions;
 }) => NodeSelectionHandler;
 
 export const useNodeSelectionHandler: UseNodeSelectionHandler = ({
   node,
-  isSelectionInProgress,
-  setNodeSelectionState,
+  isSelectionPending,
+  nodeSelectionActions,
 }) => {
   const [, dispatch] = useGlobalStateContext();
   const { t } = usePluginTranslations();
@@ -37,7 +35,7 @@ export const useNodeSelectionHandler: UseNodeSelectionHandler = ({
 
   return useCallback<NodeSelectionHandler>(
     async (_, checked) => {
-      if (isSelectionInProgress) {
+      if (isSelectionPending) {
         return;
       }
 
@@ -55,12 +53,7 @@ export const useNodeSelectionHandler: UseNodeSelectionHandler = ({
       }
 
       try {
-        setNodeSelectionState((s) => ({
-          ...s,
-          isSelectionInProgress: true,
-          isSelected: checked,
-        }));
-
+        nodeSelectionActions.setSelectionPending(checked);
         await k8sPatch({
           data: [
             {
@@ -72,19 +65,11 @@ export const useNodeSelectionHandler: UseNodeSelectionHandler = ({
           model: nodeModel,
           resource: node,
         });
-
-        setNodeSelectionState((s) => ({
-          ...s,
-          isSelectionInProgress: false,
-          selectionError: null,
-          isSelected: checked,
-        }));
+        nodeSelectionActions.setSelectionSucceeded(checked);
       } catch (e) {
-        setNodeSelectionState((s) => ({
-          ...s,
-          isSelectionInProgress: false,
-          isSelected: hasLabel(node, STORAGE_ROLE_LABEL),
-        }));
+        nodeSelectionActions.setSelectionFailed(
+          hasLabel(node, STORAGE_ROLE_LABEL)
+        );
         dispatch({
           type: "addAlert",
           payload: {
@@ -97,7 +82,7 @@ export const useNodeSelectionHandler: UseNodeSelectionHandler = ({
         });
       }
     },
-    // Safe to ignore: 't', 'dispatch', 'nodeModel' and 'setNodeSelectionState'
-    [node, isSelectionInProgress]
+    // Safe to ignore: 't', 'dispatch', 'nodeModel' and 'nodeSelectionActions'
+    [node, isSelectionPending]
   );
 };

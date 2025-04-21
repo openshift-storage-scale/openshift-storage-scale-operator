@@ -141,8 +141,8 @@ const NodesSelectionTableRow: React.FC<NodesSelectionTableRowProps> = (
   const selectedNodes = useSelectedNodes(nodes);
 
   const [
-    { uid, name, role, cpu, memory, isSelected, isSelectionInProgress },
-    setNodeSelectionState,
+    { uid, name, role, cpu, memory, isSelected, isSelectionPending },
+    nodeSelectionActions,
   ] = useNodeSelectionState(node);
 
   const sharedDisksCount = useSharedDisksCount(
@@ -154,8 +154,8 @@ const NodesSelectionTableRow: React.FC<NodesSelectionTableRowProps> = (
 
   const handleNodeSelection = useNodeSelectionHandler({
     node,
-    isSelectionInProgress,
-    setNodeSelectionState,
+    isSelectionPending,
+    nodeSelectionActions,
   });
 
   return (
@@ -168,7 +168,7 @@ const NodesSelectionTableRow: React.FC<NodesSelectionTableRowProps> = (
         <Checkbox
           id={`node-${uid}`}
           isChecked={isSelected}
-          isDisabled={isSelectionInProgress}
+          isDisabled={isSelectionPending}
           onChange={handleNodeSelection}
         />
       </TableData>

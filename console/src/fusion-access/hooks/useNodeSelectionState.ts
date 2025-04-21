@@ -16,22 +16,25 @@ import {
   type NodeRole,
 } from "@/selectors/kubernetes/1.30/IoK8sApiCoreV1Node";
 
-export interface NodeSelectionState {
+export type NodeSelectionState = {
   uid: string;
   name: string;
   role: NodeRole;
   cpu: IoK8sApimachineryPkgApiResourceQuantity;
   memory: IoK8sApimachineryPkgApiResourceQuantity;
   isSelected: boolean;
-  isSelectionInProgress: boolean;
-}
+  isSelectionPending: boolean;
+};
+
+export type NodeSelectionActions = {
+  setSelectionPending: (checked: boolean) => void;
+  setSelectionSucceeded: (checked: boolean) => void;
+  setSelectionFailed: (hasStorageRoleLabel: boolean) => void;
+};
 
 export const useNodeSelectionState = (
   node: IoK8sApiCoreV1Node
-): [
-  NodeSelectionState,
-  React.Dispatch<React.SetStateAction<NodeSelectionState>>,
-] => {
+): [NodeSelectionState, NodeSelectionActions] => {
   const isSelected = hasLabel(node, STORAGE_ROLE_LABEL);
   const [memoryValue] = getMemory(node);
 
@@ -42,8 +45,32 @@ export const useNodeSelectionState = (
     cpu: getCpu(node) ?? VALUE_NOT_AVAILABLE,
     memory: memoryValue ? memoryValue : VALUE_NOT_AVAILABLE,
     isSelected,
-    isSelectionInProgress: false,
+    isSelectionPending: false,
   });
 
-  return [state, setState];
+  const actions = {
+    setSelectionPending: (checked: boolean) => {
+      setState((s) => ({
+        ...s,
+        isSelectionPending: true,
+        isSelected: checked,
+      }));
+    },
+    setSelectionSucceeded: (checked: boolean) => {
+      setState((s) => ({
+        ...s,
+        isSelectionPending: false,
+        isSelected: checked,
+      }));
+    },
+    setSelectionFailed: (hasStorageRoleLabel: boolean) => {
+      setState((s) => ({
+        ...s,
+        isSelectionPending: false,
+        isSelected: hasStorageRoleLabel,
+      }));
+    },
+  };
+
+  return [state, actions];
 };
