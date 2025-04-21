@@ -15,7 +15,7 @@
   ],
   "settings": {
     "window.title": "${folderName}",
-    "typescript.tsdk": "./node_modules/typescript/lib",
+    "typescript.tsdk": "Openshift Fusion Access Plugin/node_modules/typescript/lib",
     "typescript.preferences.preferTypeOnlyAutoImports": true,
     "editor.formatOnSave": true,
     "eslint.options": {

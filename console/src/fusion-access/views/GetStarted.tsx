@@ -1,6 +1,6 @@
 import React from "react";
 import {
-  EmptyState,
+  EmptyState as PFEmptyState,
   EmptyStateBody,
   Button,
   EmptyStateFooter,
@@ -13,18 +13,19 @@ import {
   ExternalLinkAltIcon,
 } from "@patternfly/react-icons";
 import { usePluginTranslations } from "@/hooks/usePluginTranslations";
+import { CreateStorageClusterButton } from "../components/CreateStorageClusterButton";
 
-type EmptyStateSectionProps = {
-  onCreateCluster: React.MouseEventHandler<HTMLButtonElement>;
+type GetStartedProps = {
+  onGetStarted: React.MouseEventHandler<HTMLButtonElement>;
   learnMoreHref?: string;
 };
 
-export const EmptyStateSection: React.FC<EmptyStateSectionProps> = (props) => {
-  const { onCreateCluster, learnMoreHref = "" } = props;
+export const GetStarted: React.FC<GetStartedProps> = (props) => {
+  const { onGetStarted, learnMoreHref = "" } = props;
   const { t } = usePluginTranslations();
 
   return (
-    <EmptyState>
+    <PFEmptyState>
       <EmptyStateHeader
         titleText={t("No storage cluster")}
         headingLevel="h4"
@@ -37,9 +38,7 @@ export const EmptyStateSection: React.FC<EmptyStateSectionProps> = (props) => {
       </EmptyStateBody>
       <EmptyStateFooter>
         <EmptyStateActions>
-          <Button onClick={onCreateCluster} variant="primary">
-            {t("Create storage cluster")}
-          </Button>
+          <CreateStorageClusterButton onCreateStorageCluster={onGetStarted} />
         </EmptyStateActions>
         <EmptyStateActions>
           <Button
@@ -54,8 +53,8 @@ export const EmptyStateSection: React.FC<EmptyStateSectionProps> = (props) => {
           </Button>
         </EmptyStateActions>
       </EmptyStateFooter>
-    </EmptyState>
+    </PFEmptyState>
   );
 };
 
-EmptyStateSection.displayName = "EmptyStateSection";
+GetStarted.displayName = "GetStarted";

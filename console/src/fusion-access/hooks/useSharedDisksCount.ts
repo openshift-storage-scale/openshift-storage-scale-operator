@@ -1,8 +1,8 @@
 import { useMemo } from "react";
-import type { LocalVolumeDiscoveryResult } from "@/models/fusionstorage/LocalVolumeDiscoveryResult";
+import type { LocalVolumeDiscoveryResult } from "@/models/fusion-storage/LocalVolumeDiscoveryResult";
 import type { IoK8sApiCoreV1Node } from "@/models/kubernetes/1.30/types";
 
-export const useNodeSharedDisksCount = (
+export const useSharedDisksCount = (
   nodeName: string,
   isSelected: boolean,
   selectedNodes: IoK8sApiCoreV1Node[],
@@ -49,7 +49,12 @@ export const useNodeSharedDisksCount = (
     }
 
     // Count the number of shared disks
-    const sharedDisksWwns = nodeWwns.intersection(otherNodesWwns);
+    let sharedDisksCount = 0;
+    otherNodesWwns.forEach((wwn) => {
+      if (nodeWwns.has(wwn)) {
+        sharedDisksCount++;
+      }
+    });
 
-    return sharedDisksWwns.size;
+    return sharedDisksCount;
   }, [isSelected, selectedNodes, discoveryResults, nodeName]);
