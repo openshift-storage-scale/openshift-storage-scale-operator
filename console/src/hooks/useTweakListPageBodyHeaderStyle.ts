@@ -5,7 +5,7 @@ export type UseTweakListPageBodyHeaderStyleOptions = {
   isFilled: boolean;
   direction: "column" | "row";
   alignment: "start" | "end" | "center" | "space-between" | "space-around";
-  justifcation: "start" | "end" | "center" | "space-between" | "space-around";
+  justification: "start" | "end" | "center" | "space-between" | "space-around";
 };
 
 const LIST_PAGE_BODY_HEADER_DEFAULT_CLASSES =
@@ -17,7 +17,7 @@ const LIST_PAGE_BODY_HEADER_DEFAULT_CLASSES =
 export const useTweakListPageBodyHeaderStyle = (
   options: Partial<UseTweakListPageBodyHeaderStyleOptions>
 ) => {
-  const { isFlex, isFilled, direction, alignment, justifcation } = options;
+  const { isFlex, isFilled, direction, alignment, justification } = options;
 
   useLayoutEffect(() => {
     const ref = document.querySelector<HTMLDivElement>(
@@ -34,9 +34,9 @@ export const useTweakListPageBodyHeaderStyle = (
         isFilled ? "pf-u-flex-grow-1" : "",
         direction ? `pf-u-flex-direction-${direction}` : "",
         alignment ? `pf-u-align-items-${alignment}` : "",
-        justifcation ? `pf-u-justify-content-${justifcation}` : "",
+        justification ? `pf-u-justify-content-${justification}` : "",
       ].filter(Boolean);
       ref.classList.add(...classes);
     }
-  }, [isFlex, isFilled, direction, alignment, justifcation]);
+  }, [isFlex, isFilled, direction, alignment, justification]);
 };

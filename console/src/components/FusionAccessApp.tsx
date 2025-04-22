@@ -31,7 +31,7 @@ export const FusionAccessApp: React.FC = () => {
     isFilled: true,
     direction: "column",
     alignment: "center",
-    justifcation: "space-around",
+    justification: "space-around",
   });
 
   const [nodes, _nodesLoaded, nodesError] = useWatchNode({
