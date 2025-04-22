@@ -3,9 +3,9 @@ import { k8sPatch, useK8sModel } from "@openshift-console/dynamic-plugin-sdk";
 import { getLabels, hasLabel } from "@/utils/console/K8sResourceCommon";
 import { STORAGE_ROLE_LABEL } from "@/constants";
 import { useFusionAccessTranslations } from "@/hooks/useFusionAccessTranslations";
-import { useGlobalStateContext } from "@/hooks/useGlobalStateContext";
 import type { IoK8sApiCoreV1Node } from "@/models/kubernetes/1.30/types";
 import type { NodeSelectionActions } from "./useNodeSelectionState";
+import { useStoreContext } from "./useStoreContext";
 
 const [storageRoleLabelKey, storageRoleLabelValue] =
   STORAGE_ROLE_LABEL.split("=");
@@ -26,7 +26,7 @@ export const useNodeSelectionHandler: UseNodeSelectionHandler = ({
   isSelectionPending,
   nodeSelectionActions,
 }) => {
-  const [, dispatch] = useGlobalStateContext();
+  const [, dispatch] = useStoreContext();
   const { t } = useFusionAccessTranslations();
   const [nodeModel, _] = useK8sModel({
     version: "v1",
@@ -82,7 +82,6 @@ export const useNodeSelectionHandler: UseNodeSelectionHandler = ({
         });
       }
     },
-    // Safe to ignore: 't', 'dispatch', 'nodeModel' and 'nodeSelectionActions'
-    [node, isSelectionPending]
+    [isSelectionPending, node, nodeSelectionActions, nodeModel, dispatch, t]
   );
 };

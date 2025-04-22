@@ -40,7 +40,6 @@ export const useNodesSelectionTableColumns: UseNodesSelectionTableColumns =
           props: { className: "pf-v5-u-text-align-center" },
         },
       ],
-      // Safe to ignore: 't'
-      []
+      [t]
     );
   };

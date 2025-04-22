@@ -10,7 +10,7 @@ import {
 } from "@patternfly/react-core";
 import { useWatchSpectrumScaleCluster } from "@/hooks/useWatchSpectrumScaleCluster";
 import { useWatchFusionAccess } from "@/hooks/useWatchFusionAccess";
-import { useGlobalStateContext } from "@/hooks/useGlobalStateContext";
+import { useStoreContext } from "@/hooks/useStoreContext";
 import { DownloadLogsButton } from "./DownloadLogsButton";
 import { CreateStorageClusterButton } from "./CreateStorageClusterButton";
 import { usePageSectionRouter } from "@/hooks/usePageSectionRouter";
@@ -20,12 +20,13 @@ import { useTriggerAlertsOnErrors } from "@/hooks/useTriggerAlertsOnErrors";
 import { useCreateStorageClusterHandler } from "@/hooks/useCreateStorageClusterHandler";
 import { CreateFileSystemButton } from "./CreateFileSystemButton";
 import { useCreateFileSystemHandler } from "@/hooks/useCreateFileSystemHandler";
-import { useListPageBodyHeaderStyle } from "@/hooks/useListPageBodyHeaderStyle";
+import { useTweakListPageBodyHeaderStyle } from "@/hooks/useTweakListPageBodyHeaderStyle";
+import { useDownloadLogsHandler } from "@/hooks/useDownloadLogsHandler";
 
-export const ListPage: React.FC = () => {
-  const [state, dispatch] = useGlobalStateContext();
+export const FusionAccessApp: React.FC = () => {
+  const [state, dispatch] = useStoreContext();
 
-  useListPageBodyHeaderStyle({
+  useTweakListPageBodyHeaderStyle({
     isFlex: true,
     isFilled: true,
     direction: "column",
@@ -64,13 +65,14 @@ export const ListPage: React.FC = () => {
     fusionAccessesListLoaded,
   });
 
+  const handleDownloadLogs = useDownloadLogsHandler();
   const handleCreateStorageCluster = useCreateStorageClusterHandler();
   const handleCreateFileSystem = useCreateFileSystemHandler();
 
   return (
     <>
       <Helmet>
-        <title data-testid="document-title">{state.page.documentTitle}</title>
+        <title data-testid="document-title">{state.global.documentTitle}</title>
       </Helmet>
 
       <ListPageHeader
@@ -79,18 +81,20 @@ export const ListPage: React.FC = () => {
       >
         <DownloadLogsButton
           key={"download-logs"}
-          onDownloadLogs={() => {}}
-          isHidden={state.page.ctas.downloadLogs.isHidden}
+          isDisabled={state.ctas.downloadLogs.isDisabled}
+          isHidden={state.ctas.downloadLogs.isHidden}
+          onDownloadLogs={handleDownloadLogs}
         />
         <CreateStorageClusterButton
           key={"create-storage-cluster"}
           isDisabled={selectedNodes.length < 3}
-          isHidden={state.page.ctas.createStorageCluster.isHidden}
+          isHidden={state.ctas.createStorageCluster.isHidden}
           onCreateStorageCluster={handleCreateStorageCluster}
         />
         <CreateFileSystemButton
           key={"create-file-system"}
-          isHidden={state.page.ctas.createFileSystem.isHidden}
+          isDisabled={state.ctas.createFileSystem.isDisabled}
+          isHidden={state.ctas.createFileSystem.isHidden}
           onCreateFileSystem={handleCreateFileSystem}
         />
       </ListPageHeader>
@@ -127,4 +131,4 @@ export const ListPage: React.FC = () => {
     </>
   );
 };
-ListPage.displayName = "ListPage";
+FusionAccessApp.displayName = "FusionAccessApp";

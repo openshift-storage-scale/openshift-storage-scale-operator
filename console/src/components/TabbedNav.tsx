@@ -4,42 +4,43 @@ import {
   type NavPage,
 } from "@openshift-console/dynamic-plugin-sdk";
 import { useFusionAccessTranslations } from "@/hooks/useFusionAccessTranslations";
+import { useTweakListPageBodyHeaderStyle } from "@/hooks/useTweakListPageBodyHeaderStyle";
+import { useStoreContext } from "@/hooks/useStoreContext";
 import { FileSystemsTab } from "./FileSystemsTab";
-import { useListPageBodyHeaderStyle } from "@/hooks/useListPageBodyHeaderStyle";
-import { useGlobalStateContext } from "@/hooks/useGlobalStateContext";
 
 export const TabbedNav: React.FC = () => {
-  useListPageBodyHeaderStyle({
+  const { t } = useFusionAccessTranslations();
+  const [, dispatch] = useStoreContext();
+
+  useTweakListPageBodyHeaderStyle({
     isFlex: true,
     isFilled: true,
     direction: "column",
   });
-  const [state, dispatch] = useGlobalStateContext();
 
   useEffect(() => {
-    dispatch({ type: "updatePageDescription", payload: "" });
+    dispatch({ type: "updatePage", payload: { description: " " } });
     dispatch({
-      type: "updateCreateStorageClusterCta",
+      type: "updateCtas",
       payload: {
-        isDisabled: true,
-        isHidden: true,
+        createStorageCluster: {
+          isDisabled: true,
+          isHidden: true,
+        },
       },
     });
-    dispatch({
-      type: "updateCreateFileSystemCta",
-      payload: {
-        isDisabled: true,
-        isHidden: false,
-      },
-    });
-  }, [dispatch]);
 
-  const { t } = useFusionAccessTranslations();
+    // Hacking until we figure out the href for the tabs, then <HorizontalNav> probably sets the doctitle.
+    dispatch({
+      type: "updateGlobal",
+      payload: { documentTitle: t("File systems") },
+    });
+  }, [dispatch, t]);
 
   const pages: NavPage[] = useMemo(
     () => [
       {
-        href: "/file-systems",
+        href: "/plugin",
         component: FileSystemsTab,
         name: t("File systems"),
       },

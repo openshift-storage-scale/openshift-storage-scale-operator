@@ -9,7 +9,7 @@ import {
 import type { K8sResourceCommon } from "@openshift-console/dynamic-plugin-sdk";
 import { SearchIcon } from "@patternfly/react-icons";
 import { useFusionAccessTranslations } from "@/hooks/useFusionAccessTranslations";
-import { useGlobalStateContext } from "@/hooks/useGlobalStateContext";
+import { useStoreContext } from "@/hooks/useStoreContext";
 import { GetStarted } from "@/components/GetStarted";
 import { NodesSelection } from "@/components/NodesSelection";
 import { TabbedNav } from "@/components/TabbedNav";
@@ -26,9 +26,9 @@ export const usePageSectionRouter = ({
   spectrumScaleClustersListLoaded,
   fusionAccessesList,
   fusionAccessesListLoaded,
-}: UsePageSectionRouterOptions) => {
+}: UsePageSectionRouterOptions): React.ReactNode => {
   const { t } = useFusionAccessTranslations();
-  const [state, dispatch] = useGlobalStateContext();
+  const [state, dispatch] = useStoreContext();
 
   return useMemo(() => {
     let element: React.ReactNode = null;
@@ -76,12 +76,12 @@ export const usePageSectionRouter = ({
         );
         break;
       case spectrumScaleClustersList.length === 0:
-        element = !state.userFlow.isStarted ? (
+        element = !state.global.userFlowStarted ? (
           <GetStarted
             onGetStarted={() => {
               dispatch({
-                type: "updateUserFlow",
-                payload: { isStarted: true },
+                type: "updateGlobal",
+                payload: { userFlowStarted: true },
               });
             }}
           />
@@ -95,12 +95,13 @@ export const usePageSectionRouter = ({
     }
 
     return element;
-    // Safe to ignore: 't' and 'dispatch'
   }, [
-    state.userFlow.isStarted,
-    fusionAccessesList.length,
-    fusionAccessesListLoaded,
-    spectrumScaleClustersList.length,
+    t,
+    dispatch,
     spectrumScaleClustersListLoaded,
+    fusionAccessesListLoaded,
+    fusionAccessesList.length,
+    spectrumScaleClustersList.length,
+    state.global.userFlowStarted,
   ]);
 };

@@ -1,6 +1,6 @@
 import { useLayoutEffect } from "react";
 
-export type UseListPageBodyHeaderStyleOptions = {
+export type UseTweakListPageBodyHeaderStyleOptions = {
   isFlex: boolean;
   isFilled: boolean;
   direction: "column" | "row";
@@ -14,8 +14,8 @@ const LIST_PAGE_BODY_HEADER_DEFAULT_CLASSES =
 /**
  * This hook is a hack becasue <ListPageHeader> doesn't accept `styles` or `className` props.
  */
-export const useListPageBodyHeaderStyle = (
-  options: Partial<UseListPageBodyHeaderStyleOptions>
+export const useTweakListPageBodyHeaderStyle = (
+  options: Partial<UseTweakListPageBodyHeaderStyleOptions>
 ) => {
   const { isFlex, isFilled, direction, alignment, justifcation } = options;
 

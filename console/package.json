@@ -32,7 +32,9 @@
     "ts:webpack": "node -r ts-node/register ./node_modules/.bin/webpack"
   },
   "dependencies": {
-    "convert": "^5.9.0"
+    "convert": "^5.9.0",
+    "immer": "^10.1.1",
+    "use-immer": "^0.11.0"
   },
   "devDependencies": {
     "@cypress/webpack-preprocessor": "^5.15.5",

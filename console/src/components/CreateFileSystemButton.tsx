@@ -17,7 +17,6 @@ export const CreateFileSystemButton: React.FC<CreateFileSystemButtonProps> = (
     <Button
       variant="primary"
       isDisabled={isDisabled}
-      hidden={isHidden}
       onClick={onCreateFileSystem}
     >
       {t("Create file system")}

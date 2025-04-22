@@ -8,7 +8,7 @@ import { Alert, Checkbox, Stack, StackItem } from "@patternfly/react-core";
 import { useFusionAccessTranslations } from "@/hooks/useFusionAccessTranslations";
 import type { IoK8sApiCoreV1Node } from "@/models/kubernetes/1.30/types";
 import { useNodesSelectionTableColumns } from "@/hooks/useNodesSelectionTableColumns";
-import { useGlobalStateContext } from "@/hooks/useGlobalStateContext";
+import { useStoreContext } from "@/hooks/useStoreContext";
 import { useWatchNode } from "@/hooks/useWatchNode";
 import { useWatchLocalVolumeDiscoveryResult } from "@/hooks/useWatchLocalVolumeDiscoveryResult";
 import { MINIMUM_AMOUNT_OF_MEMORY, MINIMUM_AMOUNT_OF_NODES } from "@/constants";
@@ -18,32 +18,32 @@ import { useSelectedNodes } from "@/hooks/useSelectedNodes";
 import { useTriggerAlertsOnErrors } from "@/hooks/useTriggerAlertsOnErrors";
 import { useNodesWithMinimumAmountOfMemory } from "@/hooks/useNodesWithMinimumAmountOfMemory";
 import { useNodeSelectionHandler } from "@/hooks/useNodeSelectionHandler";
-import { useListPageBodyHeaderStyle } from "@/hooks/useListPageBodyHeaderStyle";
+import { useTweakListPageBodyHeaderStyle } from "@/hooks/useTweakListPageBodyHeaderStyle";
 
 export const NodesSelection: React.FC = () => {
   const { t } = useFusionAccessTranslations();
-  const [state, dispatch] = useGlobalStateContext();
+  const [state, dispatch] = useStoreContext();
 
-  useEffect(
-    () => {
-      dispatch({
-        type: "updatePageDescription",
-        payload: t(
+  useEffect(() => {
+    dispatch({
+      type: "updatePage",
+      payload: {
+        description: t(
           "To create a storage cluster select at least {{MINIMUM_AMOUNT_OF_NODES}} nodes that share the same amount of disks.",
           { MINIMUM_AMOUNT_OF_NODES }
         ),
-      });
-      dispatch({
-        type: "updateCreateStorageClusterCta",
-        payload: {
+      },
+    });
+    dispatch({
+      type: "updateCtas",
+      payload: {
+        createStorageCluster: {
           isDisabled: true,
           isHidden: false,
         },
-      });
-    },
-    // Safe to ignore: 't' and 'dispatch'
-    []
-  );
+      },
+    });
+  }, [dispatch, t]);
 
   const [nodes, nodesLoaded, nodesLoadedError] = useWatchNode({
     role: "worker",
@@ -53,45 +53,41 @@ export const NodesSelection: React.FC = () => {
   const nodesWithMinimumAmountOfMemory =
     useNodesWithMinimumAmountOfMemory(nodes);
 
-  useEffect(
-    () => {
-      const alertDescription = t(
-        "At least {{MINIMUM_AMOUNT_OF_NODES}} nodes are required, each with a minimum of {{MINIMUM_AMOUNT_OF_MEMORY}} of RAM.",
-        {
-          MINIMUM_AMOUNT_OF_NODES,
-          MINIMUM_AMOUNT_OF_MEMORY,
-        }
-      );
-      const weHaveAnAlertWithThisDescriptionAlready = state.alerts.find(
-        (alert) => alert.description === alertDescription
-      );
-      if (weHaveAnAlertWithThisDescriptionAlready) {
-        return;
+  useEffect(() => {
+    const alertDescription = t(
+      "At least {{MINIMUM_AMOUNT_OF_NODES}} nodes are required, each with a minimum of {{MINIMUM_AMOUNT_OF_MEMORY}} of RAM.",
+      {
+        MINIMUM_AMOUNT_OF_NODES,
+        MINIMUM_AMOUNT_OF_MEMORY,
       }
+    );
+    const weHaveAnAlertWithThisDescriptionAlready = state.alerts.find(
+      (alert) => alert.description === alertDescription
+    );
+    if (weHaveAnAlertWithThisDescriptionAlready) {
+      return;
+    }
 
-      if (nodesWithMinimumAmountOfMemory.length < 3) {
-        dispatch({
-          type: "addAlert",
-          payload: {
-            key: Date.now(),
-            variant: "warning",
-            title: t("Storage cluster requirements"),
-            description: alertDescription,
-            isDismissable: false,
-          },
+    if (nodesWithMinimumAmountOfMemory.length < 3) {
+      dispatch({
+        type: "addAlert",
+        payload: {
+          key: Date.now(),
+          variant: "warning",
+          title: t("Storage cluster requirements"),
+          description: alertDescription,
+          isDismissable: false,
+        },
+      });
+    } else {
+      state.alerts
+        .filter((alert) => alert.description === alertDescription)
+        .map((alert) => alert.key)
+        .forEach((key) => {
+          dispatch({ type: "removeAlert", payload: { key, title: "IDC" } });
         });
-      } else {
-        state.alerts
-          .filter((alert) => alert.description === alertDescription)
-          .map((alert) => alert.key)
-          .forEach((key) => {
-            dispatch({ type: "removeAlert", payload: { key, title: "IDC" } });
-          });
-      }
-    },
-    // Safe to ignore: 't' and 'dispatch'
-    [state.alerts, nodesWithMinimumAmountOfMemory.length]
-  );
+    }
+  }, [state.alerts, nodesWithMinimumAmountOfMemory.length, t, dispatch]);
 
   const columns = useNodesSelectionTableColumns();
 
@@ -132,7 +128,7 @@ const NodesSelectionTableRow: React.FC<NodesSelectionTableRowProps> = (
 ) => {
   const { activeColumnIDs, obj: node, rowData: nodes } = props;
 
-  useListPageBodyHeaderStyle({
+  useTweakListPageBodyHeaderStyle({
     isFlex: true,
     isFilled: true,
     direction: "column",

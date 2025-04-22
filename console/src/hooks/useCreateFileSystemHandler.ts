@@ -1,10 +1,10 @@
 import { useCallback } from "react";
 import { k8sCreate, useK8sModel } from "@openshift-console/dynamic-plugin-sdk";
 import { useFusionAccessTranslations } from "@/hooks/useFusionAccessTranslations";
-import { useGlobalStateContext } from "@/hooks/useGlobalStateContext";
+import { useStoreContext } from "@/hooks/useStoreContext";
 
 export const useCreateFileSystemHandler = () => {
-  // const [, dispatch] = useGlobalStateContext();
+  // const dispatch = useDispatch();
   // const { t } = useFusionAccessTranslations();
 
   // const [storageScaleClusterModel] = useK8sModel({
@@ -46,7 +46,6 @@ export const useCreateFileSystemHandler = () => {
   //       });
   //     }
   //   },
-  //   // Safe to ignore: 't', 'dispatch' and 'storageScaleClusterModel'
   //   []
   // );
   return () => {};

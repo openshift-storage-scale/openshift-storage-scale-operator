@@ -1,12 +1,12 @@
-import { GlobalStateProvider } from "@/contexts/global-state/context";
-import { reducer, initialState } from "@/contexts/global-state/reducer";
-import { ListPage } from "@/components/ListPage";
+import { StoreProvider } from "@/contexts/store/context";
+import { reducer, initialState } from "@/contexts/store/reducer";
+import { FusionAccessApp } from "@/components/FusionAccessApp";
 
 const FusionAccess: React.FC = () => {
   return (
-    <GlobalStateProvider reducer={reducer} initialState={initialState}>
-      <ListPage />
-    </GlobalStateProvider>
+    <StoreProvider reducer={reducer} initialState={initialState}>
+      <FusionAccessApp />
+    </StoreProvider>
   );
 };
 
