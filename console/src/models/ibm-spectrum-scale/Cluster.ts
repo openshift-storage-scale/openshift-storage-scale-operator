@@ -1,6 +1,6 @@
+// This file was auto-generated from the filesystem CRD schema.
+// Do not edit manually. Update the schema and regenerate if needed.
 import type { K8sResourceCommon } from "@openshift-console/dynamic-plugin-sdk";
-
-// TypeScript interfaces for IBM Spectrum Scale Cluster OpenAPI schema
 export interface Cluster extends K8sResourceCommon {
   spec?: ClusterSpec;
   status?: ClusterStatus;

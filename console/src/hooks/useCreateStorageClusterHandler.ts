@@ -1,0 +1,54 @@
+import { useCallback } from "react";
+import { k8sCreate, useK8sModel } from "@openshift-console/dynamic-plugin-sdk";
+import { useFusionAccessTranslations } from "@/hooks/useFusionAccessTranslations";
+import type { Cluster } from "@/models/ibm-spectrum-scale/Cluster";
+import { STORAGE_ROLE_LABEL } from "@/constants";
+import { useStoreContext } from "./useStoreContext";
+
+const [storageRoleLabelKey, storageRoleLabelValue] =
+  STORAGE_ROLE_LABEL.split("=");
+const nodeSelector = { [storageRoleLabelKey]: storageRoleLabelValue };
+
+export const useCreateStorageClusterHandler = () => {
+  const [, dispatch] = useStoreContext();
+  const { t } = useFusionAccessTranslations();
+
+  const [storageScaleClusterModel] = useK8sModel({
+    group: "scale.spectrum.ibm.com",
+    version: "v1beta1",
+    kind: "Cluster",
+  });
+
+  return useCallback(async () => {
+    try {
+      await k8sCreate<Cluster>({
+        model: storageScaleClusterModel,
+        data: {
+          apiVersion: "scale.spectrum.ibm.com/v1beta1",
+          kind: "Cluster",
+          metadata: { name: "ibm-spectrum-scale" },
+          spec: {
+            license: { accept: true, license: "data-management" },
+            pmcollector: {
+              nodeSelector,
+            },
+            daemon: {
+              nodeSelector,
+            },
+          },
+        },
+      });
+    } catch (e) {
+      dispatch({
+        type: "addAlert",
+        payload: {
+          key: Date.now(),
+          variant: "danger",
+          title: t("An error occurred while creating resources "),
+          description: (e as Error).message,
+          isDismissable: true,
+        },
+      });
+    }
+  }, [dispatch, storageScaleClusterModel, t]);
+};

@@ -1,5 +1,3 @@
-/* tslint:disable */
-/* eslint-disable */
 /**
  * BoundObjectReference is a reference to an object that a token is bound to.
  * @export
