@@ -16,6 +16,15 @@ export const FileSystemsTab: React.FC = () => {
     });
   }, [dispatch]);
 
-  // return <VirtualizedTable />;
+  return (
+    <VirtualizedTable
+      data={[]}
+      unfilteredData={[]}
+      loaded={false}
+      loadError={undefined}
+      columns={[{  }]}
+      Row={() => null}
+    />
+  );
   return null;
 };

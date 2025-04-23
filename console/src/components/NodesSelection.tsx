@@ -84,7 +84,7 @@ export const NodesSelection: React.FC = () => {
         .filter((alert) => alert.description === alertDescription)
         .map((alert) => alert.key)
         .forEach((key) => {
-          dispatch({ type: "removeAlert", payload: { key, title: "IDC" } });
+          dispatch({ type: "removeAlert", payload: { key } });
         });
     }
   }, [state.alerts, nodesWithMinimumAmountOfMemory.length, t, dispatch]);

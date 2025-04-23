@@ -1,7 +1,7 @@
-import { t } from "@/hooks/useFusionAccessTranslations";
 import { enableMapSet } from "immer";
-import type { Actions, State } from "./types";
 import type { ImmerReducer } from "use-immer";
+import { t } from "@/hooks/useFusionAccessTranslations";
+import type { Actions, State } from "./types";
 
 enableMapSet(); // Enables Map and Set support in immer
 // see: https://immerjs.github.io/immer/map-set
@@ -10,9 +10,12 @@ export const reducer: ImmerReducer<State, Actions> = (draft, action) => {
   switch (action.type) {
     case "updateGlobal": {
       const { documentTitle, userFlowStarted } = action.payload;
-      draft.global.documentTitle = documentTitle ?? draft.global.documentTitle;
-      draft.global.userFlowStarted =
-        userFlowStarted ?? draft.global.userFlowStarted;
+      if (documentTitle) {
+        draft.global.documentTitle = documentTitle;
+      }
+      if (userFlowStarted) {
+        draft.global.userFlowStarted = userFlowStarted;
+      }
       break;
     }
     case "addAlert":
@@ -27,22 +30,34 @@ export const reducer: ImmerReducer<State, Actions> = (draft, action) => {
     case "clearAlerts":
       draft.alerts = [];
       break;
-    case "updatePage":
-      draft.page = {
-        description: action.payload.description ?? draft.page.description,
-        title: action.payload.title ?? draft.page.title,
-      };
+    case "updatePage": {
+      const { description, title } = action.payload;
+      if (description) {
+        draft.page.description = description;
+      }
+      if (title) {
+        draft.page.title = title;
+      }
       break;
-    case "updateCtas":
-      draft.ctas = {
-        createFileSystem:
-          action.payload.createFileSystem ?? draft.ctas.createFileSystem,
-        createStorageCluster:
-          action.payload.createStorageCluster ??
-          draft.ctas.createStorageCluster,
-        downloadLogs: action.payload.downloadLogs ?? draft.ctas.downloadLogs,
-      };
+    }
+    case "updateCtas": {
+      const { createFileSystem, createStorageCluster, downloadLogs } =
+        action.payload;
+      if (downloadLogs) {
+        draft.ctas.downloadLogs.isDisabled = downloadLogs.isDisabled;
+        draft.ctas.downloadLogs.isHidden = downloadLogs.isHidden;
+      }
+      if (createStorageCluster) {
+        draft.ctas.downloadLogs.isDisabled = createStorageCluster.isDisabled;
+        draft.ctas.createStorageCluster.isHidden =
+          createStorageCluster.isHidden;
+      }
+      if (createFileSystem) {
+        draft.ctas.createFileSystem.isDisabled = createFileSystem.isDisabled;
+        draft.ctas.createFileSystem.isHidden = createFileSystem.isHidden;
+      }
       break;
+    }
     default:
       throw new Error(
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment

@@ -9,7 +9,7 @@ export type Actions =
   | Action<"updateGlobal", Partial<State["global"]>>
   // Alerts actions
   | Action<"addAlert", State["alerts"][number]>
-  | Action<"removeAlert", State["alerts"][number]>
+  | Action<"removeAlert", Omit<State["alerts"][number], "title">>
   | Action<"clearAlerts">
   // Page actions
   | Action<"updatePage", Partial<State["page"]>>

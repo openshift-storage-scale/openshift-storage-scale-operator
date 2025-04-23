@@ -40,9 +40,9 @@ export const TabbedNav: React.FC = () => {
   const pages: NavPage[] = useMemo(
     () => [
       {
-        href: "/plugin",
-        component: FileSystemsTab,
         name: t("File systems"),
+        href: "",
+        component: FileSystemsTab,
       },
     ],
     [t]
