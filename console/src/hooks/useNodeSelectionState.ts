@@ -12,7 +12,7 @@ import {
   type NodeRole,
 } from "@/utils/kubernetes/1.30/IoK8sApiCoreV1Node";
 
-export type NodeSelectionState = {
+export interface NodeSelectionState {
   uid: string;
   name: string;
   role: NodeRole;
@@ -20,13 +20,13 @@ export type NodeSelectionState = {
   memory: IoK8sApimachineryPkgApiResourceQuantity;
   isSelected: boolean;
   isSelectionPending: boolean;
-};
+}
 
-export type NodeSelectionActions = {
+export interface NodeSelectionActions {
   setSelectionPending: (checked: boolean) => void;
   setSelectionSucceeded: (checked: boolean) => void;
   setSelectionFailed: (hasStorageRoleLabel: boolean) => void;
-};
+}
 
 export const useNodeSelectionState = (
   node: IoK8sApiCoreV1Node

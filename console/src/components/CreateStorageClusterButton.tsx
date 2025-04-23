@@ -1,11 +1,11 @@
 import { Button } from "@patternfly/react-core";
 import { useFusionAccessTranslations } from "@/hooks/useFusionAccessTranslations";
 
-type CreateStorageClusterButtonProps = {
+interface CreateStorageClusterButtonProps {
   onCreateStorageCluster?: React.MouseEventHandler<HTMLButtonElement>;
   isDisabled?: boolean;
   isHidden?: boolean;
-};
+}
 
 export const CreateStorageClusterButton: React.FC<
   CreateStorageClusterButtonProps

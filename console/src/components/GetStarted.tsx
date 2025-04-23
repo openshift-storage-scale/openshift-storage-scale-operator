@@ -15,10 +15,10 @@ import {
 import { useFusionAccessTranslations } from "@/hooks/useFusionAccessTranslations";
 import { CreateStorageClusterButton } from "@/components/CreateStorageClusterButton";
 
-type GetStartedProps = {
+interface GetStartedProps {
   onGetStarted: React.MouseEventHandler<HTMLButtonElement>;
   learnMoreHref?: string;
-};
+}
 
 export const GetStarted: React.FC<GetStartedProps> = (props) => {
   const { onGetStarted, learnMoreHref = "" } = props;

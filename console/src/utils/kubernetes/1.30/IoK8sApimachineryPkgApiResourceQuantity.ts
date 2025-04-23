@@ -49,10 +49,10 @@ export enum BinarySI {
  * 2. Plain integers are interpreted as bytes therefore their unit is set to "B".
  * 3. The decimal SI fractional unit ('m') is not considered part of that suffix by this implementation.
  */
-export type QuantityDescriptor = {
+export interface QuantityDescriptor {
   unit: QuantityDescriptorUnit;
   value: number;
-};
+}
 
 const QUANTITY_RE =
   /^(?<sign>[+-])?(?<number>\d+|\d+\.\d+|\.\d+|\d+\.)(?<suffix>[mk]|Ki|[MGTPE]i?)?$/;

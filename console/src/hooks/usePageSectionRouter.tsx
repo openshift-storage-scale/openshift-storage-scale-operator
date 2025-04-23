@@ -14,12 +14,12 @@ import { GetStarted } from "@/components/GetStarted";
 import { NodesSelection } from "@/components/NodesSelection";
 import { TabbedNav } from "@/components/TabbedNav";
 
-export type UsePageSectionRouterOptions = {
+export interface UsePageSectionRouterOptions {
   spectrumScaleClustersList: K8sResourceCommon[];
   spectrumScaleClustersListLoaded: boolean;
   fusionAccessesList: K8sResourceCommon[];
   fusionAccessesListLoaded: boolean;
-};
+}
 
 export const usePageSectionRouter = ({
   spectrumScaleClustersList,

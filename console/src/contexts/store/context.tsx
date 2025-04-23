@@ -8,10 +8,10 @@ export type TStoreContextValue =
 
 export const StoreContext = createContext<TStoreContextValue>(null);
 
-export type GlobalStateProviderProps = {
+export interface GlobalStateProviderProps {
   reducer: ImmerReducer<State, Actions>;
   initialState: State;
-};
+}
 
 export const StoreProvider: React.FC<GlobalStateProviderProps> = (props) => {
   const { children, initialState, reducer } = props;
