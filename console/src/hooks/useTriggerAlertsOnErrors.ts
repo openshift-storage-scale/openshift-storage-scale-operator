@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useFusionAccessTranslations } from "@/hooks/useFusionAccessTranslations";
 import { useStoreContext } from "./useStoreContext";
 
-export const useTriggerAlertsOnErrors = (...errors: Error[]) => {
+export const useTriggerAlertsOnErrors = (...errors: (Error|string)[]) => {
   const [,dispatch] = useStoreContext();
   const { t } = useFusionAccessTranslations();
 
@@ -15,7 +15,7 @@ export const useTriggerAlertsOnErrors = (...errors: Error[]) => {
             key: Date.now(),
             variant: "danger",
             title: t("An error occurred while watching resources "),
-            description: e.message,
+            description: (e instanceof Error) ? e.message : e,
             isDismissable: true,
           },
         });

@@ -64,6 +64,7 @@ export const NodesSelection: React.FC = () => {
     const weHaveAnAlertWithThisDescriptionAlready = state.alerts.find(
       (alert) => alert.description === alertDescription
     );
+
     if (weHaveAnAlertWithThisDescriptionAlready) {
       return;
     }

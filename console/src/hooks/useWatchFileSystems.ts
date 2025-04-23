@@ -11,10 +11,11 @@ export const useWatchFileSystem: UseK8sWatchResourceWithInferedList<
 > = (options) => {
   return useK8sWatchResource({
     ...options,
+    namespaced: true,
     groupVersionKind: {
       group: "scale.spectrum.ibm.com",
       version: "v1beta1",
-      kind: "FileSystem",
+      kind: "Filesystem",
     },
   });
 };

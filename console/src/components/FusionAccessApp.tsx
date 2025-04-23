@@ -44,13 +44,13 @@ export const FusionAccessApp: React.FC = () => {
     spectrumScaleClustersList,
     spectrumScaleClustersListLoaded,
     spectrumScaleClustersListWatchError,
-  ] = useWatchSpectrumScaleCluster({ isList: true });
+  ] = useWatchSpectrumScaleCluster({ isList: true, limit: 1 });
 
   const [
     fusionAccessesList,
     fusionAccessesListLoaded,
     fusionAccessesListWatchError,
-  ] = useWatchFusionAccess({ isList: true });
+  ] = useWatchFusionAccess({ isList: true, limit: 1 });
 
   useTriggerAlertsOnErrors(
     nodesError,
