@@ -1,7 +1,7 @@
 // This file was auto-generated from the filesystem CRD schema.
 // Do not edit manually. Update the schema and regenerate if needed.
-import type { K8sResourceCommon } from "@openshift-console/dynamic-plugin-sdk";
-export interface Cluster extends K8sResourceCommon {
+import type { K8sResourceKind } from "@openshift-console/dynamic-plugin-sdk";
+export interface Cluster extends K8sResourceKind {
   spec?: ClusterSpec;
   status?: ClusterStatus;
 }

@@ -2,11 +2,11 @@ import { createContext } from "react";
 import type { Actions, State } from "./types";
 import { useImmerReducer, type ImmerReducer } from "use-immer";
 
-export type TStoreContextValue =
+export type StoreContextValue =
   | [Readonly<State>, React.Dispatch<Actions>]
   | null;
 
-export const StoreContext = createContext<TStoreContextValue>(null);
+export const StoreContext = createContext<StoreContextValue>(null);
 
 export interface GlobalStateProviderProps {
   reducer: ImmerReducer<State, Actions>;

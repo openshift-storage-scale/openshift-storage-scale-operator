@@ -1,16 +1,16 @@
+import type { FusionAccess } from "@/models/fusion-access/FusionAccess";
+import type { UseK8sWatchResourceWithInferedList } from "@/utils/console/UseK8sWatchResource";
 import {
   useK8sWatchResource,
-  type K8sResourceCommon,
   type WatchK8sResource,
 } from "@openshift-console/dynamic-plugin-sdk";
 
-export const useWatchFusionAccess = ({
-  isList,
-  limit,
-}: Pick<WatchK8sResource, "isList" | "limit">) => {
-  return useK8sWatchResource<Array<K8sResourceCommon>>({
-    limit,
-    isList,
+export const useWatchFusionAccess: UseK8sWatchResourceWithInferedList<
+  FusionAccess,
+  Omit<WatchK8sResource, "groupVersionKind" | "namespaced" | "namespace">
+> = (options) => {
+  return useK8sWatchResource({
+    ...options,
     namespaced: true,
     namespace: "openshift-fusion-access",
     groupVersionKind: {
