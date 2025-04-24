@@ -1,7 +1,7 @@
 {
   "An error occurred when selecting a node ": "An error occurred when selecting a node ",
   "An error occurred while creating resources ": "An error occurred while creating resources ",
-  "An error occurred while watching resources ": "An error occurred while watching resources ",
+  "An error occurred while watching resources": "An error occurred while watching resources",
   "At least {{MINIMUM_AMOUNT_OF_NODES}} nodes are required, each with a minimum of {{MINIMUM_AMOUNT_OF_MEMORY}} of RAM.": "At least {{MINIMUM_AMOUNT_OF_NODES}} nodes are required, each with a minimum of {{MINIMUM_AMOUNT_OF_MEMORY}} of RAM.",
   "CPU": "CPU",
   "Create a FusionAccess from the operator page to continue.": "Create a FusionAccess from the operator page to continue.",
@@ -17,6 +17,7 @@
   "Loading the FusionAccess instance": "Loading the FusionAccess instance",
   "Memory": "Memory",
   "Name": "Name",
+  "No file systems": "No file systems",
   "No FusionAccess instance": "No FusionAccess instance",
   "No storage cluster": "No storage cluster",
   "Only worker nodes with a minimum of {{MINIMUM_AMOUNT_OF_MEMORY}} of RAM are displayed.": "Only worker nodes with a minimum of {{MINIMUM_AMOUNT_OF_MEMORY}} of RAM are displayed.",
@@ -26,6 +27,7 @@
   "Status": "Status",
   "Storage cluster requirements": "Storage cluster requirements",
   "To create a storage cluster select at least {{MINIMUM_AMOUNT_OF_NODES}} nodes that share the same amount of disks.": "To create a storage cluster select at least {{MINIMUM_AMOUNT_OF_NODES}} nodes that share the same amount of disks.",
+  "You can create one by pressing the button below.": "You can create one by pressing the button below.",
   "You need to create a storage cluster before you'll be able to create file systems.": "You need to create a storage cluster before you'll be able to create file systems.",
   "You will be able to continue once the instace is loaded.": "You will be able to continue once the instace is loaded.",
   "You will be able to continue once the resources are loaded.": "You will be able to continue once the resources are loaded."

@@ -19,10 +19,11 @@ import { useTriggerAlertsOnErrors } from "@/hooks/useTriggerAlertsOnErrors";
 import { useNodesWithMinimumAmountOfMemory } from "@/hooks/useNodesWithMinimumAmountOfMemory";
 import { useNodeSelectionHandler } from "@/hooks/useNodeSelectionHandler";
 import { useTweakListPageBodyHeaderStyle } from "@/hooks/useTweakListPageBodyHeaderStyle";
+import { useMinimumNodesMemoryAlert } from "@/hooks/useMinimumNodesMemoryAlert";
 
 export const NodesSelection: React.FC = () => {
   const { t } = useFusionAccessTranslations();
-  const [state, dispatch] = useStoreContext();
+  const [, dispatch] = useStoreContext();
 
   useEffect(() => {
     dispatch({
@@ -53,42 +54,7 @@ export const NodesSelection: React.FC = () => {
   const nodesWithMinimumAmountOfMemory =
     useNodesWithMinimumAmountOfMemory(nodes);
 
-  useEffect(() => {
-    const alertDescription = t(
-      "At least {{MINIMUM_AMOUNT_OF_NODES}} nodes are required, each with a minimum of {{MINIMUM_AMOUNT_OF_MEMORY}} of RAM.",
-      {
-        MINIMUM_AMOUNT_OF_NODES,
-        MINIMUM_AMOUNT_OF_MEMORY,
-      }
-    );
-    const weHaveAnAlertWithThisDescriptionAlready = state.alerts.find(
-      (alert) => alert.description === alertDescription
-    );
-
-    if (weHaveAnAlertWithThisDescriptionAlready) {
-      return;
-    }
-
-    if (nodesWithMinimumAmountOfMemory.length < 3) {
-      dispatch({
-        type: "addAlert",
-        payload: {
-          key: Date.now(),
-          variant: "warning",
-          title: t("Storage cluster requirements"),
-          description: alertDescription,
-          isDismissable: false,
-        },
-      });
-    } else {
-      state.alerts
-        .filter((alert) => alert.description === alertDescription)
-        .map((alert) => alert.key)
-        .forEach((key) => {
-          dispatch({ type: "removeAlert", payload: { key } });
-        });
-    }
-  }, [state.alerts, nodesWithMinimumAmountOfMemory.length, t, dispatch]);
+  useMinimumNodesMemoryAlert(nodesWithMinimumAmountOfMemory);
 
   const columns = useNodesSelectionTableColumns();
 
@@ -113,6 +79,7 @@ export const NodesSelection: React.FC = () => {
           loadError={nodesLoadedError}
           Row={NodesSelectionTableRow}
           rowData={nodesWithMinimumAmountOfMemory}
+          // EmptyMsg={NodeSeletionTableEmptyState} // TODO(jkilzi): Impl. NodeSeletionTableEmptyState
         />
       </StackItem>
     </Stack>

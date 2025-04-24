@@ -1,6 +1,6 @@
 import React from "react";
 import {
-  EmptyState as PFEmptyState,
+  EmptyState,
   EmptyStateBody,
   Button,
   EmptyStateFooter,
@@ -25,7 +25,7 @@ export const GetStarted: React.FC<GetStartedProps> = (props) => {
   const { t } = useFusionAccessTranslations();
 
   return (
-    <PFEmptyState>
+    <EmptyState>
       <EmptyStateHeader
         titleText={t("No storage cluster")}
         headingLevel="h4"
@@ -53,7 +53,7 @@ export const GetStarted: React.FC<GetStartedProps> = (props) => {
           </Button>
         </EmptyStateActions>
       </EmptyStateFooter>
-    </PFEmptyState>
+    </EmptyState>
   );
 };
 

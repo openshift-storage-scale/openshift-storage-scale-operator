@@ -22,19 +22,20 @@ import { CreateFileSystemButton } from "./CreateFileSystemButton";
 import { useCreateFileSystemHandler } from "@/hooks/useCreateFileSystemHandler";
 import { useTweakListPageBodyHeaderStyle } from "@/hooks/useTweakListPageBodyHeaderStyle";
 import { useDownloadLogsHandler } from "@/hooks/useDownloadLogsHandler";
+import { useFusionAccessTranslations } from "@/hooks/useFusionAccessTranslations";
 
 export const FusionAccessApp: React.FC = () => {
   const [state, dispatch] = useStoreContext();
+  const { t } = useFusionAccessTranslations();
 
   useTweakListPageBodyHeaderStyle({
     isFlex: true,
     isFilled: true,
     direction: "column",
-    alignment: "center",
-    justification: "space-around",
+    justification: "space-between",
   });
 
-  const [nodes, _nodesLoaded, nodesError] = useWatchNode({
+  const [nodes, _nodesLoaded, nodesWatchError] = useWatchNode({
     role: "worker",
     isList: true,
   });
@@ -53,9 +54,9 @@ export const FusionAccessApp: React.FC = () => {
   ] = useWatchFusionAccess({ isList: true, limit: 1 });
 
   useTriggerAlertsOnErrors(
-    nodesError,
-    fusionAccessesListWatchError,
-    spectrumScaleClustersListWatchError
+    nodesWatchError && t("Nodes load failed"),
+    fusionAccessesListWatchError && t("FusionAccess load failed"),
+    spectrumScaleClustersListWatchError && t("Storage cluster load failed")
   );
 
   const section = usePageSectionRouter({
@@ -112,7 +113,7 @@ export const FusionAccessApp: React.FC = () => {
                 alert.isDismissable ? (
                   <AlertActionCloseButton
                     title={alert.title as string}
-                    variantLabel={`${alert.variant}`}
+                    variantLabel={alert.variant}
                     onClose={() => {
                       dispatch({
                         type: "removeAlert",

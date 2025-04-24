@@ -10,9 +10,24 @@ import {
   VirtualizedTable,
   type RowProps,
 } from "@openshift-console/dynamic-plugin-sdk";
-import { Button, Tooltip } from "@patternfly/react-core";
-import { TrashIcon } from "@patternfly/react-icons";
+import {
+  Button,
+  EmptyState,
+  EmptyStateActions,
+  EmptyStateBody,
+  EmptyStateFooter,
+  EmptyStateHeader,
+  EmptyStateIcon,
+  Tooltip,
+} from "@patternfly/react-core";
+import {
+  ExternalLinkAltIcon,
+  FolderIcon,
+  TrashIcon,
+} from "@patternfly/react-icons";
 import { useEffect } from "react";
+import { useCreateFileSystemHandler } from "@/hooks/useCreateFileSystemHandler";
+import { CreateFileSystemButton } from "./CreateFileSystemButton";
 
 export const FileSystemsTab: React.FC = () => {
   const [, dispatch] = useStoreContext();
@@ -44,6 +59,7 @@ export const FileSystemsTab: React.FC = () => {
       loadError={fileSystemsLoadedError}
       columns={columns}
       Row={FileSystemsTabTableRow}
+      EmptyMsg={FileSystemsTableEmptyState}
     />
   );
 };
@@ -110,15 +126,40 @@ const FileSystemsTabTableRow: React.FC<FileSystemsTabTableRowProps> = (
     </>
   );
 };
+FileSystemsTabTableRow.displayName = "FileSystemsTabTableRow";
 
-/*
-{
-  "apiVersion": "scale.spectrum.ibm.com/v1beta1",
-  "kind": "Filesystem",
-  "metadata": {
-    "name": "example",
-    "namespace": "default"
-  },
-  "spec": {}
-}
-*/
+const FileSystemsTableEmptyState: React.FC = () => {
+  const { t } = useFusionAccessTranslations();
+  const handleCreateFileSystem = useCreateFileSystemHandler();
+
+  return (
+    <EmptyState>
+      <EmptyStateHeader
+        titleText={t("No file systems")}
+        headingLevel="h4"
+        icon={<EmptyStateIcon icon={FolderIcon} />}
+      />
+      <EmptyStateBody>
+        {t("You can create one by pressing the button below.")}
+      </EmptyStateBody>
+      <EmptyStateFooter>
+        <EmptyStateActions>
+          <CreateFileSystemButton onCreateFileSystem={handleCreateFileSystem} />
+        </EmptyStateActions>
+        <EmptyStateActions>
+          <Button
+            component="a"
+            variant="link"
+            target="_blank"
+            rel="noopener noreferrer"
+            href="#"
+          >
+            {t("Learn more about Fusion Access for SAN storage clusters")}{" "}
+            <ExternalLinkAltIcon />
+          </Button>
+        </EmptyStateActions>
+      </EmptyStateFooter>
+    </EmptyState>
+  );
+};
+FileSystemsTableEmptyState.displayName = "FileSystemsTableEmptyState";
