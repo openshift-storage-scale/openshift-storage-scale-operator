@@ -13,22 +13,24 @@ export const useTriggerAlertsOnErrors = (...errors: (Error | string)[]) => {
       for (const e of sanitizedErrors) {
         const description = e instanceof Error ? e.message : e;
         const descriptionDigest = await getDigest(description);
-        const doWeHaveThisAlertAlready = state.alerts.find(
+        const weHaveThisAlertAlready = state.alerts.find(
           (alert) => alert.key === descriptionDigest
         );
 
-        if (!doWeHaveThisAlertAlready) {
-          dispatch({
-            type: "addAlert",
-            payload: {
-              key: descriptionDigest,
-              variant: "danger",
-              title: t("An error occurred while watching resources"),
-              description,
-              isDismissable: true,
-            },
-          });
+        if (weHaveThisAlertAlready) {
+          return;
         }
+
+        dispatch({
+          type: "addAlert",
+          payload: {
+            key: descriptionDigest,
+            variant: "danger",
+            title: t("An error occurred while watching resources"),
+            description,
+            isDismissable: true,
+          },
+        });
       }
     })();
   }, [dispatch, errors, state.alerts, t]);
