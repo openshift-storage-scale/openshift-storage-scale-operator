@@ -40,8 +40,6 @@ export const useTriggerAlertsOnErrors = (...errors: (Error | string)[]) => {
       });
     })();
 
-    return () => {
-      dispatch({ type: "clearAlerts" });
-    };
+    // TODO(jkilzi): rethink the alerts cleanup
   }, [dispatch, errors, state.alerts, t]);
 };
