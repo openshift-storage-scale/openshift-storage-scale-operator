@@ -1,12 +1,12 @@
 import { useLayoutEffect } from "react";
 
-export type UseTweakListPageBodyHeaderStyleOptions = {
+export interface UseTweakListPageBodyHeaderStyleOptions {
   isFlex: boolean;
   isFilled: boolean;
   direction: "column" | "row";
   alignment: "start" | "end" | "center" | "space-between" | "space-around";
   justification: "start" | "end" | "center" | "space-between" | "space-around";
-};
+}
 
 const LIST_PAGE_BODY_HEADER_DEFAULT_CLASSES =
   "co-m-pane__body co-m-pane__body--no-top-margin";

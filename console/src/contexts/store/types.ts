@@ -1,10 +1,5 @@
 import type { AlertProps } from "@patternfly/react-core/dist/esm/components/Alert/Alert";
 
-export type Loadable<D = unknown, E = Error> = D & {
-  loading: boolean;
-  error: E;
-};
-
 export type Action<T extends string, P = undefined> = P extends undefined
   ? { type: T }
   : { type: T; payload: P };
@@ -14,23 +9,23 @@ export type Actions =
   | Action<"updateGlobal", Partial<State["global"]>>
   // Alerts actions
   | Action<"addAlert", State["alerts"][number]>
-  | Action<"removeAlert", State["alerts"][number]>
+  | Action<"removeAlert", Omit<State["alerts"][number], "title">>
   | Action<"clearAlerts">
   // Page actions
   | Action<"updatePage", Partial<State["page"]>>
   | Action<"updateCtas", Partial<State["ctas"]>>;
 
-export type State = {
+export interface State {
   global: GlobalSlice;
   alerts: AlertsSlice;
   page: PageStateSlice;
   ctas: CallToActionsSlice;
-};
+}
 
-export type GlobalSlice = {
+export interface GlobalSlice {
   documentTitle: string;
   userFlowStarted: boolean;
-};
+}
 
 export type AlertsSlice = Array<
   Pick<AlertProps, "key" | "variant" | "title"> & {
@@ -39,19 +34,19 @@ export type AlertsSlice = Array<
   }
 >;
 
-export type PageStateSlice = {
+export interface PageStateSlice {
   title: string;
   description: string;
-};
+}
 
 export type CallToActionNames =
   | "createStorageCluster"
   | "createFileSystem"
   | "downloadLogs";
 
-export type CallToActionsState = {
+export interface CallToActionState {
   isHidden: boolean;
   isDisabled: boolean;
-};
+}
 
-export type CallToActionsSlice = Record<CallToActionNames, CallToActionsState>;
+export type CallToActionsSlice = Record<CallToActionNames, CallToActionState>;

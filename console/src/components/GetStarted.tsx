@@ -1,6 +1,6 @@
 import React from "react";
 import {
-  EmptyState as PFEmptyState,
+  EmptyState,
   EmptyStateBody,
   Button,
   EmptyStateFooter,
@@ -15,17 +15,17 @@ import {
 import { useFusionAccessTranslations } from "@/hooks/useFusionAccessTranslations";
 import { CreateStorageClusterButton } from "@/components/CreateStorageClusterButton";
 
-type GetStartedProps = {
+interface GetStartedProps {
   onGetStarted: React.MouseEventHandler<HTMLButtonElement>;
   learnMoreHref?: string;
-};
+}
 
 export const GetStarted: React.FC<GetStartedProps> = (props) => {
   const { onGetStarted, learnMoreHref = "" } = props;
   const { t } = useFusionAccessTranslations();
 
   return (
-    <PFEmptyState>
+    <EmptyState>
       <EmptyStateHeader
         titleText={t("No storage cluster")}
         headingLevel="h4"
@@ -53,7 +53,7 @@ export const GetStarted: React.FC<GetStartedProps> = (props) => {
           </Button>
         </EmptyStateActions>
       </EmptyStateFooter>
-    </PFEmptyState>
+    </EmptyState>
   );
 };
 

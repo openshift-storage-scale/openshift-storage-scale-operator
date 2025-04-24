@@ -14,12 +14,12 @@ import { GetStarted } from "@/components/GetStarted";
 import { NodesSelection } from "@/components/NodesSelection";
 import { TabbedNav } from "@/components/TabbedNav";
 
-export type UsePageSectionRouterOptions = {
+export interface UsePageSectionRouterOptions {
   spectrumScaleClustersList: K8sResourceCommon[];
   spectrumScaleClustersListLoaded: boolean;
   fusionAccessesList: K8sResourceCommon[];
   fusionAccessesListLoaded: boolean;
-};
+}
 
 export const usePageSectionRouter = ({
   spectrumScaleClustersList,
@@ -35,7 +35,7 @@ export const usePageSectionRouter = ({
     switch (true) {
       case !spectrumScaleClustersListLoaded:
         element = (
-          <EmptyState>
+          <EmptyState className="pf-u-flex-grow-1">
             <EmptyStateHeader
               headingLevel="h4"
               titleText={t("Loading CNSA resources")}
@@ -49,7 +49,7 @@ export const usePageSectionRouter = ({
         break;
       case !fusionAccessesListLoaded:
         element = (
-          <EmptyState>
+          <EmptyState className="pf-u-flex-grow-1">
             <EmptyStateHeader
               headingLevel="h4"
               titleText={t("Loading the FusionAccess instance")}
@@ -63,7 +63,7 @@ export const usePageSectionRouter = ({
         break;
       case fusionAccessesList.length === 0:
         element = (
-          <EmptyState>
+          <EmptyState className="pf-u-flex-grow-1">
             <EmptyStateHeader
               headingLevel="h4"
               titleText={t("No FusionAccess instance")}

@@ -6,6 +6,7 @@ import { useFusionAccessTranslations } from "@/hooks/useFusionAccessTranslations
 import type { IoK8sApiCoreV1Node } from "@/models/kubernetes/1.30/types";
 import type { NodeSelectionActions } from "./useNodeSelectionState";
 import { useStoreContext } from "./useStoreContext";
+import { getDigest } from "@/utils/crypto/hash";
 
 const [storageRoleLabelKey, storageRoleLabelValue] =
   STORAGE_ROLE_LABEL.split("=");
@@ -70,14 +71,16 @@ export const useNodeSelectionHandler: UseNodeSelectionHandler = ({
         nodeSelectionActions.setSelectionFailed(
           hasLabel(node, STORAGE_ROLE_LABEL)
         );
+        const description = e instanceof Error ? e.message : (e as string);
+        const descriptionDigest = await getDigest(description);
         dispatch({
           type: "addAlert",
           payload: {
-            key: Date.now(),
+            key: descriptionDigest,
             variant: "danger",
-            title: t("An error occurred when selecting a node "),
-            description: (e as Error).message,
-            isDismissable: false,
+            title: t("An error occurred while selecting a node"),
+            description,
+            isDismissable: true,
           },
         });
       }

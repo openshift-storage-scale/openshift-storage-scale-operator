@@ -9,6 +9,7 @@ import {
 } from "@/constants";
 import type { IoK8sApiCoreV1Node } from "@/models/kubernetes/1.30/types";
 import type { NodeRole } from "@/utils/kubernetes/1.30/IoK8sApiCoreV1Node";
+import type { UseK8sWatchResourceWithInferedList } from "@/utils/console/UseK8sWatchResource";
 
 const [workerNodeRoleLabelKey, workerNodeRoleLabelValue] =
   WORKER_NODE_ROLE_LABEL.split("=");
@@ -17,13 +18,7 @@ const [masterNodeRoleLabelKey, masterNodeRoleLabelValue] =
 const [cplaneNodeRoleLabelKey, cplaneNodeRoleLabelValue] =
   CPLANE_NODE_ROLE_LABEL.split("=");
 
-export const useWatchNode = ({
-  role,
-  isList,
-  limit,
-}: {
-  role: Exclude<NodeRole, "-">;
-} & Pick<WatchK8sResource, "isList" | "limit">) => {
+const makeSelector = (role: Exclude<NodeRole, "-">) => {
   let matchLabels;
   switch (role) {
     case "worker":
@@ -43,15 +38,22 @@ export const useWatchNode = ({
       break;
   }
 
-  return useK8sWatchResource<IoK8sApiCoreV1Node[]>({
-    limit,
-    isList,
+  return { matchLabels };
+};
+
+interface Options extends WatchK8sResource {
+  role: Exclude<NodeRole, "-">;
+}
+
+export const useWatchNode: UseK8sWatchResourceWithInferedList<
+  IoK8sApiCoreV1Node,
+  Omit<Options, "groupVersionKind" | "selector">
+> = (options) =>
+  useK8sWatchResource({
+    ...options,
     groupVersionKind: {
       version: "v1",
       kind: "Node",
     },
-    selector: {
-      matchLabels,
-    },
+    selector: makeSelector(options.role),
   });
-};

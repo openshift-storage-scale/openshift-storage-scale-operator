@@ -1,7 +1,7 @@
-import { t } from "@/hooks/useFusionAccessTranslations";
 import { enableMapSet } from "immer";
-import type { Actions, State } from "./types";
 import type { ImmerReducer } from "use-immer";
+import { t } from "@/hooks/useFusionAccessTranslations";
+import type { Actions, State } from "./types";
 
 enableMapSet(); // Enables Map and Set support in immer
 // see: https://immerjs.github.io/immer/map-set
@@ -9,10 +9,7 @@ enableMapSet(); // Enables Map and Set support in immer
 export const reducer: ImmerReducer<State, Actions> = (draft, action) => {
   switch (action.type) {
     case "updateGlobal": {
-      const { documentTitle, userFlowStarted } = action.payload;
-      draft.global.documentTitle = documentTitle ?? draft.global.documentTitle;
-      draft.global.userFlowStarted =
-        userFlowStarted ?? draft.global.userFlowStarted;
+      draft.global = { ...draft.global, ...action.payload };
       break;
     }
     case "addAlert":
@@ -27,22 +24,26 @@ export const reducer: ImmerReducer<State, Actions> = (draft, action) => {
     case "clearAlerts":
       draft.alerts = [];
       break;
-    case "updatePage":
-      draft.page = {
-        description: action.payload.description ?? draft.page.description,
-        title: action.payload.title ?? draft.page.title,
-      };
+    case "updatePage": {
+      draft.page = { ...draft.page, ...action.payload };
       break;
-    case "updateCtas":
+    }
+    case "updateCtas": {
+      const { createFileSystem, createStorageCluster, downloadLogs } =
+        action.payload;
       draft.ctas = {
-        createFileSystem:
-          action.payload.createFileSystem ?? draft.ctas.createFileSystem,
-        createStorageCluster:
-          action.payload.createStorageCluster ??
-          draft.ctas.createStorageCluster,
-        downloadLogs: action.payload.downloadLogs ?? draft.ctas.downloadLogs,
+        createFileSystem: {
+          ...draft.ctas.createFileSystem,
+          ...createFileSystem,
+        },
+        createStorageCluster: {
+          ...draft.ctas.createStorageCluster,
+          ...createStorageCluster,
+        },
+        downloadLogs: { ...draft.ctas.downloadLogs, ...downloadLogs },
       };
       break;
+    }
     default:
       throw new Error(
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
