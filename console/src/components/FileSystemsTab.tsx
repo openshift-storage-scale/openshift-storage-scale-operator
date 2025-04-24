@@ -37,7 +37,7 @@ export const FileSystemsTab: React.FC = () => {
       type: "updateCtas",
       payload: {
         createFileSystem: {
-          isDisabled: true,
+          isDisabled: false,
           isHidden: false,
         },
       },
