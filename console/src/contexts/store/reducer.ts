@@ -48,7 +48,8 @@ export const reducer: ImmerReducer<State, Actions> = (draft, action) => {
         draft.ctas.downloadLogs.isHidden = downloadLogs.isHidden;
       }
       if (createStorageCluster) {
-        draft.ctas.downloadLogs.isDisabled = createStorageCluster.isDisabled;
+        draft.ctas.createStorageCluster.isDisabled =
+          createStorageCluster.isDisabled;
         draft.ctas.createStorageCluster.isHidden =
           createStorageCluster.isHidden;
       }
