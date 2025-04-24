@@ -9,13 +9,7 @@ enableMapSet(); // Enables Map and Set support in immer
 export const reducer: ImmerReducer<State, Actions> = (draft, action) => {
   switch (action.type) {
     case "updateGlobal": {
-      const { documentTitle, userFlowStarted } = action.payload;
-      if (documentTitle) {
-        draft.global.documentTitle = documentTitle;
-      }
-      if (userFlowStarted) {
-        draft.global.userFlowStarted = userFlowStarted;
-      }
+      draft.global = { ...draft.global, ...action.payload };
       break;
     }
     case "addAlert":
@@ -31,32 +25,23 @@ export const reducer: ImmerReducer<State, Actions> = (draft, action) => {
       draft.alerts = [];
       break;
     case "updatePage": {
-      const { description, title } = action.payload;
-      if (description) {
-        draft.page.description = description;
-      }
-      if (title) {
-        draft.page.title = title;
-      }
+      draft.page = { ...draft.page, ...action.payload };
       break;
     }
     case "updateCtas": {
       const { createFileSystem, createStorageCluster, downloadLogs } =
         action.payload;
-      if (downloadLogs) {
-        draft.ctas.downloadLogs.isDisabled = downloadLogs.isDisabled;
-        draft.ctas.downloadLogs.isHidden = downloadLogs.isHidden;
-      }
-      if (createStorageCluster) {
-        draft.ctas.createStorageCluster.isDisabled =
-          createStorageCluster.isDisabled;
-        draft.ctas.createStorageCluster.isHidden =
-          createStorageCluster.isHidden;
-      }
-      if (createFileSystem) {
-        draft.ctas.createFileSystem.isDisabled = createFileSystem.isDisabled;
-        draft.ctas.createFileSystem.isHidden = createFileSystem.isHidden;
-      }
+      draft.ctas = {
+        createFileSystem: {
+          ...draft.ctas.createFileSystem,
+          ...createFileSystem,
+        },
+        createStorageCluster: {
+          ...draft.ctas.createStorageCluster,
+          ...createStorageCluster,
+        },
+        downloadLogs: { ...draft.ctas.downloadLogs, ...downloadLogs },
+      };
       break;
     }
     default:
