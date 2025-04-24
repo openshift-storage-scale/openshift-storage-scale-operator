@@ -4,6 +4,7 @@ import { useFusionAccessTranslations } from "@/hooks/useFusionAccessTranslations
 import type { Cluster } from "@/models/ibm-spectrum-scale/Cluster";
 import { STORAGE_ROLE_LABEL } from "@/constants";
 import { useStoreContext } from "./useStoreContext";
+import { getDigest } from "@/utils/crypto/hash";
 
 const [storageRoleLabelKey, storageRoleLabelValue] =
   STORAGE_ROLE_LABEL.split("=");
@@ -39,13 +40,15 @@ export const useCreateStorageClusterHandler = () => {
         },
       });
     } catch (e) {
+      const description = e instanceof Error ? e.message : (e as string);
+      const descriptionDigest = await getDigest(description);
       dispatch({
         type: "addAlert",
         payload: {
-          key: Date.now(),
+          key: descriptionDigest,
           variant: "danger",
-          title: t("An error occurred while creating resources "),
-          description: (e as Error).message,
+          title: t("An error occurred while creating resources"),
+          description,
           isDismissable: true,
         },
       });
