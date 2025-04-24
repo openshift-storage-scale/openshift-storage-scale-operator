@@ -54,9 +54,9 @@ export const FusionAccessApp: React.FC = () => {
   ] = useWatchFusionAccess({ isList: true, limit: 1 });
 
   useTriggerAlertsOnErrors(
-    nodesWatchError && t("Nodes load failed"),
-    fusionAccessesListWatchError && t("FusionAccess load failed"),
-    spectrumScaleClustersListWatchError && t("Storage cluster load failed")
+    nodesWatchError && t("Nodes watch failed"),
+    fusionAccessesListWatchError && t("FusionAccess watch failed"),
+    spectrumScaleClustersListWatchError && t("Storage cluster watch failed")
   );
 
   const section = usePageSectionRouter({

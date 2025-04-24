@@ -31,6 +31,7 @@ import { CreateFileSystemButton } from "./CreateFileSystemButton";
 
 export const FileSystemsTab: React.FC = () => {
   const [, dispatch] = useStoreContext();
+  const { t } = useFusionAccessTranslations();
 
   useEffect(() => {
     dispatch({
@@ -47,7 +48,8 @@ export const FileSystemsTab: React.FC = () => {
   const [fileSystems, fileSystemsLoaded, fileSystemsLoadedError] =
     useWatchFileSystem({ isList: true });
 
-  useTriggerAlertsOnErrors(fileSystemsLoadedError);
+  // TODO(jkilzi): this needs polishing...
+  useTriggerAlertsOnErrors(fileSystemsLoadedError && t("File systems watch failed"));
 
   const columns = useFileSystemsTableColumns();
 
