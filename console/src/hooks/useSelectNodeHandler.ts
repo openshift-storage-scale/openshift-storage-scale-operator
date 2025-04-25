@@ -11,18 +11,18 @@ import { getDigest } from "@/utils/crypto/hash";
 const [storageRoleLabelKey, storageRoleLabelValue] =
   STORAGE_ROLE_LABEL.split("=");
 
-type NodeSelectionHandler = (
+type SelectNodeHandler = (
   event: React.FormEvent<HTMLInputElement>,
   checked: boolean
 ) => void;
 
-export type UseNodeSelectionHandler = (options: {
+export type UseSelectNodeHandler = (options: {
   node: IoK8sApiCoreV1Node;
   isSelectionPending: boolean;
   nodeSelectionActions: NodeSelectionActions;
-}) => NodeSelectionHandler;
+}) => SelectNodeHandler;
 
-export const useNodeSelectionHandler: UseNodeSelectionHandler = ({
+export const useSelectNodeHandler: UseSelectNodeHandler = ({
   node,
   isSelectionPending,
   nodeSelectionActions,
@@ -34,7 +34,7 @@ export const useNodeSelectionHandler: UseNodeSelectionHandler = ({
     kind: "Node",
   });
 
-  return useCallback<NodeSelectionHandler>(
+  return useCallback<SelectNodeHandler>(
     async (_, checked) => {
       if (isSelectionPending) {
         return;

@@ -1,21 +1,22 @@
 import { Button } from "@patternfly/react-core";
+import type { ButtonProps } from "@patternfly/react-core/dist/js/components/Button";
 import { DownloadIcon } from "@patternfly/react-icons";
 import { useFusionAccessTranslations } from "@/hooks/useFusionAccessTranslations";
 
-interface DownloadLogsButtonProps {
+interface DownloadLogsButtonProps
+  extends Omit<ButtonProps, "variant" | "onClick"> {
   onDownloadLogs?: React.MouseEventHandler<HTMLButtonElement>;
   isDisabled?: boolean;
-  isHidden?: boolean;
 }
 
 export const DownloadLogsButton: React.FC<DownloadLogsButtonProps> = (
   props
 ) => {
-  const { onDownloadLogs, isDisabled = false, isHidden = false } = props;
+  const { onDownloadLogs, ...buttonProps } = props;
   const { t } = useFusionAccessTranslations();
 
-  return isHidden ? null : (
-    <Button variant="link" isDisabled={isDisabled} onClick={onDownloadLogs}>
+  return (
+    <Button {...buttonProps} variant="link" onClick={onDownloadLogs}>
       <DownloadIcon /> {t("Download logs")}
     </Button>
   );

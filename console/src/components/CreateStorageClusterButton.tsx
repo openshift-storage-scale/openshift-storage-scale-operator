@@ -1,28 +1,20 @@
 import { Button } from "@patternfly/react-core";
+import type { ButtonProps } from "@patternfly/react-core/dist/js/components/Button";
 import { useFusionAccessTranslations } from "@/hooks/useFusionAccessTranslations";
 
-interface CreateStorageClusterButtonProps {
+interface CreateStorageClusterButtonProps
+  extends Omit<ButtonProps, "variant" | "onClick"> {
   onCreateStorageCluster?: React.MouseEventHandler<HTMLButtonElement>;
-  isDisabled?: boolean;
-  isHidden?: boolean;
 }
 
 export const CreateStorageClusterButton: React.FC<
   CreateStorageClusterButtonProps
 > = (props) => {
-  const {
-    onCreateStorageCluster,
-    isDisabled = false,
-    isHidden = false,
-  } = props;
+  const { onCreateStorageCluster, ...buttonProps } = props;
   const { t } = useFusionAccessTranslations();
 
-  return isHidden ? null : (
-    <Button
-      variant="primary"
-      isDisabled={isDisabled}
-      onClick={onCreateStorageCluster}
-    >
+  return (
+    <Button {...buttonProps} variant="primary" onClick={onCreateStorageCluster}>
       {t("Create storage cluster")}
     </Button>
   );

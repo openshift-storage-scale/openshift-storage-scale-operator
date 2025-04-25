@@ -1,10 +1,3 @@
-import { useFileSystemsTableColumns } from "@/hooks/useFileSystemsTableColumns";
-import { useFusionAccessTranslations } from "@/hooks/useFusionAccessTranslations";
-import { useStoreContext } from "@/hooks/useStoreContext";
-import { useTriggerAlertsOnErrors } from "@/hooks/useTriggerAlertsOnErrors";
-import { useWatchFileSystem } from "@/hooks/useWatchFileSystems";
-import type { FileSystem } from "@/models/ibm-spectrum-scale/FileSystem";
-import { getName } from "@/utils/console/K8sResourceCommon";
 import {
   TableData,
   VirtualizedTable,
@@ -25,31 +18,22 @@ import {
   FolderIcon,
   TrashIcon,
 } from "@patternfly/react-icons";
-import { useEffect } from "react";
-import { useCreateFileSystemHandler } from "@/hooks/useCreateFileSystemHandler";
-import { CreateFileSystemButton } from "./CreateFileSystemButton";
+import { useFileSystemsTableColumns } from "@/hooks/useFileSystemsTableColumns";
+import { useFusionAccessTranslations } from "@/hooks/useFusionAccessTranslations";
+import { useTriggerAlertsOnErrors } from "@/hooks/useTriggerAlertsOnErrors";
+import { useWatchFileSystem } from "@/hooks/useWatchFileSystems";
+import type { FileSystem } from "@/models/ibm-spectrum-scale/FileSystem";
+import { getName } from "@/utils/console/K8sResourceCommon";
+import { CreateFileSystemButton } from "@/components/CreateFileSystemButton";
+import { useHistory } from "react-router";
+import { useCallback } from "react";
 
 export const FileSystemsTab: React.FC = () => {
-  const [, dispatch] = useStoreContext();
-  const { t } = useFusionAccessTranslations();
-
-  useEffect(() => {
-    dispatch({
-      type: "updateCtas",
-      payload: {
-        createFileSystem: {
-          isDisabled: false,
-          isHidden: false,
-        },
-      },
-    });
-  }, [dispatch]);
-
   const [fileSystems, fileSystemsLoaded, fileSystemsLoadedError] =
     useWatchFileSystem({ isList: true });
 
-  // TODO(jkilzi): this needs polishing...
-  useTriggerAlertsOnErrors(fileSystemsLoadedError && t("File systems watch failed"));
+  // TODO(jkilzi): useTriggerAlertsOnErrors needs polishing...
+  useTriggerAlertsOnErrors(fileSystemsLoadedError);
 
   const columns = useFileSystemsTableColumns();
 
@@ -132,7 +116,10 @@ FileSystemsTabTableRow.displayName = "FileSystemsTabTableRow";
 
 const FileSystemsTableEmptyState: React.FC = () => {
   const { t } = useFusionAccessTranslations();
-  const handleCreateFileSystem = useCreateFileSystemHandler();
+  const histroy = useHistory();
+  const handleCreateFileSystem = useCallback(() => {
+    histroy.push("/fusion-access/file-systems/create");
+  }, [histroy]);
 
   return (
     <EmptyState>

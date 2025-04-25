@@ -8,42 +8,48 @@ enableMapSet(); // Enables Map and Set support in immer
 
 export const reducer: ImmerReducer<State, Actions> = (draft, action) => {
   switch (action.type) {
-    case "updateGlobal": {
-      draft.global = { ...draft.global, ...action.payload };
+    case "updateGlobal":
+      {
+        draft.global = { ...draft.global, ...action.payload };
+      }
       break;
-    }
     case "addAlert":
-      draft.alerts.push(action.payload);
+      {
+        const alertAlreadyExists = draft.alerts.find(
+          (alert) => alert.key === action.payload.key
+        );
+        if (!alertAlreadyExists) {
+          draft.alerts.push(action.payload);
+        }
+      }
       break;
-    case "removeAlert": {
-      draft.alerts = draft.alerts.filter(
-        ({ key }) => key !== action.payload.key
-      );
+    case "removeAlert":
+      {
+        draft.alerts = draft.alerts.filter(
+          ({ key }) => key !== action.payload.key
+        );
+      }
       break;
-    }
     case "clearAlerts":
       draft.alerts = [];
       break;
-    case "updatePage": {
-      draft.page = { ...draft.page, ...action.payload };
+    case "updateCtas":
+      {
+        const { createFileSystem, createStorageCluster, downloadLogs } =
+          action.payload;
+        draft.ctas = {
+          createFileSystem: {
+            ...draft.ctas.createFileSystem,
+            ...createFileSystem,
+          },
+          createStorageCluster: {
+            ...draft.ctas.createStorageCluster,
+            ...createStorageCluster,
+          },
+          downloadLogs: { ...draft.ctas.downloadLogs, ...downloadLogs },
+        };
+      }
       break;
-    }
-    case "updateCtas": {
-      const { createFileSystem, createStorageCluster, downloadLogs } =
-        action.payload;
-      draft.ctas = {
-        createFileSystem: {
-          ...draft.ctas.createFileSystem,
-          ...createFileSystem,
-        },
-        createStorageCluster: {
-          ...draft.ctas.createStorageCluster,
-          ...createStorageCluster,
-        },
-        downloadLogs: { ...draft.ctas.downloadLogs, ...downloadLogs },
-      };
-      break;
-    }
     default:
       throw new Error(
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -59,13 +65,9 @@ export const initialState: State = {
     userFlowStarted: false,
   },
   alerts: [],
-  page: {
-    title: t("Fusion Access for SAN"),
-    description: " ",
-  },
   ctas: {
-    downloadLogs: { isHidden: false, isDisabled: false },
-    createStorageCluster: { isHidden: true, isDisabled: true },
-    createFileSystem: { isHidden: true, isDisabled: true },
+    downloadLogs: { isDisabled: false, isLoading: false },
+    createStorageCluster: { isDisabled: true, isLoading: false },
+    createFileSystem: { isDisabled: true, isLoading: false },
   },
 };
