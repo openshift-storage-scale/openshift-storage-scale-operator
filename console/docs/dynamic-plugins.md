@@ -209,7 +209,7 @@ Steps to generate reports
 
 1. In command prompt, navigate to root folder and execute the command `npm run cypress-merge`
 2. Then execute command `npm run cypress-generate`
-   The cypress-report.html file is generated and should be in (/integration-tests/screenshots) directory
+   The cypress-report.html file is generated and should be in the `integration-tests/screenshots` directory
 
 ### References
 
