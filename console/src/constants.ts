@@ -7,5 +7,3 @@ export const MASTER_NODE_ROLE_LABEL = "node-role.kubernetes.io/master=";
 export const CPLANE_NODE_ROLE_LABEL = "node-role.kubernetes.io/control-plane=";
 export const MIN_AMOUNT_OF_NODES_MSG_DIGEST =
   "5da6449cd9450de311ce1e19f6a9a01be8710958";
-export const WWN_SKIP_PREFIX_LENGTH = 5; // The WWN start with "uuid.<WWN-start-here>"
-export const WWN_LENGTH = 8;

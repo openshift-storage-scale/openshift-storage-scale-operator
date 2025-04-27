@@ -6,7 +6,6 @@ import { CreateFileSystemButton } from "@/components/CreateFileSystemButton";
 import { useCreateFileSystemHandler } from "@/hooks/useCreateFileSystemHandler";
 import { useFusionAccessTranslations } from "@/hooks/useFusionAccessTranslations";
 import {
-  debounce,
   Form,
   FormContextProvider,
   FormGroup,
@@ -33,7 +32,6 @@ import { useTriggerAlertsOnErrors } from "@/hooks/useTriggerAlertsOnErrors";
 import { getShortWwn } from "@/utils/fusion-access/LocalVolumeDiscoveryResult";
 
 const NAME_FIELD_VALIDATION_REGEX = /^[a-zA-Z](\w|[_-])*\w$/;
-const NAME_FIELD_VALIDATION_DELAY = 1000;
 
 const FileSystemsCreate: React.FC = () => {
   return (
@@ -53,7 +51,7 @@ export default FileSystemsCreate;
 const ConnectedCreateFileSystems: React.FC = () => {
   const [store, dispatch] = useStoreContext<State, Actions>();
   const { t } = useFusionAccessTranslations();
-  const { getError, getValue, values, errors } = useFormContext();
+  const { getError, getValue } = useFormContext();
   const fileSystemName = getValue("name");
   const fileSystemNameErrorMessage = getError("name");
   const selectedLuns = useSelectedLuns(getValue("selected-luns"));
@@ -69,10 +67,6 @@ const ConnectedCreateFileSystems: React.FC = () => {
     );
     return value;
   }, [discoveredDevices, selectedLuns]);
-
-  useEffect(() => {
-    console.log(JSON.stringify({ values, errors, selectedDevices }, null, 2));
-  }, [errors, selectedDevices, values]);
 
   useEffect(() => {
     const isDisabled =
@@ -169,9 +163,8 @@ const FileSystemCreateForm: React.FC<FileSystemCreateFormProps> = (props) => {
   const handleNameChange = useCallback(
     (_event: React.FormEvent<HTMLInputElement>, newName: string) => {
       setValue("name", newName);
-      debounce(validateNameField, NAME_FIELD_VALIDATION_DELAY)();
     },
-    [setValue, validateNameField]
+    [setValue]
   );
 
   const fileSystemName = getValue("name");

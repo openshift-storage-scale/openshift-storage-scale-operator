@@ -15,7 +15,6 @@ import { useCallback } from "react";
 import type { LocalDisk } from "@/models/ibm-spectrum-scale/LocalDisk";
 import type { FileSystem } from "@/models/ibm-spectrum-scale/FileSystem";
 import { getDigest } from "@/utils/crypto/hash";
-import { getShortWwn } from "@/utils/fusion-access/LocalVolumeDiscoveryResult";
 
 export const useCreateFileSystemHandler = (
   fileSystemName: string,
@@ -35,7 +34,7 @@ export const useCreateFileSystemHandler = (
   const [fileSystemModel] = useK8sModel({
     group: "scale.spectrum.ibm.com",
     version: "v1beta1",
-    kind: "FileSystem",
+    kind: "Filesystem",
   });
 
   return useCallback(async () => {
@@ -45,14 +44,22 @@ export const useCreateFileSystemHandler = (
         payload: { createFileSystem: { isLoading: true } },
       });
 
+      // TODO(jkilzi): Hard-coded for now, but must handle namespaces dynamically
+      const namespace = "ibm-spectrum-scale";
+
       const localDisks = await createLocalDisks(
         discoveryResultsForStorageNodes,
         selectedDevices,
         localDiskModel,
-        fileSystemName
+        namespace
       );
 
-      await createFileSystem(localDisks, fileSystemModel, fileSystemName);
+      await createFileSystem(
+        localDisks,
+        fileSystemModel,
+        fileSystemName,
+        namespace
+      );
 
       history.push("/fusion-access/file-systems");
     } catch (e) {
@@ -68,12 +75,12 @@ export const useCreateFileSystemHandler = (
           isDismissable: true,
         },
       });
+    } finally {
+      dispatch({
+        type: "updateCtas",
+        payload: { createStorageCluster: { isLoading: false } },
+      });
     }
-
-    dispatch({
-      type: "updateCtas",
-      payload: { createStorageCluster: { isLoading: false } },
-    });
   }, [
     discoveryResultsForStorageNodes,
     dispatch,
@@ -89,14 +96,15 @@ export const useCreateFileSystemHandler = (
 function createFileSystem(
   localDisks: PromiseSettledResult<LocalDisk>[],
   fileSystemModel: K8sModel,
-  fileSystemName: string
+  fileSystemName: string,
+  namespace: string
 ): Promise<FileSystem> {
   return k8sCreate<FileSystem>({
     model: fileSystemModel,
     data: {
       apiVersion: "scale.spectrum.ibm.com/v1beta1",
       kind: "FileSystem",
-      metadata: { name: fileSystemName },
+      metadata: { name: fileSystemName, namespace },
       spec: {
         local: {
           pools: [
@@ -124,22 +132,22 @@ function createLocalDisks(
   discoveryResultsForStorageNodes: LocalVolumeDiscoveryResult[],
   selectedDevices: DiscoveredDevice[],
   localDiskModel: K8sModel,
-  fileSystemName: string
+  namespace: string
 ) {
   const promises: Promise<LocalDisk>[] = [];
   for (const result of discoveryResultsForStorageNodes) {
     for (const device of result.status.discoveredDevices ?? []) {
       if (selectedDevices.some((d) => d.WWN === device.WWN)) {
-        const localDiskName = `${fileSystemName}-localdisk-${getShortWwn(device)}`;
+        const localDiskName = `${result.spec.nodeName}-${device.path.slice("/dev/".length)}`;
         const promise = k8sCreate<LocalDisk>({
           model: localDiskModel,
           data: {
             apiVersion: "scale.spectrum.ibm.com/v1beta1",
             kind: "LocalDisk",
-            metadata: { name: localDiskName, namespace: "default" }, // TODO(jkilzi): Handle dynamic namespaces
+            metadata: { name: localDiskName, namespace },
             spec: {
               existingDataSkipVerify: true, // TODO(jkilzi): REMOVE it! Destroys data with no warning.
-              device: device.deviceID,
+              device: device.path,
               node: result.spec.nodeName,
             },
           },

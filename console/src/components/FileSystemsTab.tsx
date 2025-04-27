@@ -1,7 +1,9 @@
 import { useCallback, useMemo } from "react";
 import { useHistory } from "react-router";
 import {
+  k8sDelete,
   TableData,
+  useK8sModel,
   VirtualizedTable,
   type RowProps,
   type TableColumn,
@@ -27,6 +29,9 @@ import { useWatchFileSystem } from "@/hooks/useWatchFileSystems";
 import type { FileSystem } from "@/models/ibm-spectrum-scale/FileSystem";
 import { getName } from "@/utils/console/K8sResourceCommon";
 import { CreateFileSystemButton } from "@/components/CreateFileSystemButton";
+import { useStoreContext } from "@/contexts/store/context";
+import type { State, Actions } from "@/contexts/store/types";
+import { getDigest } from "@/utils/crypto/hash";
 
 export const FileSystemsTab: React.FC = () => {
   const [fileSystems, fileSystemsLoaded, fileSystemsLoadedError] =
@@ -60,8 +65,9 @@ const FileSystemsTabTableRow: React.FC<FileSystemsTabTableRowProps> = (
 
   const name = getName(fileSystem);
   const status = "Ready"; // TODO(jkilzi): Find out how to determine the status
-  const rawCapacity = "80 GiB"; // TODO(jkilzi): Find out how to get the rawCapacity
+  const rawCapacity = fileSystem.status?.pools?.[0].totalDiskSize; // TODO(jkilzi): Find out how to get the rawCapacity
   const gpfsDashboardHref = "https://www.redhat.com"; // TODO(jkilzi): Find out how to get the gpfsDashboardHref
+  const handleDeleteFileSystem = useDeleteFileSystemHandler(fileSystem);
 
   return (
     <>
@@ -106,7 +112,11 @@ const FileSystemsTabTableRow: React.FC<FileSystemsTabTableRowProps> = (
         id="actions"
       >
         <Tooltip content={t("Delete")}>
-          <Button variant="plain" icon={<TrashIcon />} />
+          <Button
+            variant="plain"
+            icon={<TrashIcon />}
+            onClick={handleDeleteFileSystem}
+          />
         </Tooltip>
       </TableData>
     </>
@@ -185,3 +195,37 @@ const FileSystemsTableEmptyState: React.FC = () => {
   );
 };
 FileSystemsTableEmptyState.displayName = "FileSystemsTableEmptyState";
+
+function useDeleteFileSystemHandler(fileSystem: FileSystem) {
+  const [, dispatch] = useStoreContext<State, Actions>();
+  const { t } = useFusionAccessTranslations();
+  const [fileSystemModel] = useK8sModel({
+    group: "scale.spectrum.ibm.com",
+    version: "v1beta1",
+    kind: "Filesystem",
+  });
+
+  return useCallback(async () => {
+    try {
+      // TODO(jkilzi): Prevent interactions in the row
+      await k8sDelete({
+        model: fileSystemModel,
+        ns: fileSystem.metadata?.namespace,
+        resource: fileSystem,
+      });
+    } catch (e) {
+      const description = e instanceof Error ? e.message : (e as string);
+      const descriptionDigest = await getDigest(description);
+      dispatch({
+        type: "addAlert",
+        payload: {
+          key: descriptionDigest,
+          variant: "danger",
+          title: t("An error occurred while deleting resources"),
+          description,
+          isDismissable: true,
+        },
+      });
+    }
+  }, [dispatch, fileSystem, fileSystemModel, t]);
+}
