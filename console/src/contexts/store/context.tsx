@@ -1,19 +1,21 @@
-import { createContext } from "react";
-import type { Actions, State } from "./types";
+import { createContext, useContext } from "react";
 import { useImmerReducer, type ImmerReducer } from "use-immer";
 
-export type StoreContextValue =
-  | [Readonly<State>, React.Dispatch<Actions>]
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type StoreContextValue<TState = any, TActions = any> =
+  | [TState, React.Dispatch<TActions>]
   | null;
 
-export const StoreContext = createContext<StoreContextValue>(null);
+const StoreContext = createContext<StoreContextValue>(null);
 
-export interface GlobalStateProviderProps {
-  reducer: ImmerReducer<State, Actions>;
-  initialState: State;
+interface StoreProviderProps<TState, TActions> {
+  reducer: ImmerReducer<TState, TActions>;
+  initialState: TState;
 }
 
-export const StoreProvider: React.FC<GlobalStateProviderProps> = (props) => {
+export function StoreProvider<TState, TActions>(
+  props: React.PropsWithChildren<StoreProviderProps<TState, TActions>>
+) {
   const { children, initialState, reducer } = props;
   const stateAndDispatch = useImmerReducer(reducer, initialState);
 
@@ -22,5 +24,14 @@ export const StoreProvider: React.FC<GlobalStateProviderProps> = (props) => {
       {children}
     </StoreContext.Provider>
   );
-};
+}
 StoreProvider.displayName = "StoreProvider";
+
+export function useStoreContext<TState = unknown, TActions = unknown>() {
+  const context = useContext<StoreContextValue<TState, TActions>>(StoreContext);
+  if (!context) {
+    throw new Error("useStoreContext hook must be used within <StoreProvider>");
+  }
+
+  return context;
+}

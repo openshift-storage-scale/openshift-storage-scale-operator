@@ -5,22 +5,27 @@ import type {
   SuffixBinarySI,
   SuffixDecimalSI,
 } from "./IoK8sApimachineryPkgApiResourceQuantity";
-import { parseQuantity } from "./IoK8sApimachineryPkgApiResourceQuantity";
+import {
+  BinarySI,
+  parseQuantity,
+} from "./IoK8sApimachineryPkgApiResourceQuantity";
 import {
   CPLANE_NODE_ROLE_LABEL,
   MASTER_NODE_ROLE_LABEL,
+  MINIMUM_AMOUNT_OF_MEMORY,
+  STORAGE_ROLE_LABEL,
   VALUE_NOT_AVAILABLE,
   WORKER_NODE_ROLE_LABEL,
 } from "@/constants";
 
-export type NodeRole =
+export type NodeRoles =
   | "worker"
   | "master"
   | "control-plane"
   | typeof VALUE_NOT_AVAILABLE;
 
-export const getRole = (node: IoK8sApiCoreV1Node): NodeRole => {
-  let role: NodeRole = VALUE_NOT_AVAILABLE;
+export const getRole = (node: IoK8sApiCoreV1Node): NodeRoles => {
+  let role: NodeRoles = VALUE_NOT_AVAILABLE;
   switch (true) {
     case hasLabel(node, `${WORKER_NODE_ROLE_LABEL}=`):
       role = "worker";
@@ -79,3 +84,23 @@ export const getMemory = (
 };
 
 export const getCpu = (node: IoK8sApiCoreV1Node) => node.status?.capacity?.cpu;
+
+export const getSelectedNodes = (nodes: IoK8sApiCoreV1Node[]) =>
+  nodes.filter((n) => hasLabel(n, STORAGE_ROLE_LABEL));
+
+const [minQuantity, minUnits] = MINIMUM_AMOUNT_OF_MEMORY.split(" ");
+const minUnitsInBytes =
+  BinarySI[minUnits.slice(0, -1) as keyof typeof BinarySI];
+export const getNodesWithMinimumAmountOfMemory = (
+  nodes: IoK8sApiCoreV1Node[]
+) =>
+  nodes.filter((node) => {
+    const [memory] = getMemory(node);
+    const [quantity, units] = memory?.split(" ") ?? [];
+    const unitsInBytes = BinarySI[units.slice(0, -1) as keyof typeof BinarySI];
+
+    return (
+      minUnitsInBytes * parseFloat(minQuantity) <=
+      unitsInBytes * parseFloat(quantity)
+    );
+  });

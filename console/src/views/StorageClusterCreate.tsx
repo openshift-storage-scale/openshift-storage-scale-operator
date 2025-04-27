@@ -1,5 +1,6 @@
 import { Redirect } from "react-router";
-import { StoreProvider } from "@/contexts/store/context";
+import { StoreProvider, useStoreContext } from "@/contexts/store/context";
+import type { State, Actions } from "@/contexts/store/types";
 import { reducer, initialState } from "@/contexts/store/reducer";
 import { DownloadLogsButton } from "@/components/DownloadLogsButton";
 import { NodesSelectionTable } from "@/components/NodesSelectionTable";
@@ -8,13 +9,15 @@ import { CreateStorageClusterButton } from "@/components/CreateStorageClusterBut
 import { useFusionAccessTranslations } from "@/hooks/useFusionAccessTranslations";
 import { useWatchSpectrumScaleCluster } from "@/hooks/useWatchSpectrumScaleCluster";
 import { useCreateStorageClusterHandler } from "@/hooks/useCreateStorageClusterHandler";
-import { useStoreContext } from "@/hooks/useStoreContext";
 import { MINIMUM_AMOUNT_OF_NODES } from "@/constants";
 
 const StorageClusterCreate: React.FC = () => {
   const [cluster] = useWatchSpectrumScaleCluster({ isList: true, limit: 1 });
   return cluster.length === 0 ? (
-    <StoreProvider reducer={reducer} initialState={initialState}>
+    <StoreProvider<State, Actions>
+      reducer={reducer}
+      initialState={initialState}
+    >
       <ConnectedStorageClusterCreate />
     </StoreProvider>
   ) : (
@@ -27,7 +30,7 @@ export default StorageClusterCreate;
 
 const ConnectedStorageClusterCreate: React.FC = () => {
   const { t } = useFusionAccessTranslations();
-  const [store] = useStoreContext();
+  const [store] = useStoreContext<State, Actions>();
   const handleCreateStorageCluster = useCreateStorageClusterHandler();
 
   return (

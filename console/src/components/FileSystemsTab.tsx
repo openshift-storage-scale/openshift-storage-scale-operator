@@ -1,7 +1,10 @@
+import { useCallback, useMemo } from "react";
+import { useHistory } from "react-router";
 import {
   TableData,
   VirtualizedTable,
   type RowProps,
+  type TableColumn,
 } from "@openshift-console/dynamic-plugin-sdk";
 import {
   Button,
@@ -18,15 +21,12 @@ import {
   FolderIcon,
   TrashIcon,
 } from "@patternfly/react-icons";
-import { useFileSystemsTableColumns } from "@/hooks/useFileSystemsTableColumns";
 import { useFusionAccessTranslations } from "@/hooks/useFusionAccessTranslations";
 import { useTriggerAlertsOnErrors } from "@/hooks/useTriggerAlertsOnErrors";
 import { useWatchFileSystem } from "@/hooks/useWatchFileSystems";
 import type { FileSystem } from "@/models/ibm-spectrum-scale/FileSystem";
 import { getName } from "@/utils/console/K8sResourceCommon";
 import { CreateFileSystemButton } from "@/components/CreateFileSystemButton";
-import { useHistory } from "react-router";
-import { useCallback } from "react";
 
 export const FileSystemsTab: React.FC = () => {
   const [fileSystems, fileSystemsLoaded, fileSystemsLoadedError] =
@@ -113,6 +113,39 @@ const FileSystemsTabTableRow: React.FC<FileSystemsTabTableRowProps> = (
   );
 };
 FileSystemsTabTableRow.displayName = "FileSystemsTabTableRow";
+
+const useFileSystemsTableColumns = (): TableColumn<FileSystem>[] => {
+  const { t } = useFusionAccessTranslations();
+  return useMemo(
+    () => [
+      {
+        id: "name",
+        title: t("Name"),
+      },
+      {
+        id: "status",
+        title: t("Status"),
+        props: { className: "pf-v5-u-text-align-center" },
+      },
+      {
+        id: "raw-capacity",
+        title: t("Raw capacity"),
+        props: { className: "pf-v5-u-text-align-center" },
+      },
+      {
+        id: "gpfs-dashboard-link",
+        title: t("Link to GPFS dashboard"),
+        props: { className: "pf-v5-u-text-align-center" },
+      },
+      {
+        id: "actions",
+        title: "Actions",
+        props: { className: "pf-v5-u-text-align-center" },
+      },
+    ],
+    [t]
+  );
+};
 
 const FileSystemsTableEmptyState: React.FC = () => {
   const { t } = useFusionAccessTranslations();

@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import { useFusionAccessTranslations } from "@/hooks/useFusionAccessTranslations";
-import { useStoreContext } from "./useStoreContext";
+import { useStoreContext } from "@/contexts/store/context";
 import { getDigest } from "@/utils/crypto/hash";
-import type { AlertsSlice } from "@/contexts/store/types";
+import type { Actions, AlertsSlice, State } from "@/contexts/store/types";
 
 const processErrors = async (
   errors: (Error | string)[],
@@ -29,7 +29,7 @@ const processErrors = async (
 };
 
 export const useTriggerAlertsOnErrors = (...errors: (Error | string)[]) => {
-  const [state, dispatch] = useStoreContext();
+  const [state, dispatch] = useStoreContext<State, Actions>();
   const { t } = useFusionAccessTranslations();
 
   useEffect(() => {

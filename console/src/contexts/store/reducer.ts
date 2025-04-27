@@ -62,7 +62,6 @@ export const reducer: ImmerReducer<State, Actions> = (draft, action) => {
 export const initialState: State = {
   global: {
     documentTitle: t("Fusion Access for SAN"),
-    userFlowStarted: false,
   },
   alerts: [],
   ctas: {

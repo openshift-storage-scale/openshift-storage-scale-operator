@@ -19,7 +19,6 @@ export interface State {
 
 export interface GlobalSlice {
   documentTitle: string;
-  userFlowStarted: boolean;
 }
 
 export type AlertsSlice = Array<
