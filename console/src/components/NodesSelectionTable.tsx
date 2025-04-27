@@ -109,7 +109,7 @@ const useValidateStorageClusterMinimumRequirements = (
       }
     );
 
-    if (selectedNodes.length < 3) {
+    if (selectedNodes.length < MINIMUM_AMOUNT_OF_NODES) {
       dispatch({
         type: "updateCtas",
         payload: { createStorageCluster: { isDisabled: true } },
