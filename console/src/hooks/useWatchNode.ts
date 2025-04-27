@@ -27,7 +27,9 @@ export const useWatchNode: UseK8sWatchResourceWithInferedList<
 
 /**
  * Generates a selector object that matches the given Kubernetes labels.
- * @param labels - An array of labels in the format "key=value".
+ * @param labels - An array of label strings, each in the expected format "key=value". 
+ *                 The 'key' represents the label name and the 'value' represents its value.
+ *                 If only the key is provided (i.e., with an equal sign and no value), the value defaults to an empty string.
  * @returns An object containing matchLabels for the provided labels.
  *
  * @example
