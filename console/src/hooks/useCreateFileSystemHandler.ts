@@ -135,26 +135,32 @@ function createLocalDisks(
   namespace: string
 ) {
   const promises: Promise<LocalDisk>[] = [];
-  for (const result of discoveryResultsForStorageNodes) {
-    for (const device of result.status.discoveredDevices ?? []) {
-      if (selectedDevices.some((d) => d.WWN === device.WWN)) {
-        const localDiskName = `${result.spec.nodeName}-${device.path.slice("/dev/".length)}`;
-        const promise = k8sCreate<LocalDisk>({
-          model: localDiskModel,
-          data: {
-            apiVersion: "scale.spectrum.ibm.com/v1beta1",
-            kind: "LocalDisk",
-            metadata: { name: localDiskName, namespace },
-            spec: {
-              existingDataSkipVerify: true, // TODO(jkilzi): REMOVE it! Destroys data with no warning.
-              device: device.path,
-              node: result.spec.nodeName,
-            },
-          },
-        });
-        promises.push(promise);
-      }
+  for (const device of selectedDevices) {
+    // find a node that contains this device
+    const discoveryResult = discoveryResultsForStorageNodes.find((r) =>
+      r.status.discoveredDevices?.find((d) => d.WWN === device.WWN)
+    );
+    if (!discoveryResult) {
+      throw new Error(
+        "No storage node contains the selected LUN with WWN: " + device.WWN
+      );
     }
+
+    const localDiskName = `${discoveryResult.spec.nodeName}-${device.path.slice("/dev/".length)}`;
+    const promise = k8sCreate<LocalDisk>({
+      model: localDiskModel,
+      data: {
+        apiVersion: "scale.spectrum.ibm.com/v1beta1",
+        kind: "LocalDisk",
+        metadata: { name: localDiskName, namespace },
+        spec: {
+          existingDataSkipVerify: true, // TODO(jkilzi): REMOVE it! Destroys data with no warning.
+          device: device.path,
+          node: discoveryResult.spec.nodeName,
+        },
+      },
+    });
+    promises.push(promise);
   }
 
   return Promise.allSettled(promises);
