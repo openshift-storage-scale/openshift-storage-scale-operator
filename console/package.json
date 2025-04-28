@@ -32,6 +32,8 @@
     "ts:webpack": "node -r ts-node/register ./node_modules/.bin/webpack"
   },
   "dependencies": {
+    "@patternfly/react-table": "^5.1.1",
+    "@patternfly/react-tokens": "^5.1.1",
     "convert": "^5.9.0",
     "immer": "^10.1.1",
     "use-immer": "^0.11.0"

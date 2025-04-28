@@ -5,26 +5,20 @@ export type Action<T extends string, P = undefined> = P extends undefined
   : { type: T; payload: P };
 
 export type Actions =
-  // Global actions
   | Action<"updateGlobal", Partial<State["global"]>>
-  // Alerts actions
   | Action<"addAlert", State["alerts"][number]>
   | Action<"removeAlert", Omit<State["alerts"][number], "title">>
   | Action<"clearAlerts">
-  // Page actions
-  | Action<"updatePage", Partial<State["page"]>>
   | Action<"updateCtas", Partial<State["ctas"]>>;
 
 export interface State {
   global: GlobalSlice;
   alerts: AlertsSlice;
-  page: PageStateSlice;
   ctas: CallToActionsSlice;
 }
 
 export interface GlobalSlice {
   documentTitle: string;
-  userFlowStarted: boolean;
 }
 
 export type AlertsSlice = Array<
@@ -34,19 +28,14 @@ export type AlertsSlice = Array<
   }
 >;
 
-export interface PageStateSlice {
-  title: string;
-  description: string;
-}
-
 export type CallToActionNames =
   | "createStorageCluster"
   | "createFileSystem"
   | "downloadLogs";
 
 export interface CallToActionState {
-  isHidden: boolean;
-  isDisabled: boolean;
+  isDisabled?: boolean;
+  isLoading?: boolean;
 }
 
 export type CallToActionsSlice = Record<CallToActionNames, CallToActionState>;

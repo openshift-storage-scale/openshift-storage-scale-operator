@@ -1,6 +1,6 @@
 import React from "react";
 import {
-  EmptyState,
+  EmptyState as PFEmptyState,
   EmptyStateBody,
   Button,
   EmptyStateFooter,
@@ -15,17 +15,19 @@ import {
 import { useFusionAccessTranslations } from "@/hooks/useFusionAccessTranslations";
 import { CreateStorageClusterButton } from "@/components/CreateStorageClusterButton";
 
-interface GetStartedProps {
-  onGetStarted: React.MouseEventHandler<HTMLButtonElement>;
+interface StorageClusterEmptyStateProps {
+  onCreateStorageCluster: React.MouseEventHandler<HTMLButtonElement>;
   learnMoreHref?: string;
 }
 
-export const GetStarted: React.FC<GetStartedProps> = (props) => {
-  const { onGetStarted, learnMoreHref = "" } = props;
+export const StorageClusterEmptyState: React.FC<
+  StorageClusterEmptyStateProps
+> = (props) => {
+  const { onCreateStorageCluster, learnMoreHref = "" } = props;
   const { t } = useFusionAccessTranslations();
 
   return (
-    <EmptyState>
+    <PFEmptyState>
       <EmptyStateHeader
         titleText={t("No storage cluster")}
         headingLevel="h4"
@@ -38,7 +40,9 @@ export const GetStarted: React.FC<GetStartedProps> = (props) => {
       </EmptyStateBody>
       <EmptyStateFooter>
         <EmptyStateActions>
-          <CreateStorageClusterButton onCreateStorageCluster={onGetStarted} />
+          <CreateStorageClusterButton
+            onCreateStorageCluster={onCreateStorageCluster}
+          />
         </EmptyStateActions>
         <EmptyStateActions>
           <Button
@@ -53,8 +57,8 @@ export const GetStarted: React.FC<GetStartedProps> = (props) => {
           </Button>
         </EmptyStateActions>
       </EmptyStateFooter>
-    </EmptyState>
+    </PFEmptyState>
   );
 };
 
-GetStarted.displayName = "GetStarted";
+StorageClusterEmptyState.displayName = "StorageClusterEmptyState";

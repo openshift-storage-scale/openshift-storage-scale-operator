@@ -1,21 +1,21 @@
-import { useMemo, useState } from "react";
-import { VALUE_NOT_AVAILABLE, STORAGE_ROLE_LABEL } from "@/constants";
+import { useState, useMemo } from "react";
+import { STORAGE_ROLE_LABEL, VALUE_NOT_AVAILABLE } from "@/constants";
 import type {
-  IoK8sApiCoreV1Node,
   IoK8sApimachineryPkgApiResourceQuantity,
+  IoK8sApiCoreV1Node,
 } from "@/models/kubernetes/1.30/types";
-import { getName, getUid, hasLabel } from "@/utils/console/K8sResourceCommon";
+import { hasLabel, getUid, getName } from "@/utils/console/K8sResourceCommon";
 import {
+  type NodeRoles,
+  getMemory,
   getRole,
   getCpu,
-  getMemory,
-  type NodeRole,
 } from "@/utils/kubernetes/1.30/IoK8sApiCoreV1Node";
 
 export interface NodeSelectionState {
   uid: string;
   name: string;
-  role: NodeRole;
+  role: NodeRoles;
   cpu: IoK8sApimachineryPkgApiResourceQuantity;
   memory: IoK8sApimachineryPkgApiResourceQuantity;
   isSelected: boolean;

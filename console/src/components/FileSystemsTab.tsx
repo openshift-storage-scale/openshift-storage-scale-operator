@@ -1,14 +1,12 @@
-import { useFileSystemsTableColumns } from "@/hooks/useFileSystemsTableColumns";
-import { useFusionAccessTranslations } from "@/hooks/useFusionAccessTranslations";
-import { useStoreContext } from "@/hooks/useStoreContext";
-import { useTriggerAlertsOnErrors } from "@/hooks/useTriggerAlertsOnErrors";
-import { useWatchFileSystem } from "@/hooks/useWatchFileSystems";
-import type { FileSystem } from "@/models/ibm-spectrum-scale/FileSystem";
-import { getName } from "@/utils/console/K8sResourceCommon";
+import { useCallback, useMemo } from "react";
+import { useHistory } from "react-router";
 import {
+  k8sDelete,
   TableData,
+  useK8sModel,
   VirtualizedTable,
   type RowProps,
+  type TableColumn,
 } from "@openshift-console/dynamic-plugin-sdk";
 import {
   Button,
@@ -25,28 +23,21 @@ import {
   FolderIcon,
   TrashIcon,
 } from "@patternfly/react-icons";
-import { useEffect } from "react";
-import { useCreateFileSystemHandler } from "@/hooks/useCreateFileSystemHandler";
-import { CreateFileSystemButton } from "./CreateFileSystemButton";
+import { useFusionAccessTranslations } from "@/hooks/useFusionAccessTranslations";
+import { useTriggerAlertsOnErrors } from "@/hooks/useTriggerAlertsOnErrors";
+import { useWatchFileSystem } from "@/hooks/useWatchFileSystems";
+import type { FileSystem } from "@/models/ibm-spectrum-scale/FileSystem";
+import { getName } from "@/utils/console/K8sResourceCommon";
+import { CreateFileSystemButton } from "@/components/CreateFileSystemButton";
+import { useStoreContext } from "@/contexts/store/context";
+import type { State, Actions } from "@/contexts/store/types";
+import { getDigest } from "@/utils/crypto/hash";
 
 export const FileSystemsTab: React.FC = () => {
-  const [, dispatch] = useStoreContext();
-
-  useEffect(() => {
-    dispatch({
-      type: "updateCtas",
-      payload: {
-        createFileSystem: {
-          isDisabled: true,
-          isHidden: false,
-        },
-      },
-    });
-  }, [dispatch]);
-
   const [fileSystems, fileSystemsLoaded, fileSystemsLoadedError] =
     useWatchFileSystem({ isList: true });
 
+  // TODO(jkilzi): useTriggerAlertsOnErrors needs polishing...
   useTriggerAlertsOnErrors(fileSystemsLoadedError);
 
   const columns = useFileSystemsTableColumns();
@@ -74,8 +65,9 @@ const FileSystemsTabTableRow: React.FC<FileSystemsTabTableRowProps> = (
 
   const name = getName(fileSystem);
   const status = "Ready"; // TODO(jkilzi): Find out how to determine the status
-  const rawCapacity = "80 GiB"; // TODO(jkilzi): Find out how to get the rawCapacity
+  const rawCapacity = fileSystem.status?.pools?.[0].totalDiskSize; // TODO(jkilzi): Find out how to get the rawCapacity
   const gpfsDashboardHref = "https://www.redhat.com"; // TODO(jkilzi): Find out how to get the gpfsDashboardHref
+  const handleDeleteFileSystem = useDeleteFileSystemHandler(fileSystem);
 
   return (
     <>
@@ -120,7 +112,11 @@ const FileSystemsTabTableRow: React.FC<FileSystemsTabTableRowProps> = (
         id="actions"
       >
         <Tooltip content={t("Delete")}>
-          <Button variant="plain" icon={<TrashIcon />} />
+          <Button
+            variant="plain"
+            icon={<TrashIcon />}
+            onClick={handleDeleteFileSystem}
+          />
         </Tooltip>
       </TableData>
     </>
@@ -128,9 +124,45 @@ const FileSystemsTabTableRow: React.FC<FileSystemsTabTableRowProps> = (
 };
 FileSystemsTabTableRow.displayName = "FileSystemsTabTableRow";
 
+const useFileSystemsTableColumns = (): TableColumn<FileSystem>[] => {
+  const { t } = useFusionAccessTranslations();
+  return useMemo(
+    () => [
+      {
+        id: "name",
+        title: t("Name"),
+      },
+      {
+        id: "status",
+        title: t("Status"),
+        props: { className: "pf-v5-u-text-align-center" },
+      },
+      {
+        id: "raw-capacity",
+        title: t("Raw capacity"),
+        props: { className: "pf-v5-u-text-align-center" },
+      },
+      {
+        id: "gpfs-dashboard-link",
+        title: t("Link to GPFS dashboard"),
+        props: { className: "pf-v5-u-text-align-center" },
+      },
+      {
+        id: "actions",
+        title: "Actions",
+        props: { className: "pf-v5-u-text-align-center" },
+      },
+    ],
+    [t]
+  );
+};
+
 const FileSystemsTableEmptyState: React.FC = () => {
   const { t } = useFusionAccessTranslations();
-  const handleCreateFileSystem = useCreateFileSystemHandler();
+  const histroy = useHistory();
+  const handleCreateFileSystem = useCallback(() => {
+    histroy.push("/fusion-access/file-systems/create");
+  }, [histroy]);
 
   return (
     <EmptyState>
@@ -163,3 +195,37 @@ const FileSystemsTableEmptyState: React.FC = () => {
   );
 };
 FileSystemsTableEmptyState.displayName = "FileSystemsTableEmptyState";
+
+function useDeleteFileSystemHandler(fileSystem: FileSystem) {
+  const [, dispatch] = useStoreContext<State, Actions>();
+  const { t } = useFusionAccessTranslations();
+  const [fileSystemModel] = useK8sModel({
+    group: "scale.spectrum.ibm.com",
+    version: "v1beta1",
+    kind: "Filesystem",
+  });
+
+  return useCallback(async () => {
+    try {
+      // TODO(jkilzi): Prevent interactions in the row
+      await k8sDelete({
+        model: fileSystemModel,
+        ns: fileSystem.metadata?.namespace,
+        resource: fileSystem,
+      });
+    } catch (e) {
+      const description = e instanceof Error ? e.message : (e as string);
+      const descriptionDigest = await getDigest(description);
+      dispatch({
+        type: "addAlert",
+        payload: {
+          key: descriptionDigest,
+          variant: "danger",
+          title: t("An error occurred while deleting resources"),
+          description,
+          isDismissable: true,
+        },
+      });
+    }
+  }, [dispatch, fileSystem, fileSystemModel, t]);
+}

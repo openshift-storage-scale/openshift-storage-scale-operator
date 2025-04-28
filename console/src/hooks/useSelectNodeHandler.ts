@@ -4,37 +4,38 @@ import { getLabels, hasLabel } from "@/utils/console/K8sResourceCommon";
 import { STORAGE_ROLE_LABEL } from "@/constants";
 import { useFusionAccessTranslations } from "@/hooks/useFusionAccessTranslations";
 import type { IoK8sApiCoreV1Node } from "@/models/kubernetes/1.30/types";
-import type { NodeSelectionActions } from "./useNodeSelectionState";
-import { useStoreContext } from "./useStoreContext";
+import { useStoreContext } from "@/contexts/store/context";
 import { getDigest } from "@/utils/crypto/hash";
+import type { NodeSelectionActions } from "@/hooks/useNodeSelectionState";
+import type { State, Actions } from "@/contexts/store/types";
 
 const [storageRoleLabelKey, storageRoleLabelValue] =
   STORAGE_ROLE_LABEL.split("=");
 
-type NodeSelectionHandler = (
+type SelectNodeHandler = (
   event: React.FormEvent<HTMLInputElement>,
   checked: boolean
 ) => void;
 
-export type UseNodeSelectionHandler = (options: {
+export type UseSelectNodeHandler = (options: {
   node: IoK8sApiCoreV1Node;
   isSelectionPending: boolean;
   nodeSelectionActions: NodeSelectionActions;
-}) => NodeSelectionHandler;
+}) => SelectNodeHandler;
 
-export const useNodeSelectionHandler: UseNodeSelectionHandler = ({
+export const useSelectNodeHandler: UseSelectNodeHandler = ({
   node,
   isSelectionPending,
   nodeSelectionActions,
 }) => {
-  const [, dispatch] = useStoreContext();
+  const [, dispatch] = useStoreContext<State, Actions>();
   const { t } = useFusionAccessTranslations();
   const [nodeModel, _] = useK8sModel({
     version: "v1",
     kind: "Node",
   });
 
-  return useCallback<NodeSelectionHandler>(
+  return useCallback<SelectNodeHandler>(
     async (_, checked) => {
       if (isSelectionPending) {
         return;

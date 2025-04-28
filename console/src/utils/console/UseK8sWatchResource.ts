@@ -21,7 +21,7 @@ interface NonListableWatchK8sResource extends WatchK8sResource {
 export interface UseK8sWatchResourceWithInferedList<
   R extends K8sResourceCommon,
   O extends WatchK8sResource,
-  E extends Error | null = Error,
+  E extends Error | string | undefined = string,
 > {
   (options: ListableWatchK8sResource & O): [R[], boolean, E];
   (options: NonListableWatchK8sResource & O): [R, boolean, E];

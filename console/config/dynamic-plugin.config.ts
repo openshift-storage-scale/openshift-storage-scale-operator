@@ -7,7 +7,10 @@ export const pluginMetadata: ConsolePluginBuildMetadata = {
   version: packageJson.version,
   displayName: "Fusion Access Plugin",
   exposedModules: {
-    FusionAccess: "./views/FusionAccess.tsx",
+    FusionAccessHome: "./views/FusionAccessHome.tsx",
+    StorageClusterCreate: "./views/StorageClusterCreate.tsx",
+    FileSystemsHome: "./views/FileSystemsHome.tsx",
+    FileSystemsCreate: "./views/FileSystemsCreate.tsx",
   },
   dependencies: {
     "@console/pluginAPI": ">=4.18.0-0",
@@ -16,22 +19,46 @@ export const pluginMetadata: ConsolePluginBuildMetadata = {
 
 export const extensions: EncodedExtension[] = [
   {
-    type: "console.page/route",
-    properties: {
-      exact: true,
-      path: "/plugin",
-      component: { $codeRef: "FusionAccess" },
-    },
-  },
-  {
     type: "console.navigation/href",
     properties: {
       id: "main",
       name: `%plugin__${packageJson.name}~Fusion Access for SAN%`,
-      href: "/plugin",
+      href: "/fusion-access",
       perspective: "admin",
       section: "storage",
       insertBefore: "persistentvolumes",
+    },
+  },
+  {
+    type: "console.page/route",
+    properties: {
+      exact: true,
+      path: "/fusion-access",
+      component: { $codeRef: "FusionAccessHome" },
+    },
+  },
+  {
+    type: "console.page/route",
+    properties: {
+      exact: true,
+      path: "/fusion-access/storage-cluster/create",
+      component: { $codeRef: "StorageClusterCreate" },
+    },
+  },
+  {
+    type: "console.page/route",
+    properties: {
+      exact: true,
+      path: "/fusion-access/file-systems",
+      component: { $codeRef: "FileSystemsHome" },
+    },
+  },
+  {
+    type: "console.page/route",
+    properties: {
+      exact: true,
+      path: "/fusion-access/file-systems/create",
+      component: { $codeRef: "FileSystemsCreate" },
     },
   },
 ];
