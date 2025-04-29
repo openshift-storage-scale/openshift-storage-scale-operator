@@ -1,5 +1,6 @@
 {
   "An error occurred while creating resources": "An error occurred while creating resources",
+  "An error occurred while deleting resources": "An error occurred while deleting resources",
   "An error occurred while selecting a node": "An error occurred while selecting a node",
   "An error occurred while watching resources": "An error occurred while watching resources",
   "At least {{MINIMUM_AMOUNT_OF_NODES}} nodes are required.": "At least {{MINIMUM_AMOUNT_OF_NODES}} nodes are required.",
