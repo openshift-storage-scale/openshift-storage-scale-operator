@@ -7,6 +7,7 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
 	"github.com/openshift-storage-scale/openshift-fusion-access-operator/api/v1alpha1"
 	"github.com/openshift-storage-scale/openshift-fusion-access-operator/internal/diskutils"
 )
@@ -17,21 +18,29 @@ var _ = Describe("Device Discovery", func() {
 		deviceList0Disk           diskutils.BlockDeviceList
 		deviceList2Disk2MultiPath diskutils.BlockDeviceList
 		deviceList0Disk0MultiPath diskutils.BlockDeviceList
+		deviceListSanDisk         diskutils.BlockDeviceList
 	)
 	Context("When scanning for disks", func() {
 
 		BeforeEach(func() {
 			By("before tests")
-			LsblkOut2Disk2MultiPath, err := os.ReadFile("../../../test/data/mpath-4-available-disk.json")
+			LsblkOut2Disk2MultiPath, err := os.ReadFile(
+				"../../../test/data/mpath-4-available-disk.json",
+			)
 			Expect(err).To(Not(HaveOccurred()))
 
-			LsblkOut0Disk0MultiPath, err := os.ReadFile("../../../test/data/mpath-0-available-disk.json")
+			LsblkOut0Disk0MultiPath, err := os.ReadFile(
+				"../../../test/data/mpath-0-available-disk.json",
+			)
 			Expect(err).To(Not(HaveOccurred()))
 
 			LsblkOut7Disk, err := os.ReadFile("../../../test/data/7-available-disk.json")
 			Expect(err).To(Not(HaveOccurred()))
 
 			LsblkOut0Disk, err := os.ReadFile("../../../test/data/0-available-disk.json")
+			Expect(err).To(Not(HaveOccurred()))
+
+			LsblkOutSanDisk, err := os.ReadFile("../../../test/data/e1-fast.json")
 			Expect(err).To(Not(HaveOccurred()))
 
 			err = json.Unmarshal(LsblkOut0Disk, &deviceList0Disk)
@@ -45,16 +54,22 @@ var _ = Describe("Device Discovery", func() {
 
 			err = json.Unmarshal(LsblkOut0Disk0MultiPath, &deviceList0Disk0MultiPath)
 			Expect(err).To(Not(HaveOccurred()))
+
+			err = json.Unmarshal(LsblkOutSanDisk, &deviceListSanDisk)
+			Expect(err).To(Not(HaveOccurred()))
 		})
 
 		AfterEach(func() {
 			// // TODO(user): Cleanup logic after each test
 		})
 
-		It("should have the correct number of discovered disks with multipath (input data 1)", func() {
-			discoveredDisks := getDiscoverdDevices(deviceList2Disk2MultiPath.BlockDevices)
-			Expect(discoveredDisks).To(HaveLen(4))
-		})
+		It(
+			"should have the correct number of discovered disks with multipath (input data 1)",
+			func() {
+				discoveredDisks := getDiscoverdDevices(deviceList2Disk2MultiPath.BlockDevices)
+				Expect(discoveredDisks).To(HaveLen(4))
+			},
+		)
 		It("should have the correct disks with multipath (input data 1)", func() {
 			discoveredDisks := getDiscoverdDevices(deviceList2Disk2MultiPath.BlockDevices)
 
@@ -105,15 +120,21 @@ var _ = Describe("Device Discovery", func() {
 
 		})
 
-		It("should have the correct number of discovered disks with multipath (input data 2)", func() {
-			discoveredDisks := getDiscoverdDevices(deviceList0Disk0MultiPath.BlockDevices)
-			Expect(discoveredDisks).To(BeEmpty())
-		})
+		It(
+			"should have the correct number of discovered disks with multipath (input data 2)",
+			func() {
+				discoveredDisks := getDiscoverdDevices(deviceList0Disk0MultiPath.BlockDevices)
+				Expect(discoveredDisks).To(BeEmpty())
+			},
+		)
 
-		It("should have the correct number of discovered disks without multipath (input data 3)", func() {
-			discoveredDisks := getDiscoverdDevices(deviceList7Disk.BlockDevices)
-			Expect(discoveredDisks).To(HaveLen(2))
-		})
+		It(
+			"should have the correct number of discovered disks without multipath (input data 3)",
+			func() {
+				discoveredDisks := getDiscoverdDevices(deviceList7Disk.BlockDevices)
+				Expect(discoveredDisks).To(HaveLen(2))
+			},
+		)
 
 		It("should have the correct disks without multipath (input data 3)", func() {
 			discoveredDisks := getDiscoverdDevices(deviceList7Disk.BlockDevices)
