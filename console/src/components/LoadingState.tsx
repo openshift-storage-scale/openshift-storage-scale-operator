@@ -5,9 +5,8 @@ import {
   Spinner,
   EmptyStateBody,
 } from "@patternfly/react-core";
-import { memo } from "react";
 
-export const LoadingState: React.FC = memo(() => {
+export const LoadingState: React.FC = () => {
   const { t } = useFusionAccessTranslations();
   return (
     <EmptyState>
@@ -21,4 +20,5 @@ export const LoadingState: React.FC = memo(() => {
       </EmptyStateBody>
     </EmptyState>
   );
-});
+};
+LoadingState.displayName = "LoadingState";

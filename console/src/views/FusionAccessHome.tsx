@@ -6,7 +6,7 @@ import { StorageClusterEmptyState } from "@/components/StorageClusterEmptyState"
 import { useTriggerAlertsOnErrors } from "@/hooks/useTriggerAlertsOnErrors";
 import { useFusionAccessTranslations } from "@/hooks/useFusionAccessTranslations";
 import { useWatchSpectrumScaleCluster } from "@/hooks/useWatchSpectrumScaleCluster";
-import { useReactNodeWithPredefinedFallback } from "@/hooks/useReactNodeWithPredefinedFallback";
+import { ReactNodeWithPredefinedFallback } from "@/components/ReactNodeWithPredefinedFallback";
 import { initialState, reducer } from "@/contexts/store/reducer";
 import type { State, Actions } from "@/contexts/store/types";
 import { StoreProvider } from "@/contexts/store/context";
@@ -35,21 +35,20 @@ const ConnectedFusionAccessHome: React.FC = () => {
     history.push("/fusion-access/storage-cluster/create");
   }, [history]);
 
-  const node = useReactNodeWithPredefinedFallback(
-    <StorageClusterEmptyState
-      onCreateStorageCluster={handleCreateStorageCluster}
-    />,
-    storageClustersLoaded,
-    storageClustersError
-  );
-
   return storageClusters.length === 0 ? (
     <FusionAccessListPage
       documentTitle={t("Fusion Access for SAN")}
       title={t("Fusion Access for SAN")}
       actions={<DownloadLogsButton />}
     >
-      {node}
+      <ReactNodeWithPredefinedFallback
+        loaded={storageClustersLoaded}
+        error={storageClustersError}
+      >
+        <StorageClusterEmptyState
+          onCreateStorageCluster={handleCreateStorageCluster}
+        />
+      </ReactNodeWithPredefinedFallback>
     </FusionAccessListPage>
   ) : (
     <Redirect to={"/fusion-access/file-systems"} />

@@ -8,13 +8,12 @@ import {
   Button,
 } from "@patternfly/react-core";
 import { ExclamationCircleIcon } from "@patternfly/react-icons";
-import { memo } from "react";
 
 interface ErrorStateProps {
   message: string;
 }
 
-export const ErrorState: React.FC<ErrorStateProps> = memo((props) => {
+export const ErrorState: React.FC<ErrorStateProps> = (props) => {
   const { message } = props;
   const { t } = useFusionAccessTranslations();
 
@@ -28,7 +27,7 @@ export const ErrorState: React.FC<ErrorStateProps> = memo((props) => {
       <EmptyStateBody>
         {t("Please check your configuration")}
         <br />
-        {message}
+        <pre>{message}</pre>
       </EmptyStateBody>
       <EmptyStateActions>
         <Button variant="link" onClick={handleReloadPage}>
@@ -37,7 +36,8 @@ export const ErrorState: React.FC<ErrorStateProps> = memo((props) => {
       </EmptyStateActions>
     </EmptyState>
   );
-});
+};
+ErrorState.displayName = "ErrorState";
 
 const handleReloadPage = () => {
   window.location.reload();
