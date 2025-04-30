@@ -12,7 +12,7 @@ podman tag quay.io/openshift-storage-scale/openshift-fusion-access-catalog:${VER
 podman push quay.io/openshift-storage-scale/openshift-fusion-access-catalog:latest
 
 echo "Containers for version ${VERSION} were built successfully"
-echo "You can test it by using the `openshift-fusion-access-catalog:latest` catalogsource"
+echo "You can test it by using the 'openshift-fusion-access-catalog:latest' catalogsource"
 echo ""
 echo "Once you are happy with things you can update the stable catalog which is what QE uses internally by running the following:"
 echo ""
