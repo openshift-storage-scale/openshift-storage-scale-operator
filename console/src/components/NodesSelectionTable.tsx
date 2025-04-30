@@ -37,16 +37,15 @@ export const NodesSelectionTable: React.FC = () => {
     disksDiscoveryResultsLoaded,
     disksDiscoveryResultsError,
   ] = useWatchLocalVolumeDiscoveryResult({ isList: true });
-  const isLoading = !nodesLoaded || !disksDiscoveryResultsLoaded;
-
   useTriggerAlertsOnErrors(nodesLoadedError, disksDiscoveryResultsError);
 
   const nodesWithMinimumAmountOfMemory =
     getNodesWithMinimumAmountOfMemory(nodes);
+  const isLoaded = nodesLoaded && disksDiscoveryResultsLoaded;
 
   useValidateStorageClusterMinimumRequirements(
     nodesWithMinimumAmountOfMemory,
-    isLoading
+    isLoaded
   );
 
   const columns = useNodesSelectionTableColumns();
@@ -74,7 +73,7 @@ export const NodesSelectionTable: React.FC = () => {
           data={nodesWithMinimumAmountOfMemory}
           unfilteredData={nodesWithMinimumAmountOfMemory}
           columns={columns}
-          loaded={!isLoading}
+          loaded={isLoaded}
           loadError={nodesLoadedError || disksDiscoveryResultsError}
           Row={NodesSelectionTableRow}
           rowData={{
@@ -91,14 +90,14 @@ NodesSelectionTable.displayName = "NodesSelectionTable";
 
 const useValidateStorageClusterMinimumRequirements = (
   nodesWithMinimumAmountOfMemory: IoK8sApiCoreV1Node[],
-  isLoading: boolean
+  isLoaded: boolean
 ) => {
   const [, dispatch] = useStoreContext<State, Actions>();
   const { t } = useFusionAccessTranslations();
   const selectedNodes = getSelectedNodes(nodesWithMinimumAmountOfMemory);
 
   useEffect(() => {
-    if (isLoading) {
+    if (!isLoaded) {
       return;
     }
 
@@ -134,7 +133,7 @@ const useValidateStorageClusterMinimumRequirements = (
         payload: { key: MIN_AMOUNT_OF_NODES_MSG_DIGEST },
       });
     }
-  }, [dispatch, isLoading, selectedNodes, t]);
+  }, [dispatch, isLoaded, selectedNodes.length, t]);
 };
 
 const useNodesSelectionTableColumns = (): TableColumn<IoK8sApiCoreV1Node>[] => {

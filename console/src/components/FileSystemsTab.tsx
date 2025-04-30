@@ -32,6 +32,7 @@ import { CreateFileSystemButton } from "@/components/CreateFileSystemButton";
 import { useStoreContext } from "@/contexts/store/context";
 import type { State, Actions } from "@/contexts/store/types";
 import { getDigest } from "@/utils/crypto/hash";
+import { VALUE_NOT_AVAILABLE } from "@/constants";
 
 export const FileSystemsTab: React.FC = () => {
   const [fileSystems, fileSystemsLoaded, fileSystemsLoadedError] =
@@ -65,7 +66,8 @@ const FileSystemsTabTableRow: React.FC<FileSystemsTabTableRowProps> = (
 
   const name = getName(fileSystem);
   const status = "Ready"; // TODO(jkilzi): Find out how to determine the status
-  const rawCapacity = fileSystem.status?.pools?.[0].totalDiskSize; // TODO(jkilzi): Find out how to get the rawCapacity
+  const rawCapacity =
+    fileSystem.status?.pools?.[0].totalDiskSize ?? VALUE_NOT_AVAILABLE; // TODO(jkilzi): Find out how to get the rawCapacity
   const gpfsDashboardHref = "https://www.redhat.com"; // TODO(jkilzi): Find out how to get the gpfsDashboardHref
   const handleDeleteFileSystem = useDeleteFileSystemHandler(fileSystem);
 

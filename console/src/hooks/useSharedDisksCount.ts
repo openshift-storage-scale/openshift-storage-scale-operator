@@ -27,7 +27,9 @@ export const useSharedDisksCount = (
       (result) => result.spec.nodeName === nodeName
     );
     const nodeWwns = new Set(
-      nodeDiscoveryResult?.status.discoveredDevices?.map(({ WWN }) => WWN) ?? []
+      (nodeDiscoveryResult?.status?.discoveredDevices ?? []).map(
+        ({ WWN }) => WWN
+      )
     );
 
     if (nodeWwns.size === 0) {
@@ -38,7 +40,7 @@ export const useSharedDisksCount = (
     const otherNodesWwns = new Set<string>();
     selectedDiscoveryResults.forEach((result) => {
       if (result.spec.nodeName !== nodeName) {
-        result.status.discoveredDevices?.forEach(({ WWN }) => {
+        (result.status?.discoveredDevices ?? []).forEach(({ WWN }) => {
           otherNodesWwns.add(WWN);
         });
       }
