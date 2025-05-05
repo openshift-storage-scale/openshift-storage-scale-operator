@@ -41,16 +41,16 @@ const ConnectedStorageClusterCreate: React.FC = () => {
         "To create a storage cluster select at least {{MINIMUM_AMOUNT_OF_NODES}} nodes that share the same amount of disks.",
         { MINIMUM_AMOUNT_OF_NODES }
       )}
-      actions={[
-        <DownloadLogsButton key="download-logs" />,
+      actions={[<DownloadLogsButton key="download-logs" />]}
+      alerts={store.alerts}
+      footer={
         <CreateStorageClusterButton
           key="create-storagecluster"
           isDisabled={store.ctas.createStorageCluster.isDisabled}
           isLoading={store.ctas.createStorageCluster.isLoading}
           onCreateStorageCluster={handleCreateStorageCluster}
-        />,
-      ]}
-      alerts={store.alerts}
+        />
+      }
     >
       <NodesSelectionTable />
     </FusionAccessListPage>

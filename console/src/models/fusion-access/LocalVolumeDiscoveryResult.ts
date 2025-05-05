@@ -4,7 +4,7 @@ export interface LocalVolumeDiscoveryResult extends K8sResourceKind {
   spec: {
     nodeName: string;
   };
-  status: {
+  status?: {
     discoveredDevices?: DiscoveredDevice[];
     discoveredTimeStamp?: string;
   };

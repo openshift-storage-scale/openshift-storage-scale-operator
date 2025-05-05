@@ -11,11 +11,11 @@ interface CreateFileSystemButtonProps
 export const CreateFileSystemButton: React.FC<CreateFileSystemButtonProps> = (
   props
 ) => {
-  const { onCreateFileSystem, ...buttonProps } = props;
+  const { onCreateFileSystem, isLoading, isDisabled, ...buttonProps } = props;
   const { t } = useFusionAccessTranslations();
 
   return (
-    <Button {...buttonProps} variant="primary" onClick={onCreateFileSystem}>
+    <Button {...buttonProps} variant="primary" onClick={onCreateFileSystem} isLoading={isLoading} isDisabled={isLoading || isDisabled}>
       {t("Create file system")}
     </Button>
   );

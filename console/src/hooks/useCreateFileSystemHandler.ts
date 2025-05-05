@@ -138,7 +138,7 @@ function createLocalDisks(
   for (const device of selectedDevices) {
     // find a node that contains this device
     const discoveryResult = discoveryResultsForStorageNodes.find((r) =>
-      r.status.discoveredDevices?.find((d) => d.WWN === device.WWN)
+      r.status?.discoveredDevices?.find((d) => d.WWN === device.WWN)
     );
     if (!discoveryResult) {
       throw new Error(
@@ -146,7 +146,7 @@ function createLocalDisks(
       );
     }
 
-    const localDiskName = `${discoveryResult.spec.nodeName}-${device.path.slice("/dev/".length)}`;
+    const localDiskName = `${device.path.slice("/dev/".length)}-${device.WWN}`.replaceAll(".", "-");
     const promise = k8sCreate<LocalDisk>({
       model: localDiskModel,
       data: {

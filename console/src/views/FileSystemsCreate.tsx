@@ -1,27 +1,32 @@
 import { StoreProvider, useStoreContext } from "@/contexts/store/context";
 import { reducer, initialState } from "@/contexts/store/reducer";
-import { DownloadLogsButton } from "@/components/DownloadLogsButton";
 import { FusionAccessListPage } from "@/components/FusionAccessListPage";
 import { CreateFileSystemButton } from "@/components/CreateFileSystemButton";
 import { useCreateFileSystemHandler } from "@/hooks/useCreateFileSystemHandler";
 import { useFusionAccessTranslations } from "@/hooks/useFusionAccessTranslations";
 import {
+  EmptyState,
+  EmptyStateHeader,
+  EmptyStateIcon,
   Form,
   FormContextProvider,
   FormGroup,
   FormHelperText,
   HelperText,
   HelperTextItem,
+  Spinner,
+  Stack,
+  StackItem,
   TextInput,
   useFormContext,
 } from "@patternfly/react-core";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import { useWatchLocalVolumeDiscoveryResult } from "@/hooks/useWatchLocalVolumeDiscoveryResult";
 import { useWatchNode } from "@/hooks/useWatchNode";
 import { STORAGE_ROLE_LABEL, WORKER_NODE_ROLE_LABEL } from "@/constants";
 import convert from "convert";
-import { ExclamationCircleIcon } from "@patternfly/react-icons";
+import { ExclamationCircleIcon, FolderIcon } from "@patternfly/react-icons";
 import type {
   DiscoveredDevice,
   LocalVolumeDiscoveryResult,
@@ -49,40 +54,8 @@ FileSystemsCreate.displayName = "FileSystemsCreate";
 export default FileSystemsCreate;
 
 const ConnectedCreateFileSystems: React.FC = () => {
-  const [store, dispatch] = useStoreContext<State, Actions>();
+  const [store] = useStoreContext<State, Actions>();
   const { t } = useFusionAccessTranslations();
-  const { getError, getValue } = useFormContext();
-  const fileSystemName = getValue("name");
-  const fileSystemNameErrorMessage = getError("name");
-  const selectedLuns = useSelectedLuns(getValue("selected-luns"));
-
-  const discoveryResultsForStorageNodes =
-    useDisksDiscoveryResultsForStorageNodes();
-  const discoveredDevices = useDiscoveredDevices(
-    discoveryResultsForStorageNodes
-  );
-  const selectedDevices = useMemo(() => {
-    const value = discoveredDevices.filter((d) =>
-      selectedLuns.find((l) => l.id === getShortWwn(d))
-    );
-    return value;
-  }, [discoveredDevices, selectedLuns]);
-
-  useEffect(() => {
-    const isDisabled =
-      Boolean(fileSystemNameErrorMessage) || selectedDevices.length === 0;
-
-    dispatch({
-      type: "updateCtas",
-      payload: { createFileSystem: { isDisabled } },
-    });
-  }, [dispatch, fileSystemNameErrorMessage, selectedDevices.length]);
-
-  const handleCreateFileSystem = useCreateFileSystemHandler(
-    fileSystemName,
-    discoveryResultsForStorageNodes,
-    selectedDevices
-  );
 
   return (
     <FusionAccessListPage
@@ -91,20 +64,9 @@ const ConnectedCreateFileSystems: React.FC = () => {
       description={t(
         "Create a file system to represent your required storage (based on the selected nodes’ storage)."
       )}
-      actions={[
-        <DownloadLogsButton key="download-logs" />,
-        <CreateFileSystemButton
-          key="create-filesystem"
-          type="submit"
-          form="file-system-create-form"
-          isDisabled={store.ctas.createFileSystem.isDisabled}
-          isLoading={store.ctas.createFileSystem.isLoading}
-          onCreateFileSystem={handleCreateFileSystem}
-        />,
-      ]}
       alerts={store.alerts}
     >
-      <FileSystemCreateForm discoveredDevices={discoveredDevices} />
+      <FileSystemCreateForm />
     </FusionAccessListPage>
   );
 };
@@ -116,17 +78,33 @@ interface Lun {
   capacity: string;
 }
 
-interface FileSystemCreateFormProps {
-  discoveredDevices: DiscoveredDevice[];
-}
-
-const FileSystemCreateForm: React.FC<FileSystemCreateFormProps> = (props) => {
-  const { discoveredDevices } = props;
-  const { getValue, setValue, getError, setError } = useFormContext();
+const FileSystemCreateForm = () => {
+  const [store] = useStoreContext<State, Actions>();
+  const { getValue, setValue, getError, setError, errors } = useFormContext();
   const { t } = useFusionAccessTranslations();
+  const fileSystemName = getValue("name");
+  const fileSystemNameErrorMessage = getError("name");
+  const [discoveryResultsForStorageNodes, loaded] =
+    useDisksDiscoveryResultsForStorageNodes();
+
+  const selectedLuns = useSelectedLuns(getValue("selected-luns"));
+
+  const discoveredDevices = useDiscoveredDevices(
+    discoveryResultsForStorageNodes
+  );
+  const selectedDevices = useMemo(() => {
+    const value = discoveredDevices.filter((d) =>
+      selectedLuns.find((l) => l.id === getShortWwn(d))
+    );
+    return value;
+  }, [discoveredDevices, selectedLuns]);
+  const handleCreateFileSystem = useCreateFileSystemHandler(
+    fileSystemName,
+    discoveryResultsForStorageNodes,
+    selectedDevices
+  );
 
   const availableLuns = useConvertToLuns(discoveredDevices);
-  const selectedLuns = useSelectedLuns(getValue("selected-luns"));
 
   const handleSelectLun = useCallback(
     (lun: Lun) =>
@@ -167,121 +145,163 @@ const FileSystemCreateForm: React.FC<FileSystemCreateFormProps> = (props) => {
     [setValue]
   );
 
-  const fileSystemName = getValue("name");
-  const fileSystemNameErrorMessage = getError("name");
   const columns = useColumns();
 
   return (
-    <Form
-      isWidthLimited
-      id="file-system-create-form"
-      onSubmit={(e) => {
-        e.preventDefault();
-        validateNameField();
-      }}
-    >
-      <FormGroup isRequired label="Name" fieldId="name">
-        <TextInput
-          type="text"
-          id="name"
-          name="name"
-          isRequired
-          minLength={1}
-          value={fileSystemName}
-          placeholder="file-system-1"
-          validated={fileSystemNameErrorMessage ? "error" : "default"}
-          onChange={handleNameChange}
-          onBlur={validateNameField}
-        />
-        {fileSystemNameErrorMessage ? (
-          <FormHelperText>
-            <HelperText>
-              <HelperTextItem icon={<ExclamationCircleIcon />} variant="error">
-                {fileSystemNameErrorMessage}
-              </HelperTextItem>
-            </HelperText>
-          </FormHelperText>
-        ) : null}
-      </FormGroup>
-      <FormGroup
-        isRequired
-        fieldId="luns-selection-table"
-        label="Select LUNs"
-        labelIcon={
-          <HelpLabelIcon
-            popoverContent={t(
-              "Select LUNs to designate the storage devices used in the file system."
-            )}
-          />
-        }
-      >
-        <Table id="luns-selection-table" variant="compact">
-          <Thead>
-            <Tr>
-              <Th
-                aria-label="Select all LUNs"
-                select={{
-                  isSelected: availableLuns.length === selectedLuns.length,
-                  onSelect: handleSelectAllLuns,
-                }}
+    <Stack hasGutter>
+      <StackItem>
+        <Form
+          isWidthLimited
+          id="file-system-create-form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            validateNameField();
+          }}
+        >
+          <FormGroup isRequired label="Name" fieldId="name">
+            <TextInput
+              type="text"
+              id="name"
+              name="name"
+              isRequired
+              minLength={1}
+              value={fileSystemName}
+              placeholder="file-system-1"
+              validated={fileSystemNameErrorMessage ? "error" : "default"}
+              onChange={handleNameChange}
+              onBlur={validateNameField}
+            />
+            {fileSystemNameErrorMessage ? (
+              <FormHelperText>
+                <HelperText>
+                  <HelperTextItem
+                    icon={<ExclamationCircleIcon />}
+                    variant="error"
+                  >
+                    {fileSystemNameErrorMessage}
+                  </HelperTextItem>
+                </HelperText>
+              </FormHelperText>
+            ) : null}
+          </FormGroup>
+          <FormGroup
+            isRequired
+            fieldId="luns-selection-table"
+            label="Select LUNs"
+            labelIcon={
+              <HelpLabelIcon
+                popoverContent={t(
+                  "Select LUNs to designate the storage devices used in the file system."
+                )}
               />
-              {Object.entries(columns).map(([name, value]) => (
-                <Th key={name}>{value}</Th>
-              ))}
-            </Tr>
-          </Thead>
-          <Tbody>
-            {availableLuns.map((lun, rowIndex) => (
-              <Tr key={lun.id}>
-                <Td
-                  select={{
-                    rowIndex,
-                    isSelected: selectedLuns.some(({ id }) => id === lun.id),
-                    onSelect: handleSelectLun(lun),
-                  }}
+            }
+          >
+            {!loaded ? (
+              <EmptyState>
+                <EmptyStateHeader
+                  titleText={t("Loading LUNs")}
+                  headingLevel="h4"
+                  icon={<EmptyStateIcon icon={Spinner} />}
                 />
-                <Td dataLabel={columns.NAME}>{lun.name}</Td>
-                <Td dataLabel={columns.ID}>{lun.id}</Td>
-                <Td dataLabel={columns.CAPACITY}>{lun.capacity}</Td>
-              </Tr>
-            ))}
-          </Tbody>
-        </Table>
-      </FormGroup>
-    </Form>
+              </EmptyState>
+            ) : availableLuns.length ? (
+              <Table id="luns-selection-table" variant="compact">
+                <Thead>
+                  <Tr>
+                    <Th
+                      aria-label="Select all LUNs"
+                      select={{
+                        isSelected:
+                          availableLuns.length === selectedLuns.length,
+                        onSelect: handleSelectAllLuns,
+                      }}
+                    />
+                    {Object.entries(columns).map(([name, value]) => (
+                      <Th key={name}>{value}</Th>
+                    ))}
+                  </Tr>
+                </Thead>
+                <Tbody>
+                  {availableLuns.map((lun, rowIndex) => (
+                    <Tr key={lun.id}>
+                      <Td
+                        select={{
+                          rowIndex,
+                          isSelected: selectedLuns.some(
+                            ({ id }) => id === lun.id
+                          ),
+                          onSelect: handleSelectLun(lun),
+                        }}
+                      />
+                      <Td dataLabel={columns.NAME}>{lun.name}</Td>
+                      <Td dataLabel={columns.ID}>{lun.id}</Td>
+                      <Td dataLabel={columns.CAPACITY}>{lun.capacity}</Td>
+                    </Tr>
+                  ))}
+                </Tbody>
+              </Table>
+            ) : (
+              <EmptyState>
+                <EmptyStateHeader
+                  titleText={t("No available LUNs")}
+                  headingLevel="h4"
+                  icon={<EmptyStateIcon icon={FolderIcon} />}
+                />
+              </EmptyState>
+            )}
+          </FormGroup>
+        </Form>
+      </StackItem>
+      <StackItem>
+        <CreateFileSystemButton
+          key="create-filesystem"
+          type="submit"
+          form="file-system-create-form"
+          isDisabled={
+            !!Object.keys(errors).length ||
+            !fileSystemName ||
+            !selectedDevices.length
+          }
+          isLoading={store.ctas.createFileSystem.isLoading}
+          onCreateFileSystem={handleCreateFileSystem}
+        />
+      </StackItem>
+    </Stack>
   );
 };
 FileSystemCreateForm.displayName = "FileSystemCreateForm";
 
-const useDisksDiscoveryResultsForStorageNodes =
-  (): LocalVolumeDiscoveryResult[] => {
-    const [disksDiscoveryResults, , disksDiscoveryResultsLoadError] =
-      useWatchLocalVolumeDiscoveryResult({
-        isList: true,
-      });
-
-    const [selectedNodes, , selectedNodesLoadError] = useWatchNode({
+const useDisksDiscoveryResultsForStorageNodes = (): [
+  LocalVolumeDiscoveryResult[],
+  boolean,
+] => {
+  const [disksDiscoveryResults, lvLoaded, disksDiscoveryResultsLoadError] =
+    useWatchLocalVolumeDiscoveryResult({
       isList: true,
-      withLabels: [WORKER_NODE_ROLE_LABEL, STORAGE_ROLE_LABEL],
     });
 
-    useTriggerAlertsOnErrors(
-      disksDiscoveryResultsLoadError,
-      selectedNodesLoadError
-    );
+  const [selectedNodes, nodesLoaded, selectedNodesLoadError] = useWatchNode({
+    isList: true,
+    withLabels: [WORKER_NODE_ROLE_LABEL, STORAGE_ROLE_LABEL],
+  });
 
-    const results = useMemo(
-      () =>
-        disksDiscoveryResults.filter((result) =>
-          selectedNodes.find(
-            (node) => node.metadata?.name === result.spec.nodeName
-          )
-        ),
-      [disksDiscoveryResults, selectedNodes]
-    );
+  useTriggerAlertsOnErrors(
+    disksDiscoveryResultsLoadError,
+    selectedNodesLoadError
+  );
 
-    return results;
-  };
+  const results = useMemo(
+    () =>
+      disksDiscoveryResults.filter((result) =>
+        selectedNodes.find(
+          (node) => node.metadata?.name === result.spec.nodeName
+        )
+      ),
+    [disksDiscoveryResults, selectedNodes]
+  );
+
+  return [results, lvLoaded && nodesLoaded];
+};
 
 const dedupeDiscoveredDisks = (
   acc: DiscoveredDevice[],
@@ -300,7 +320,7 @@ const dedupeDiscoveredDisks = (
 
 const useDiscoveredDevices = (results: LocalVolumeDiscoveryResult[]) =>
   results
-    .map((result) => result.status.discoveredDevices)
+    .map((result) => result.status?.discoveredDevices)
     .flat()
     .reduce(dedupeDiscoveredDisks, []);
 
