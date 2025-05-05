@@ -167,5 +167,10 @@ var _ = Describe("Device Discovery", func() {
 			Expect(discoveredDisks).To(BeEmpty())
 		})
 
+		It("should have the correct number of discovered disks (san disk env)", func() {
+			discoveredDisks := getDiscoverdDevices(deviceListSanDisk.BlockDevices)
+			Expect(discoveredDisks).To(BeEmpty())
+		})
+
 	})
 })
