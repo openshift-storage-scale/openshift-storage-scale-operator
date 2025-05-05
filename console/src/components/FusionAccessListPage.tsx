@@ -7,6 +7,8 @@ import {
   AlertGroup,
   Alert,
   AlertActionCloseButton,
+  Stack,
+  StackItem,
 } from "@patternfly/react-core";
 import type { AlertsSlice } from "@/contexts/store/types";
 import { useLayoutEffect } from "react";
@@ -19,6 +21,7 @@ interface ListPageProps {
   alerts?: AlertsSlice;
   onDismissAlert?: (alert: AlertsSlice[number]) => void;
   listPageBodyStyle?: Partial<UseListPageBodyStyleHackOptions>;
+  footer?: React.ReactNode;
 }
 
 export const FusionAccessListPage: React.FC<ListPageProps> = (props) => {
@@ -31,6 +34,7 @@ export const FusionAccessListPage: React.FC<ListPageProps> = (props) => {
     listPageBodyStyle = {},
     onDismissAlert,
     title,
+    footer,
   } = props;
 
   useListPageBodyStyleHack(listPageBodyStyle);
@@ -46,30 +50,39 @@ export const FusionAccessListPage: React.FC<ListPageProps> = (props) => {
       </ListPageHeader>
 
       <ListPageBody>
-        {children}
-        <AlertGroup isLiveRegion>
-          {alerts.map((alert) => (
-            <Alert
-              isInline
-              key={alert.key}
-              variant={alert.variant}
-              title={alert.title}
-              actionClose={
-                alert.isDismissable ? (
-                  <AlertActionCloseButton
-                    title={alert.title as string}
-                    variantLabel={alert.variant}
-                    onClose={() => {
-                      onDismissAlert?.(alert);
-                    }}
-                  />
-                ) : null
-              }
-            >
-              {alert.description}
-            </Alert>
-          ))}
-        </AlertGroup>
+        <Stack hasGutter>
+          <StackItem>
+            {children}
+          </StackItem>
+          <StackItem>
+            <AlertGroup isLiveRegion>
+              {alerts.map((alert) => (
+                <Alert
+                  isInline
+                  key={alert.key}
+                  variant={alert.variant}
+                  title={alert.title}
+                  actionClose={
+                    alert.isDismissable ? (
+                      <AlertActionCloseButton
+                        title={alert.title as string}
+                        variantLabel={alert.variant}
+                        onClose={() => {
+                          onDismissAlert?.(alert);
+                        }}
+                      />
+                    ) : null
+                  }
+                >
+                  {alert.description}
+                </Alert>
+              ))}
+            </AlertGroup>
+          </StackItem>
+          <StackItem>
+            {footer}
+          </StackItem>
+        </Stack>
       </ListPageBody>
     </>
   );
