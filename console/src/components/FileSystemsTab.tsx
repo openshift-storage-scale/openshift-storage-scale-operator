@@ -38,6 +38,30 @@ import TableDeleteFilesystemModal from "./modals/DeleteFilesystemModal";
 import { getFilesystemStatus } from "@/utils/status/filesystem";
 import { FileSystemTableContext } from "@/contexts/filesystemctx";
 import type { IoK8sApiCoreV1PersistentVolumeClaim } from "@/models/kubernetes/1.30/types";
+import GpfsDashboardLink from "./GpfsDashboardLink";
+
+const columns = [
+  {
+    id: "name",
+    props: { className: "pf-v5-u-w-25" },
+  },
+  {
+    id: "status",
+    props: { className: "pf-v5-u-w-10" },
+  },
+  {
+    id: "raw-capacity",
+    props: { className: "pf-v5-u-w-10" },
+  },
+  {
+    id: "gpfs-dashboard-link",
+    props: {},
+  },
+  {
+    id: "",
+    props: { className: "dropdown-kebab-pf pf-v5-c-table__action" },
+  },
+];
 
 type TableObj = { fileSystem: FileSystem; isUsed: boolean };
 
@@ -130,15 +154,22 @@ const FileSystemsTabTableRow: React.FC<FileSystemsTabTableRowProps> = (
   const status = getFilesystemStatus(fileSystem, t);
   const rawCapacity =
     fileSystem.status?.pools?.[0].totalDiskSize ?? VALUE_NOT_AVAILABLE; // TODO(jkilzi): Find out how to get the rawCapacity
-  const gpfsDashboardHref = "https://www.redhat.com"; // TODO(jkilzi): Find out how to get the gpfsDashboardHref
 
   return (
     <>
-      <TableData activeColumnIDs={activeColumnIDs} id="name">
+      <TableData
+        activeColumnIDs={activeColumnIDs}
+        id={columns[0].id}
+        {...columns[0].props}
+      >
         {name}
       </TableData>
 
-      <TableData activeColumnIDs={activeColumnIDs} id="status">
+      <TableData
+        activeColumnIDs={activeColumnIDs}
+        id={columns[1].id}
+        {...columns[1].props}
+      >
         {status.description ? (
           <Popover
             aria-label="Status popover"
@@ -155,25 +186,26 @@ const FileSystemsTabTableRow: React.FC<FileSystemsTabTableRowProps> = (
         )}
       </TableData>
 
-      <TableData activeColumnIDs={activeColumnIDs} id="raw-capacity">
+      <TableData
+        activeColumnIDs={activeColumnIDs}
+        id={columns[2].id}
+        {...columns[2].props}
+      >
         {rawCapacity}
-      </TableData>
-
-      <TableData activeColumnIDs={activeColumnIDs} id="gpfs-dashboard-link">
-        <Button
-          variant="link"
-          target="_blank"
-          rel="noopener noreferrer"
-          href={gpfsDashboardHref}
-        >
-          {gpfsDashboardHref}
-        </Button>
       </TableData>
 
       <TableData
         activeColumnIDs={activeColumnIDs}
-        id=""
-        className="dropdown-kebab-pf pf-v5-c-table__action"
+        id={columns[3].id}
+        {...columns[3].props}
+      >
+        <GpfsDashboardLink fileSystem={fileSystem} />
+      </TableData>
+
+      <TableData
+        activeColumnIDs={activeColumnIDs}
+        id={columns[4].id}
+        {...columns[4].props}
       >
         <Dropdown
           isOpen={isMenuOpen}
@@ -219,25 +251,29 @@ const useFileSystemsTableColumns = (): TableColumn<TableObj>[] => {
   return useMemo(
     () => [
       {
-        id: "name",
+        id: columns[0].id,
         title: t("Name"),
+        props: columns[0].props,
       },
       {
-        id: "status",
+        id: columns[1].id,
         title: t("Status"),
+        props: columns[1].props,
       },
       {
-        id: "raw-capacity",
+        id: columns[2].id,
         title: t("Raw capacity"),
+        props: columns[2].props,
       },
       {
-        id: "gpfs-dashboard-link",
+        id: columns[3].id,
         title: t("Link to GPFS dashboard"),
+        props: columns[3].props,
       },
       {
-        id: "",
+        id: columns[4].id,
         title: "",
-        props: { className: "dropdown-kebab-pf pf-v5-c-table__action" },
+        props: columns[4].props,
       },
     ],
     [t]
