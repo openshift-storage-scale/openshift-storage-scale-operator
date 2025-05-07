@@ -277,7 +277,6 @@ func ignoreDevices(dev *diskutils.BlockDevice) bool {
 	}
 	// Ignore childrens which has partiton/fs on them
 	if dev.Children != nil {
-		klog.Infof("ignoring device %q with partitions", dev.FSType)
 		for idx := range dev.Children {
 			if dev.Children[idx].Type == "part" {
 				klog.Infof("ignoring device %q with partitions", dev.Children[idx].Name)
@@ -291,8 +290,14 @@ func ignoreDevices(dev *diskutils.BlockDevice) bool {
 				)
 				return true
 			}
+			if dev.Children[idx].Children != nil {
+				for idx2 := range dev.Children[idx].Children {
+					return ignoreDevices(&dev.Children[idx].Children[idx2])
+				}
+			}
 		}
 	}
+
 	return false
 }
 
