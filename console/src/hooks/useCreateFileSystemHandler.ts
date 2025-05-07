@@ -8,6 +8,7 @@ import {
   k8sCreate,
   useK8sModel,
   type K8sModel,
+  type StorageClass,
 } from "@openshift-console/dynamic-plugin-sdk";
 import { useHistory } from "react-router";
 import { useFusionAccessTranslations } from "./useFusionAccessTranslations";
@@ -15,6 +16,7 @@ import { useCallback } from "react";
 import type { LocalDisk } from "@/models/ibm-spectrum-scale/LocalDisk";
 import type { FileSystem } from "@/models/ibm-spectrum-scale/FileSystem";
 import { getDigest } from "@/utils/crypto/hash";
+import { SC_PROVISIONER } from "@/constants";
 
 export const useCreateFileSystemHandler = (
   fileSystemName: string,
@@ -35,6 +37,12 @@ export const useCreateFileSystemHandler = (
     group: "scale.spectrum.ibm.com",
     version: "v1beta1",
     kind: "Filesystem",
+  });
+
+  const [storageClassModel] = useK8sModel({
+    group: "storage.k8s.io",
+    version: "v1",
+    kind: "StorageClass",
   });
 
   return useCallback(async () => {
@@ -60,6 +68,8 @@ export const useCreateFileSystemHandler = (
         fileSystemName,
         namespace
       );
+
+      await createStorageClass(storageClassModel, fileSystemName);
 
       history.push("/fusion-access/file-systems");
     } catch (e) {
@@ -89,6 +99,7 @@ export const useCreateFileSystemHandler = (
     history,
     localDiskModel,
     selectedDevices,
+    storageClassModel,
     t,
   ]);
 };
@@ -146,7 +157,8 @@ function createLocalDisks(
       );
     }
 
-    const localDiskName = `${device.path.slice("/dev/".length)}-${device.WWN}`.replaceAll(".", "-");
+    const localDiskName =
+      `${device.path.slice("/dev/".length)}-${device.WWN}`.replaceAll(".", "-");
     const promise = k8sCreate<LocalDisk>({
       model: localDiskModel,
       data: {
@@ -165,3 +177,21 @@ function createLocalDisks(
 
   return Promise.allSettled(promises);
 }
+
+const createStorageClass = (scModel: K8sModel, fileSystemName: string) => {
+  return k8sCreate<StorageClass>({
+    model: scModel,
+    data: {
+      apiVersion: `${scModel.apiGroup}/${scModel.apiVersion}`,
+      kind: scModel.kind,
+      metadata: { name: fileSystemName },
+      provisioner: SC_PROVISIONER,
+      parameters: {
+        volBackendFs: fileSystemName,
+      },
+      reclaimPolicy: "Delete",
+      allowVolumeExpansion: true,
+      volumeBindingMode: "Immediate",
+    },
+  });
+};

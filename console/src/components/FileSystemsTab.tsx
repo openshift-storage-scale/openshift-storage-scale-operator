@@ -20,7 +20,7 @@ import {
   EmptyStateHeader,
   EmptyStateIcon,
   MenuToggle,
-  Popover,
+  Skeleton,
 } from "@patternfly/react-core";
 import {
   EllipsisVIcon,
@@ -38,7 +38,11 @@ import TableDeleteFilesystemModal from "./modals/DeleteFilesystemModal";
 import { getFilesystemStatus } from "@/utils/status/filesystem";
 import { FileSystemTableContext } from "@/contexts/filesystemctx";
 import type { IoK8sApiCoreV1PersistentVolumeClaim } from "@/models/kubernetes/1.30/types";
-import GpfsDashboardLink from "./GpfsDashboardLink";
+import GpfsDashboardLink, { type Route } from "./GpfsDashboardLink";
+import { isFilesystemUsed } from "@/utils/filesystem";
+import FileSystemStatus from "./FileSystemStatus";
+import FileSystemStorageClasses from "./FileSystemStorageClasses";
+import { useWatchSpectrumScaleCluster } from "@/hooks/useWatchSpectrumScaleCluster";
 
 const columns = [
   {
@@ -54,6 +58,10 @@ const columns = [
     props: { className: "pf-v5-u-w-10" },
   },
   {
+    id: "storage-class",
+    props: { className: "pf-v5-u-w-10" },
+  },
+  {
     id: "gpfs-dashboard-link",
     props: {},
   },
@@ -63,19 +71,11 @@ const columns = [
   },
 ];
 
-type TableObj = { fileSystem: FileSystem; isUsed: boolean };
-
-export const FileSystemsTab: React.FC = () => {
+const useTableResources = () => {
   const [fileSystems, fileSystemsLoaded, fileSystemsLoadedError] =
     useWatchFileSystem({ isList: true });
 
-  // TODO(jkilzi): useTriggerAlertsOnErrors needs polishing...
-  useTriggerAlertsOnErrors(fileSystemsLoadedError);
-
-  const columns = useFileSystemsTableColumns();
-  const [deleteFs, setDeleteFs] = useState<FileSystem>();
-
-  const [pvcs, pvcsLoaded, pvcsError] = useK8sWatchResource<
+  const [pvcs, pvcsLoaded] = useK8sWatchResource<
     IoK8sApiCoreV1PersistentVolumeClaim[]
   >({
     isList: true,
@@ -86,7 +86,7 @@ export const FileSystemsTab: React.FC = () => {
     },
   });
 
-  const [scs, scsLoaded, scsError] = useK8sWatchResource<StorageClass[]>({
+  const [storageClasses, scLoaded] = useK8sWatchResource<StorageClass[]>({
     isList: true,
     namespaced: true,
     groupVersionKind: {
@@ -96,41 +96,92 @@ export const FileSystemsTab: React.FC = () => {
     },
   });
 
-  const tableFilesystems = useMemo<TableObj[]>(() => {
-    const usedFilesystems = [
-      ...scs.reduce((acc, sc) => {
-        if (sc.provisioner === "spectrumscale.csi.ibm.com") {
-          const filesystem = (sc.parameters as { volBackendFs?: string })?.[
-            "volBackendFs"
-          ];
-          if (
-            filesystem &&
-            pvcs.some((pvc) => pvc.spec?.storageClassName === sc.metadata?.name)
-          ) {
-            acc.add(filesystem);
-          }
+  const [storageClusters, storageClustersLoaded] = useWatchSpectrumScaleCluster(
+    { isList: true, limit: 1 }
+  );
+
+  const storageClusterName = storageClusters?.[0]?.metadata?.name;
+
+  const [routes, routesLoaded] = useK8sWatchResource<Route[]>(
+    storageClusterName
+      ? {
+          groupVersionKind: {
+            group: "route.openshift.io",
+            version: "v1",
+            kind: "Route",
+          },
+          isList: true,
+          selector: {
+            matchLabels: {
+              "app.kubernetes.io/instance": storageClusterName,
+              "app.kubernetes.io/name": "gui",
+            },
+          },
         }
-        return acc;
-      }, new Set<string>()),
-    ];
-    return fileSystems.map((fileSystem) => ({
-      fileSystem,
-      isUsed: usedFilesystems.includes(fileSystem.metadata?.name || ""),
-    }));
-  }, [scs, pvcs, fileSystems]);
+      : null
+  );
+
+  return {
+    fileSystems,
+    fileSystemsLoaded,
+    fileSystemsLoadedError,
+    pvcs,
+    pvcsLoaded,
+    storageClasses,
+    scLoaded,
+    routes,
+    routesLoaded: routesLoaded && storageClustersLoaded,
+  };
+};
+
+type RowData = {
+  storageClasses: StorageClass[];
+  scLoaded: boolean;
+  pvcs: IoK8sApiCoreV1PersistentVolumeClaim[];
+  pvcsLoaded: boolean;
+  routes: Route[];
+  routesLoaded: boolean;
+};
+
+export const FileSystemsTab: React.FC = () => {
+  const {
+    fileSystems,
+    fileSystemsLoaded,
+    fileSystemsLoadedError,
+    pvcs,
+    pvcsLoaded,
+    storageClasses,
+    scLoaded,
+    routes,
+    routesLoaded,
+  } = useTableResources();
+
+  // TODO(jkilzi): useTriggerAlertsOnErrors needs polishing...
+  useTriggerAlertsOnErrors(fileSystemsLoadedError);
+
+  const columns = useFileSystemsTableColumns();
+  const [deleteFs, setDeleteFs] = useState<FileSystem>();
 
   return (
     <FileSystemTableContext.Provider
       value={{ filesystem: deleteFs, setFileSystem: setDeleteFs }}
     >
-      <VirtualizedTable<TableObj>
-        data={tableFilesystems}
-        unfilteredData={tableFilesystems}
-        loaded={fileSystemsLoaded && pvcsLoaded && scsLoaded}
-        loadError={fileSystemsLoadedError || pvcsError || scsError}
+      <VirtualizedTable<FileSystem, RowData>
+        data={fileSystems}
+        unfilteredData={fileSystems}
+        loaded={fileSystemsLoaded}
+        loadError={fileSystemsLoadedError}
         columns={columns}
         Row={FileSystemsTabTableRow}
         EmptyMsg={FileSystemsTableEmptyState}
+        rowData={{
+          storageClasses,
+          scLoaded,
+          pvcs,
+          pvcsLoaded,
+          routes,
+          routesLoaded,
+        }}
       />
       <TableDeleteFilesystemModal />
     </FileSystemTableContext.Provider>
@@ -138,13 +189,21 @@ export const FileSystemsTab: React.FC = () => {
 };
 FileSystemsTab.displayName = "FileSystemsTab";
 
-type FileSystemsTabTableRowProps = RowProps<TableObj>;
+type FileSystemsTabTableRowProps = RowProps<FileSystem, RowData>;
 const FileSystemsTabTableRow: React.FC<FileSystemsTabTableRowProps> = (
   props
 ) => {
   const {
     activeColumnIDs,
-    obj: { fileSystem, isUsed },
+    obj: fileSystem,
+    rowData: {
+      storageClasses,
+      pvcs,
+      pvcsLoaded,
+      scLoaded,
+      routes,
+      routesLoaded,
+    },
   } = props;
   const { setFileSystem } = useContext(FileSystemTableContext);
   const { t } = useFusionAccessTranslations();
@@ -154,6 +213,8 @@ const FileSystemsTabTableRow: React.FC<FileSystemsTabTableRowProps> = (
   const status = getFilesystemStatus(fileSystem, t);
   const rawCapacity =
     fileSystem.status?.pools?.[0].totalDiskSize ?? VALUE_NOT_AVAILABLE; // TODO(jkilzi): Find out how to get the rawCapacity
+
+  const isUsed = isFilesystemUsed(fileSystem, storageClasses, pvcs);
 
   return (
     <>
@@ -170,20 +231,7 @@ const FileSystemsTabTableRow: React.FC<FileSystemsTabTableRowProps> = (
         id={columns[1].id}
         {...columns[1].props}
       >
-        {status.description ? (
-          <Popover
-            aria-label="Status popover"
-            bodyContent={<div>{status.description}</div>}
-          >
-            <Button variant="link" isInline icon={status.icon}>
-              {status.title}
-            </Button>
-          </Popover>
-        ) : (
-          <>
-            {status.icon} {status.title}
-          </>
-        )}
+        <FileSystemStatus status={status} />
       </TableData>
 
       <TableData
@@ -199,7 +247,11 @@ const FileSystemsTabTableRow: React.FC<FileSystemsTabTableRowProps> = (
         id={columns[3].id}
         {...columns[3].props}
       >
-        <GpfsDashboardLink fileSystem={fileSystem} />
+        <FileSystemStorageClasses
+          fileSystem={fileSystem}
+          loaded={scLoaded}
+          storageClasses={storageClasses}
+        />
       </TableData>
 
       <TableData
@@ -207,46 +259,62 @@ const FileSystemsTabTableRow: React.FC<FileSystemsTabTableRowProps> = (
         id={columns[4].id}
         {...columns[4].props}
       >
-        <Dropdown
-          isOpen={isMenuOpen}
-          onOpenChange={setIsMenuOpen}
-          toggle={(toggleRef) => (
-            <MenuToggle
-              ref={toggleRef}
-              aria-label="filesystem actions"
-              variant="plain"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              isExpanded={isMenuOpen}
-            >
-              <EllipsisVIcon />
-            </MenuToggle>
-          )}
-          shouldFocusToggleOnSelect
-          popperProps={{ position: "right" }}
-          style={{ whiteSpace: "nowrap" }}
-        >
-          <DropdownList>
-            <DropdownItem
-              onClick={() => {
-                setFileSystem(fileSystem);
-                setIsMenuOpen(false);
-              }}
-              isDisabled={status.id === "deleting" || isUsed}
-              description={
-                isUsed ? <div>{t("Filesystem is in use")}</div> : undefined
-              }
-            >
-              {t("Delete")}
-            </DropdownItem>
-          </DropdownList>
-        </Dropdown>
+        <GpfsDashboardLink
+          fileSystem={fileSystem}
+          routes={routes}
+          loaded={routesLoaded}
+        />
+      </TableData>
+
+      <TableData
+        activeColumnIDs={activeColumnIDs}
+        id={columns[5].id}
+        {...columns[5].props}
+      >
+        {!pvcsLoaded ? (
+          <Skeleton screenreaderText={t("Loading actions")} />
+        ) : (
+          <Dropdown
+            isOpen={isMenuOpen}
+            onOpenChange={setIsMenuOpen}
+            toggle={(toggleRef) => (
+              <MenuToggle
+                ref={toggleRef}
+                aria-label="filesystem actions"
+                variant="plain"
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                isExpanded={isMenuOpen}
+              >
+                <EllipsisVIcon />
+              </MenuToggle>
+            )}
+            shouldFocusToggleOnSelect
+            popperProps={{ position: "right" }}
+            style={{ whiteSpace: "nowrap" }}
+          >
+            <DropdownList>
+              <DropdownItem
+                onClick={() => {
+                  setFileSystem(fileSystem);
+                  setIsMenuOpen(false);
+                }}
+                isDisabled={status.id === "deleting" || isUsed}
+                description={
+                  isUsed ? <div>{t("Filesystem is in use")}</div> : undefined
+                }
+              >
+                {t("Delete")}
+              </DropdownItem>
+            </DropdownList>
+          </Dropdown>
+        )}
       </TableData>
     </>
   );
 };
 FileSystemsTabTableRow.displayName = "FileSystemsTabTableRow";
 
-const useFileSystemsTableColumns = (): TableColumn<TableObj>[] => {
+const useFileSystemsTableColumns = (): TableColumn<FileSystem>[] => {
   const { t } = useFusionAccessTranslations();
   return useMemo(
     () => [
@@ -267,13 +335,18 @@ const useFileSystemsTableColumns = (): TableColumn<TableObj>[] => {
       },
       {
         id: columns[3].id,
-        title: t("Link to GPFS dashboard"),
+        title: t("StorageClass"),
         props: columns[3].props,
       },
       {
         id: columns[4].id,
-        title: "",
+        title: t("Link to GPFS dashboard"),
         props: columns[4].props,
+      },
+      {
+        id: columns[5].id,
+        title: "",
+        props: columns[5].props,
       },
     ],
     [t]
