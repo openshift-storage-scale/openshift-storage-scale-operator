@@ -14,11 +14,12 @@ import (
 
 var _ = Describe("Device Discovery", func() {
 	var (
-		deviceList7Disk           diskutils.BlockDeviceList
-		deviceList0Disk           diskutils.BlockDeviceList
-		deviceList2Disk2MultiPath diskutils.BlockDeviceList
-		deviceList0Disk0MultiPath diskutils.BlockDeviceList
-		deviceListSanDisk         diskutils.BlockDeviceList
+		deviceList7Disk              diskutils.BlockDeviceList
+		deviceList0Disk              diskutils.BlockDeviceList
+		deviceList2Disk2MultiPath    diskutils.BlockDeviceList
+		deviceList0Disk0MultiPath    diskutils.BlockDeviceList
+		deviceListSanDisk            diskutils.BlockDeviceList
+		deviceList0Disk0MultiPath0DM diskutils.BlockDeviceList
 	)
 	Context("When scanning for disks", func() {
 
@@ -170,6 +171,18 @@ var _ = Describe("Device Discovery", func() {
 		It("should have the correct number of discovered disks (san disk env)", func() {
 			discoveredDisks := getDiscoverdDevices(deviceListSanDisk.BlockDevices)
 			Expect(discoveredDisks).To(BeEmpty())
+		})
+
+		It("should have the correct number of discovered disks (qe env data)", func() {
+			LsblkOut0Disk0MultiPath0DM, err := os.ReadFile("../../../test/data/mpath-0-available-disk-0dm-s.json")
+			Expect(err).To(Not(HaveOccurred()))
+
+			err = json.Unmarshal(LsblkOut0Disk0MultiPath0DM, &deviceList0Disk0MultiPath0DM)
+			Expect(err).To(Not(HaveOccurred()))
+
+			discoveredDisks := getDiscoverdDevices(deviceList0Disk0MultiPath0DM.BlockDevices)
+			Expect(discoveredDisks).To(BeEmpty())
+
 		})
 
 	})
