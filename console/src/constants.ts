@@ -8,3 +8,4 @@ export const CPLANE_NODE_ROLE_LABEL = "node-role.kubernetes.io/control-plane=";
 export const MIN_AMOUNT_OF_NODES_MSG_DIGEST =
   "5da6449cd9450de311ce1e19f6a9a01be8710958";
 export const FS_ALLOW_DELETE_LABEL = 'scale.spectrum.ibm.com/allowDelete';
+export const SC_PROVISIONER = 'spectrumscale.csi.ibm.com';

@@ -10,9 +10,11 @@ import { ExternalLinkAltIcon } from "@patternfly/react-icons";
 
 type GpfsDashboardLinkProps = {
   fileSystem: FileSystem;
+  routes: Route[];
+  loaded: boolean;
 };
 
-type Route = K8sResourceCommon & {
+export type Route = K8sResourceCommon & {
   spec: {
     host: string;
   };
@@ -20,43 +22,16 @@ type Route = K8sResourceCommon & {
 
 const GpfsDashboardLink: React.FC<GpfsDashboardLinkProps> = ({
   fileSystem,
+  routes,
+  loaded,
 }) => {
   const { t } = useFusionAccessTranslations();
-  const [storageClusters, storageClustersLoaded, storageClustersError] =
-    useWatchSpectrumScaleCluster({ isList: true, limit: 1 });
 
-  const storageClusterName = storageClusters?.[0]?.metadata?.name;
-
-  const [routes, routesLoaded, routesErr] = useK8sWatchResource<Route[]>(
-    storageClusterName
-      ? {
-          groupVersionKind: {
-            group: "route.openshift.io",
-            version: "v1",
-            kind: "Route",
-          },
-          namespace: fileSystem.metadata?.namespace,
-          isList: true,
-          selector: {
-            matchLabels: {
-              "app.kubernetes.io/instance": storageClusterName,
-              "app.kubernetes.io/name": "gui",
-            },
-          },
-        }
-      : null
-  );
-
-  if (!storageClustersLoaded || !routesLoaded) {
+  if (!loaded) {
     return <Skeleton screenreaderText={t("Loading gpfs dashboard link")} />;
   }
 
-  if (
-    !storageClusters.length ||
-    storageClustersError ||
-    !routes.length ||
-    routesErr
-  ) {
+  if (!routes.length) {
     return <span className="text-secondary">{t("Not available")}</span>;
   }
 
