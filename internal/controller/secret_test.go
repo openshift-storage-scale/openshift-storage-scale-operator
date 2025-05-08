@@ -2,6 +2,8 @@ package controller
 
 import (
 	"context"
+	"encoding/base64"
+	"encoding/json"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -60,26 +62,26 @@ var _ = Describe("FusionAccess Utilities", func() {
 		})
 
 		It("should return error for wrong secret type", func() {
-			secret := newSecret(secretName, "default", map[string][]byte{}, corev1.SecretTypeOpaque, nil)
+			secret := newSecret(secretName, "default", map[string][]byte{}, corev1.SecretTypeDockerConfigJson, nil)
 			_, _ = clientset.CoreV1().Secrets("default").Create(ctx, secret, metav1.CreateOptions{})
 
 			_, err := getPullSecretContent(secretName, "default", ctx, clientset)
 			Expect(err).To(MatchError(ContainSubstring("is not of type")))
 		})
 
-		It("should return error if .dockerconfigjson is missing", func() {
-			secret := newSecret(secretName, "default", map[string][]byte{}, corev1.SecretTypeDockerConfigJson, nil)
+		It("should return error if ibm-entitlement-key is missing", func() {
+			secret := newSecret(secretName, "default", map[string][]byte{}, corev1.SecretTypeOpaque, nil)
 			_, _ = clientset.CoreV1().Secrets("default").Create(ctx, secret, metav1.CreateOptions{})
 
 			_, err := getPullSecretContent(secretName, "default", ctx, clientset)
-			Expect(err).To(MatchError(ContainSubstring("does not contain .dockerconfigjson")))
+			Expect(err).To(MatchError(ContainSubstring("does not contain ibm-entitlement-key")))
 		})
 
 		It("should return secret content if valid", func() {
 			data := map[string][]byte{
-				".dockerconfigjson": []byte("my-secret-data"),
+				IBMENTITLEMENTNAME: []byte("my-secret-data"),
 			}
-			secret := newSecret(secretName, "default", data, corev1.SecretTypeDockerConfigJson, nil)
+			secret := newSecret(secretName, "default", data, corev1.SecretTypeOpaque, nil)
 			_, _ = clientset.CoreV1().Secrets("default").Create(ctx, secret, metav1.CreateOptions{})
 
 			content, err := getPullSecretContent(secretName, "default", ctx, clientset)
@@ -92,7 +94,7 @@ var _ = Describe("FusionAccess Utilities", func() {
 		var secretData []byte
 
 		BeforeEach(func() {
-			secretData = []byte("test-dockerconfigjson")
+			secretData = []byte("test-secret-data")
 		})
 
 		It("creates secrets in all IBM namespaces if not present", func() {
@@ -102,7 +104,10 @@ var _ = Describe("FusionAccess Utilities", func() {
 			for _, ns := range IbmEntitlementSecrets() {
 				sec, err := clientset.CoreV1().Secrets(ns).Get(ctx, IBMENTITLEMENTNAME, metav1.GetOptions{})
 				Expect(err).ToNot(HaveOccurred())
-				Expect(sec.Data[".dockerconfigjson"]).To(Equal(secretData))
+				dockerConfigJSON, err := json.Marshal(getDockerConfigSecret(secretData))
+				Expect(err).ToNot(HaveOccurred())
+				data := []byte(base64.StdEncoding.EncodeToString(dockerConfigJSON))
+				Expect(sec.Data[".dockerconfigjson"]).To(Equal(data))
 			}
 		})
 
@@ -122,7 +127,11 @@ var _ = Describe("FusionAccess Utilities", func() {
 			for _, ns := range IbmEntitlementSecrets() {
 				sec, err := clientset.CoreV1().Secrets(ns).Get(ctx, IBMENTITLEMENTNAME, metav1.GetOptions{})
 				Expect(err).ToNot(HaveOccurred())
-				Expect(sec.Data[".dockerconfigjson"]).To(Equal(secretData))
+				dockerConfigJSON, err := json.Marshal(getDockerConfigSecret(secretData))
+				Expect(err).ToNot(HaveOccurred())
+
+				data := []byte(base64.StdEncoding.EncodeToString(dockerConfigJSON))
+				Expect(sec.Data[".dockerconfigjson"]).To(Equal(data))
 			}
 		})
 	})

@@ -2,6 +2,8 @@ package controller
 
 import (
 	"context"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 
 	corev1 "k8s.io/api/core/v1"
@@ -13,6 +15,8 @@ import (
 
 const FUSIONPULLSECRETNAME = "fusion-pullsecret" //nolint:gosec
 const IBMENTITLEMENTNAME = "ibm-entitlement-key"
+const IBMREGISTRY = "cp.icr.io"
+const IBMREGISTRYUSER = "cp"
 
 func IbmEntitlementSecrets() []string {
 	return []string{
@@ -41,25 +45,41 @@ func getPullSecretContent(name, namespace string, ctx context.Context, full kube
 	if err != nil {
 		return nil, err
 	}
-	if secret.Type != corev1.SecretTypeDockerConfigJson {
-		return nil, fmt.Errorf("secret %s is not of type %s", name, corev1.SecretTypeDockerConfigJson)
+	if secret.Type != corev1.SecretTypeOpaque {
+		return nil, fmt.Errorf("secret %s is not of type %s", name, corev1.SecretTypeOpaque)
 	}
 	if secret.Data == nil {
 		return nil, fmt.Errorf("secret %s has no data", name)
 	}
-	secData, ok := secret.Data[".dockerconfigjson"]
+	secData, ok := secret.Data[IBMENTITLEMENTNAME]
 	if !ok {
-		return nil, fmt.Errorf("secret %s does not contain .dockerconfigjson", name)
+		return nil, fmt.Errorf("secret %s does not contain %s", name, IBMENTITLEMENTNAME)
 	}
 	return secData, nil
 }
 
+func getDockerConfigSecret(secret []byte) map[string]any {
+	auth := base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s:%s", IBMREGISTRYUSER, secret)))
+	return map[string]any{
+		"auths": map[string]any{
+			IBMREGISTRY: map[string]string{
+				"auth":     auth,
+				"username": IBMREGISTRYUSER,
+			},
+		},
+	}
+}
+
 func updateEntitlementPullSecrets(secret []byte, ctx context.Context, full kubernetes.Interface) error {
-	// Create secrets in IBM namespaces to pull images from quay
-	secretData := map[string][]byte{
-		".dockerconfigjson": secret,
+	dockerConfigJSON, err := json.Marshal(getDockerConfigSecret(secret))
+	if err != nil {
+		panic(err)
 	}
 
+	// Create secrets in IBM namespaces to pull images from quay
+	secretData := map[string][]byte{
+		".dockerconfigjson": []byte(base64.StdEncoding.EncodeToString(dockerConfigJSON)),
+	}
 	destSecretName := IBMENTITLEMENTNAME //nolint:gosec
 
 	for _, destNamespace := range IbmEntitlementSecrets() {
