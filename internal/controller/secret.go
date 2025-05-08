@@ -18,8 +18,11 @@ const IBMENTITLEMENTNAME = "ibm-entitlement-key"
 const IBMREGISTRY = "cp.icr.io"
 const IBMREGISTRYUSER = "cp"
 
-func IbmEntitlementSecrets() []string {
+// IbmEntitlementSecrets returns the list of namespaces where the entitlement secret should be created
+// plus the namespace of the operator because in that namespace we do the pod pull check
+func IbmEntitlementSecrets(ourNs string) []string {
 	return []string{
+		ourNs,
 		"ibm-spectrum-scale",
 		"ibm-spectrum-scale-dns",
 		"ibm-spectrum-scale-csi",
@@ -70,18 +73,18 @@ func getDockerConfigSecret(secret []byte) map[string]any {
 	}
 }
 
-func updateEntitlementPullSecrets(secret []byte, ctx context.Context, full kubernetes.Interface) error {
+func updateEntitlementPullSecrets(secret []byte, ctx context.Context, full kubernetes.Interface, ns string) error {
 	secretJson := getDockerConfigSecret(secret)
 	dockerConfigJSON, err := json.Marshal(secretJson)
 	if err != nil {
 		return err
 	}
 	secretData := map[string][]byte{
-		".dockerconfigjson": []byte(dockerConfigJSON),
+		".dockerconfigjson": dockerConfigJSON,
 	}
 	destSecretName := IBMENTITLEMENTNAME //nolint:gosec
 
-	for _, destNamespace := range IbmEntitlementSecrets() {
+	for _, destNamespace := range IbmEntitlementSecrets(ns) {
 		ibmPullSecret := newSecret(
 			destSecretName,
 			destNamespace,

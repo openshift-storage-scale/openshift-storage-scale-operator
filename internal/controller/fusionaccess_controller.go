@@ -340,7 +340,7 @@ func (r *FusionAccessReconciler) Reconcile(
 		)
 	} else {
 		// Create entitlement secrets
-		err = updateEntitlementPullSecrets(secret, ctx, r.fullClient)
+		err = updateEntitlementPullSecrets(secret, ctx, r.fullClient, ns)
 		if err != nil {
 			log.Log.Error(err, "Error creating entitlement secrets")
 			return reconcile.Result{}, err
@@ -349,27 +349,9 @@ func (r *FusionAccessReconciler) Reconcile(
 	}
 
 	// Check if can pull the image if we have not already or if it failed previously
-	if fusionaccess.Status.ExternalImagePullStatus == fusionv1alpha1.CheckNotRun ||
-		fusionaccess.Status.ExternalImagePullStatus == fusionv1alpha1.CheckFailed {
-		testImage, err := utils.GetExternalTestImage(string(fusionaccess.Spec.IbmCnsaVersion))
-		if err != nil {
-			log.Log.Error(err, "Could not figure out test image", "testImage", testImage)
-			return ctrl.Result{}, err
-		}
-		ok, err := r.CanPullImage(ctx, r.fullClient, ns, testImage, FUSIONPULLSECRETNAME)
-		if ok {
-			log.Log.Info("Image pull test succeeded", "ns", ns, "testImage", testImage)
-			fusionaccess.Status.ExternalImagePullStatus = fusionv1alpha1.CheckSuccess
-			fusionaccess.Status.ExternalImagePullError = ""
-		} else {
-			log.Log.Error(err, "Image pull test failed", "ns", ns, "testImage", testImage)
-			fusionaccess.Status.ExternalImagePullStatus = fusionv1alpha1.CheckFailed
-			fusionaccess.Status.ExternalImagePullError = err.Error()
-		}
-		err = r.Status().Update(ctx, fusionaccess)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
+	err = r.runPullImageCheck(ctx, ns, fusionaccess)
+	if err != nil {
+		return ctrl.Result{}, err
 	}
 
 	if err := console.CreateOrUpdatePlugin(ctx, r.Client); err != nil {
@@ -440,6 +422,29 @@ func (r *FusionAccessReconciler) getPullSecretSelector(
 	}
 	log.Log.Info("Enqueueing request for", "request", req)
 	return []reconcile.Request{req}
+}
+
+func (r *FusionAccessReconciler) runPullImageCheck(ctx context.Context, ns string, fusionaccess *fusionv1alpha1.FusionAccess) error {
+	testImage, err := utils.GetExternalTestImage(string(fusionaccess.Spec.IbmCnsaVersion))
+	if err != nil {
+		log.Log.Error(err, "Could not figure out test image", "testImage", testImage)
+		return err
+	}
+	ok, err := r.CanPullImage(ctx, r.fullClient, ns, testImage, IBMENTITLEMENTNAME)
+	if ok {
+		log.Log.Info("Image pull test succeeded", "ns", ns, "testImage", testImage)
+		fusionaccess.Status.ExternalImagePullStatus = fusionv1alpha1.CheckSuccess
+		fusionaccess.Status.ExternalImagePullError = ""
+	} else {
+		log.Log.Error(err, "Image pull test failed", "ns", ns, "testImage", testImage)
+		fusionaccess.Status.ExternalImagePullStatus = fusionv1alpha1.CheckFailed
+		fusionaccess.Status.ExternalImagePullError = err.Error()
+	}
+	err = r.Status().Update(ctx, fusionaccess)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // isItOurPullSecret returns true for Create or changed Update events
