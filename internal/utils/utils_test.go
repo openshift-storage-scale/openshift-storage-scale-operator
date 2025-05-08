@@ -119,15 +119,11 @@ var _ = Describe("IsOpenShiftSupported", func() {
 			Expect(result).To(Equal(expected))
 		},
 
-		Entry("5.1.5.0 supports 4.9.0", "5.1.5.0", "4.9.0", true),
-		Entry("5.1.5.0 does not support 4.12.1", "5.1.5.0", "4.12.1", false),
-		Entry("5.1.7.0 supports 4.11.43", "5.1.7.0", "4.11.43", true),
-		Entry("5.1.7.0 does not support 4.13.34", "5.1.7.0", "4.13.34", false),
-		Entry("5.1.9.1 supports 4.12.7", "5.1.9.1", "4.12.7", true),
-		Entry("5.1.9.1 does not support 4.15.0", "5.1.9.1", "4.15.0", false),
 		Entry("5.2.2.0 supports 4.17.3", "5.2.2.0", "4.17.3", true),
 		Entry("5.2.2.0 does not support 4.18.1", "5.2.2.0", "4.18.1", false),
 		Entry("5.2.2.0 supports 4.15.17", "5.2.2.0", "4.15.17", true),
+		Entry("5.2.2.1 supports 4.18.1", "5.2.2.1", "4.18.1", true),
+		Entry("5.2.3.0 does not support 4.15.10", "5.2.3.0", "4.15.10", false),
 	)
 
 	It("should return false for invalid IBM version", func() {
