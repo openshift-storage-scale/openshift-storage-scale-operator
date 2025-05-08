@@ -71,14 +71,13 @@ func getDockerConfigSecret(secret []byte) map[string]any {
 }
 
 func updateEntitlementPullSecrets(secret []byte, ctx context.Context, full kubernetes.Interface) error {
-	dockerConfigJSON, err := json.Marshal(getDockerConfigSecret(secret))
+	secretJson := getDockerConfigSecret(secret)
+	dockerConfigJSON, err := json.Marshal(secretJson)
 	if err != nil {
-		panic(err)
+		return err
 	}
-
-	// Create secrets in IBM namespaces to pull images from quay
 	secretData := map[string][]byte{
-		".dockerconfigjson": []byte(base64.StdEncoding.EncodeToString(dockerConfigJSON)),
+		".dockerconfigjson": []byte(dockerConfigJSON),
 	}
 	destSecretName := IBMENTITLEMENTNAME //nolint:gosec
 
