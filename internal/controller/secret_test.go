@@ -2,6 +2,7 @@ package controller
 
 import (
 	"context"
+	"encoding/json"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -12,6 +13,8 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/kubernetes/fake"
 )
+
+const TESTNAMESPACE = "test-namespace"
 
 var _ = Describe("FusionAccess Utilities", func() {
 	var (
@@ -26,8 +29,9 @@ var _ = Describe("FusionAccess Utilities", func() {
 
 	Describe("IbmEntitlementSecrets", func() {
 		It("should return the correct IBM namespaces", func() {
-			names := IbmEntitlementSecrets()
+			names := IbmEntitlementSecrets(TESTNAMESPACE)
 			Expect(names).To(ConsistOf(
+				TESTNAMESPACE,
 				"ibm-spectrum-scale",
 				"ibm-spectrum-scale-dns",
 				"ibm-spectrum-scale-csi",
@@ -60,26 +64,26 @@ var _ = Describe("FusionAccess Utilities", func() {
 		})
 
 		It("should return error for wrong secret type", func() {
-			secret := newSecret(secretName, "default", map[string][]byte{}, corev1.SecretTypeOpaque, nil)
+			secret := newSecret(secretName, "default", map[string][]byte{}, corev1.SecretTypeDockerConfigJson, nil)
 			_, _ = clientset.CoreV1().Secrets("default").Create(ctx, secret, metav1.CreateOptions{})
 
 			_, err := getPullSecretContent(secretName, "default", ctx, clientset)
 			Expect(err).To(MatchError(ContainSubstring("is not of type")))
 		})
 
-		It("should return error if .dockerconfigjson is missing", func() {
-			secret := newSecret(secretName, "default", map[string][]byte{}, corev1.SecretTypeDockerConfigJson, nil)
+		It("should return error if ibm-entitlement-key is missing", func() {
+			secret := newSecret(secretName, "default", map[string][]byte{}, corev1.SecretTypeOpaque, nil)
 			_, _ = clientset.CoreV1().Secrets("default").Create(ctx, secret, metav1.CreateOptions{})
 
 			_, err := getPullSecretContent(secretName, "default", ctx, clientset)
-			Expect(err).To(MatchError(ContainSubstring("does not contain .dockerconfigjson")))
+			Expect(err).To(MatchError(ContainSubstring("does not contain ibm-entitlement-key")))
 		})
 
 		It("should return secret content if valid", func() {
 			data := map[string][]byte{
-				".dockerconfigjson": []byte("my-secret-data"),
+				IBMENTITLEMENTNAME: []byte("my-secret-data"),
 			}
-			secret := newSecret(secretName, "default", data, corev1.SecretTypeDockerConfigJson, nil)
+			secret := newSecret(secretName, "default", data, corev1.SecretTypeOpaque, nil)
 			_, _ = clientset.CoreV1().Secrets("default").Create(ctx, secret, metav1.CreateOptions{})
 
 			content, err := getPullSecretContent(secretName, "default", ctx, clientset)
@@ -92,23 +96,25 @@ var _ = Describe("FusionAccess Utilities", func() {
 		var secretData []byte
 
 		BeforeEach(func() {
-			secretData = []byte("test-dockerconfigjson")
+			secretData = []byte("test-secret-data")
 		})
 
 		It("creates secrets in all IBM namespaces if not present", func() {
-			err := updateEntitlementPullSecrets(secretData, ctx, clientset)
+			err := updateEntitlementPullSecrets(secretData, ctx, clientset, TESTNAMESPACE)
 			Expect(err).ToNot(HaveOccurred())
 
-			for _, ns := range IbmEntitlementSecrets() {
+			for _, ns := range IbmEntitlementSecrets(TESTNAMESPACE) {
 				sec, err := clientset.CoreV1().Secrets(ns).Get(ctx, IBMENTITLEMENTNAME, metav1.GetOptions{})
 				Expect(err).ToNot(HaveOccurred())
-				Expect(sec.Data[".dockerconfigjson"]).To(Equal(secretData))
+				dockerConfigJSON, err := json.Marshal(getDockerConfigSecret(secretData))
+				Expect(err).ToNot(HaveOccurred())
+				Expect(sec.Data[".dockerconfigjson"]).To(Equal(dockerConfigJSON))
 			}
 		})
 
 		It("updates existing secrets", func() {
 			// Create dummy existing secrets with wrong data
-			for _, ns := range IbmEntitlementSecrets() {
+			for _, ns := range IbmEntitlementSecrets(TESTNAMESPACE) {
 				dummy := newSecret(IBMENTITLEMENTNAME, ns, map[string][]byte{
 					".dockerconfigjson": []byte("old-data"),
 				}, corev1.SecretTypeDockerConfigJson, nil)
@@ -116,13 +122,16 @@ var _ = Describe("FusionAccess Utilities", func() {
 				Expect(err).ToNot(HaveOccurred())
 			}
 
-			err := updateEntitlementPullSecrets(secretData, ctx, clientset)
+			err := updateEntitlementPullSecrets(secretData, ctx, clientset, TESTNAMESPACE)
 			Expect(err).ToNot(HaveOccurred())
 
-			for _, ns := range IbmEntitlementSecrets() {
+			for _, ns := range IbmEntitlementSecrets(TESTNAMESPACE) {
 				sec, err := clientset.CoreV1().Secrets(ns).Get(ctx, IBMENTITLEMENTNAME, metav1.GetOptions{})
 				Expect(err).ToNot(HaveOccurred())
-				Expect(sec.Data[".dockerconfigjson"]).To(Equal(secretData))
+				dockerConfigJSON, err := json.Marshal(getDockerConfigSecret(secretData))
+				Expect(err).ToNot(HaveOccurred())
+
+				Expect(sec.Data[".dockerconfigjson"]).To(Equal(dockerConfigJSON))
 			}
 		})
 	})
