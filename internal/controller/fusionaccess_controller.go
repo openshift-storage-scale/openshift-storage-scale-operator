@@ -17,9 +17,9 @@ limitations under the License.
 package controller
 
 import (
-	"bytes"
 	"context"
 	"fmt"
+	"reflect"
 
 	mfc "github.com/manifestival/controller-runtime-client"
 	"github.com/manifestival/manifestival"
@@ -472,10 +472,7 @@ func isItOurPullSecret() builder.WatchesOption {
 			if !checkPullSecret(newSecret, ns) {
 				return false
 			}
-			return !bytes.Equal(
-				oldSecret.Data[".dockerconfigjson"],
-				newSecret.Data[".dockerconfigjson"],
-			)
+			return !reflect.DeepEqual(oldSecret.Data, newSecret.Data)
 		},
 		DeleteFunc: func(_ event.DeleteEvent) bool {
 			return false
@@ -487,7 +484,7 @@ func isItOurPullSecret() builder.WatchesOption {
 }
 
 func checkPullSecret(secret *corev1.Secret, ns string) bool {
-	if secret.Type != "kubernetes.io/dockerconfigjson" {
+	if secret.Type != "Opaque" {
 		return false
 	}
 	if secret.Name != FUSIONPULLSECRETNAME {

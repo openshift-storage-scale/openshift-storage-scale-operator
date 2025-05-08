@@ -84,7 +84,7 @@ var _ = Describe("FusionAccess Controller", func() {
 					Namespace: "default",
 				},
 				Spec: fusionv1alpha.FusionAccessSpec{
-					IbmCnsaVersion:       "v5.2.2.1",
+					IbmCnsaVersion:       "v5.2.3.0",
 					LocalVolumeDiscovery: fusionv1alpha.StorageDeviceDiscovery{
 						// Create: false,
 					},
@@ -157,7 +157,7 @@ var _ = Describe("checkPullSecret", func() {
 
 	It("returns true for a valid pull secret", func() {
 		secret := &corev1.Secret{
-			Type: corev1.SecretTypeDockerConfigJson,
+			Type: corev1.SecretTypeOpaque,
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      expectedName,
 				Namespace: expectedNamespace,
@@ -169,7 +169,7 @@ var _ = Describe("checkPullSecret", func() {
 
 	It("returns false if secret type is incorrect", func() {
 		secret := &corev1.Secret{
-			Type: corev1.SecretTypeOpaque,
+			Type: corev1.SecretTypeDockercfg,
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      expectedName,
 				Namespace: expectedNamespace,
@@ -181,7 +181,7 @@ var _ = Describe("checkPullSecret", func() {
 
 	It("returns false if secret name is incorrect", func() {
 		secret := &corev1.Secret{
-			Type: corev1.SecretTypeDockerConfigJson,
+			Type: corev1.SecretTypeOpaque,
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "wrong-name",
 				Namespace: expectedNamespace,
@@ -193,7 +193,7 @@ var _ = Describe("checkPullSecret", func() {
 
 	It("returns false if secret namespace is incorrect", func() {
 		secret := &corev1.Secret{
-			Type: corev1.SecretTypeDockerConfigJson,
+			Type: corev1.SecretTypeOpaque,
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      expectedName,
 				Namespace: "other-namespace",
