@@ -42,8 +42,7 @@ spec:
               ibm_cnsa_version:
                 description: Version of IBMs installation manifests found at https://github.com/IBM/ibm-spectrum-scale-container-native
                 enum:
-                - v5.2.2.1
-                - v5.2.3.0.rc1
+                - v5.2.3.0
                 type: string
               storagedevicediscovery:
                 properties:

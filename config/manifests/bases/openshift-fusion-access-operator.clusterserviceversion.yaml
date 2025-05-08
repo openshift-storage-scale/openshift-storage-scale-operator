@@ -11,7 +11,7 @@ metadata:
             "name": "fusionaccess-sample"
           },
           "spec": {
-            "ibm_cnsa_version": "v5.2.3.0.rc1"
+            "ibm_cnsa_version": "v5.2.3.0"
           }
         }
       ]
@@ -26,7 +26,7 @@ metadata:
     features.operators.openshift.io/token-auth-aws: "false"
     features.operators.openshift.io/token-auth-azure: "false"
     features.operators.openshift.io/token-auth-gcp: "false"
-    operatorframework.io/initialization-resource: '{"apiVersion":"fusion.storage.openshift.io/v1alpha1","kind":"FusionAccess","metadata":{"name":"fusionaccess-sample"},"spec":{"ibm_cnsa_version":"v5.2.3.0.rc1"}}'
+    operatorframework.io/initialization-resource: '{"apiVersion":"fusion.storage.openshift.io/v1alpha1","kind":"FusionAccess","metadata":{"name":"fusionaccess-sample"},"spec":{"ibm_cnsa_version":"v5.2.3.0"}}'
     operatorframework.io/suggested-namespace: openshift-fusion-access
     operators.openshift.io/infrastructure-features: '["disconnected"]'
     operators.openshift.io/valid-subscription: '["Openshift Container Platform","OpenShift
@@ -47,8 +47,7 @@ spec:
         displayName: Ibm Cnsa Version
         path: ibm_cnsa_version
         x-descriptors:
-        - urn:alm:descriptor:com.tectonic.ui:select:v5.2.2.1
-        - urn:alm:descriptor:com.tectonic.ui:select:v5.2.3.0.rc1
+        - urn:alm:descriptor:com.tectonic.ui:select:v5.2.3.0
       - displayName: Local Volume Discovery
         path: storagedevicediscovery
         x-descriptors:
