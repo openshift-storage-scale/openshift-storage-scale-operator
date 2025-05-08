@@ -155,6 +155,13 @@ var storageScaleTable = map[string]FusionAccessData{
 		"36.00",
 		[]string{"4.15", "4.16", "4.17", "4.18"},
 	},
+	"5.2.3.0": {
+		"2.13.1",
+		[]string{"x86_64", "ppc64le", "s390x"},
+		"5.1.9.0+",
+		"36.00",
+		[]string{"4.16", "4.17", "4.18"},
+	},
 }
 
 func IsOpenShiftSupported(ibmFusionAccessVersion string, openShiftVersion semver.Version) bool {
