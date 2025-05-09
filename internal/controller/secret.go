@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/TwiN/deepmerge"
 	corev1 "k8s.io/api/core/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -61,9 +62,18 @@ func getPullSecretContent(name, namespace string, ctx context.Context, full kube
 	return secData, nil
 }
 
-func getDockerConfigSecret(secret []byte) map[string]any {
+func getPullJson() []byte {
+	if pull == "" {
+		return nil
+	}
+	log.Log.Info("Adding pull from embedded file")
+
+	return []byte(pull)
+}
+
+func getDockerConfigSecretJSON(secret []byte) ([]byte, error) {
 	auth := base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s:%s", IBMREGISTRYUSER, secret)))
-	return map[string]any{
+	auths := map[string]any{
 		"auths": map[string]any{
 			IBMREGISTRY: map[string]string{
 				"auth":     auth,
@@ -71,16 +81,26 @@ func getDockerConfigSecret(secret []byte) map[string]any {
 			},
 		},
 	}
+	authsJSON, err := json.Marshal(auths)
+	if err != nil {
+		return nil, err
+	}
+	pullJSON := getPullJson()
+	if pullJSON == nil {
+		return authsJSON, nil
+	}
+	ret, err := deepmerge.JSON(authsJSON, getPullJson())
+	return ret, err
 }
 
 func updateEntitlementPullSecrets(secret []byte, ctx context.Context, full kubernetes.Interface, ns string) error {
-	secretJson := getDockerConfigSecret(secret)
-	dockerConfigJSON, err := json.Marshal(secretJson)
+	secretJson, err := getDockerConfigSecretJSON(secret)
 	if err != nil {
 		return err
 	}
+
 	secretData := map[string][]byte{
-		".dockerconfigjson": dockerConfigJSON,
+		".dockerconfigjson": secretJson,
 	}
 	destSecretName := IBMENTITLEMENTNAME //nolint:gosec
 
