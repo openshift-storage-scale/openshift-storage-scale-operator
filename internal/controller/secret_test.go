@@ -2,7 +2,6 @@ package controller
 
 import (
 	"context"
-	"encoding/json"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -106,7 +105,7 @@ var _ = Describe("FusionAccess Utilities", func() {
 			for _, ns := range IbmEntitlementSecrets(TESTNAMESPACE) {
 				sec, err := clientset.CoreV1().Secrets(ns).Get(ctx, IBMENTITLEMENTNAME, metav1.GetOptions{})
 				Expect(err).ToNot(HaveOccurred())
-				dockerConfigJSON, err := json.Marshal(getDockerConfigSecret(secretData))
+				dockerConfigJSON, err := getDockerConfigSecretJSON(secretData)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(sec.Data[".dockerconfigjson"]).To(Equal(dockerConfigJSON))
 			}
@@ -128,7 +127,7 @@ var _ = Describe("FusionAccess Utilities", func() {
 			for _, ns := range IbmEntitlementSecrets(TESTNAMESPACE) {
 				sec, err := clientset.CoreV1().Secrets(ns).Get(ctx, IBMENTITLEMENTNAME, metav1.GetOptions{})
 				Expect(err).ToNot(HaveOccurred())
-				dockerConfigJSON, err := json.Marshal(getDockerConfigSecret(secretData))
+				dockerConfigJSON, err := getDockerConfigSecretJSON(secretData)
 				Expect(err).ToNot(HaveOccurred())
 
 				Expect(sec.Data[".dockerconfigjson"]).To(Equal(dockerConfigJSON))
