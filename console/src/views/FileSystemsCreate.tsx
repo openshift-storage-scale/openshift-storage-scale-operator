@@ -34,9 +34,10 @@ import type {
 import type { State, Actions } from "@/contexts/store/types";
 import { HelpLabelIcon } from "@/components/HelpLabelIcon";
 import { useTriggerAlertsOnErrors } from "@/hooks/useTriggerAlertsOnErrors";
-import { getShortWwn } from "@/utils/fusion-access/LocalVolumeDiscoveryResult";
+import { getWwn } from "@/utils/fusion-access/LocalVolumeDiscoveryResult";
 
-const NAME_FIELD_VALIDATION_REGEX = /^[a-zA-Z](\w|[_-])*\w$/;
+const NAME_FIELD_VALIDATION_REGEX =
+  /^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$/;
 
 const FileSystemsCreate: React.FC = () => {
   return (
@@ -89,22 +90,35 @@ const FileSystemCreateForm = () => {
 
   const selectedLuns = useSelectedLuns(getValue("selected-luns"));
 
-  const discoveredDevices = useDiscoveredDevices(
-    discoveryResultsForStorageNodes
+  // we show only disks that are present in all nodes
+  const discoveredDevices =
+    discoveryResultsForStorageNodes[0]?.status?.discoveredDevices?.filter(
+      ({ WWN }) =>
+        discoveryResultsForStorageNodes.every((r) =>
+          r.status?.discoveredDevices?.some((d) => d.WWN === WWN)
+        )
+    ) || [];
+
+  const selectedDevices = discoveredDevices.filter((d) =>
+    selectedLuns.find((l) => l.id === getWwn(d))
   );
-  const selectedDevices = useMemo(() => {
-    const value = discoveredDevices.filter((d) =>
-      selectedLuns.find((l) => l.id === getShortWwn(d))
-    );
-    return value;
-  }, [discoveredDevices, selectedLuns]);
   const handleCreateFileSystem = useCreateFileSystemHandler(
     fileSystemName,
     discoveryResultsForStorageNodes,
     selectedDevices
   );
 
-  const availableLuns = useConvertToLuns(discoveredDevices);
+  const availableLuns = discoveredDevices.map((disk) => {
+    const size = convert(disk.size, "B").to("GiB");
+    const r = {
+      name: disk.path,
+      id: getWwn(disk),
+      // Note: Usage of 'GB' is intentional here
+      capacity: size.toFixed(2) + " GB",
+    };
+
+    return r;
+  });
 
   const handleSelectLun = useCallback(
     (lun: Lun) =>
@@ -303,46 +317,8 @@ const useDisksDiscoveryResultsForStorageNodes = (): [
   return [results, lvLoaded && nodesLoaded];
 };
 
-const dedupeDiscoveredDisks = (
-  acc: DiscoveredDevice[],
-  disk?: DiscoveredDevice
-): DiscoveredDevice[] => {
-  if (!disk) {
-    return acc;
-  }
-
-  if (acc.some((d) => d.WWN === disk?.WWN)) {
-    return acc;
-  } else {
-    return acc.concat(disk);
-  }
-};
-
-const useDiscoveredDevices = (results: LocalVolumeDiscoveryResult[]) =>
-  results
-    .map((result) => result.status?.discoveredDevices)
-    .flat()
-    .reduce(dedupeDiscoveredDisks, []);
-
 const useSelectedLuns = (serializedLuns: string) =>
   useMemo(() => JSON.parse(serializedLuns || "[]") as Lun[], [serializedLuns]);
-
-const useConvertToLuns = (discoveredDevices: DiscoveredDevice[]): Lun[] =>
-  useMemo(
-    () =>
-      discoveredDevices.map((disk) => {
-        const size = convert(disk.size, "B").to("GiB");
-        const r = {
-          name: disk.path,
-          id: getShortWwn(disk),
-          // Note: Usage of 'GB' is intentional here
-          capacity: size.toFixed(2) + " GB",
-        };
-
-        return r;
-      }),
-    [discoveredDevices]
-  );
 
 const useColumns = () => {
   const { t } = useFusionAccessTranslations();
