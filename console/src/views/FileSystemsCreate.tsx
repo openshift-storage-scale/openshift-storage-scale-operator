@@ -20,17 +20,14 @@ import {
   TextInput,
   useFormContext,
 } from "@patternfly/react-core";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useEffect } from "react";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import { useWatchLocalVolumeDiscoveryResult } from "@/hooks/useWatchLocalVolumeDiscoveryResult";
 import { useWatchNode } from "@/hooks/useWatchNode";
 import { STORAGE_ROLE_LABEL, WORKER_NODE_ROLE_LABEL } from "@/constants";
 import convert from "convert";
 import { ExclamationCircleIcon, FolderIcon } from "@patternfly/react-icons";
-import type {
-  DiscoveredDevice,
-  LocalVolumeDiscoveryResult,
-} from "@/models/fusion-access/LocalVolumeDiscoveryResult";
+import type { LocalVolumeDiscoveryResult } from "@/models/fusion-access/LocalVolumeDiscoveryResult";
 import type { State, Actions } from "@/contexts/store/types";
 import { HelpLabelIcon } from "@/components/HelpLabelIcon";
 import { useTriggerAlertsOnErrors } from "@/hooks/useTriggerAlertsOnErrors";
@@ -81,7 +78,15 @@ interface Lun {
 
 const FileSystemCreateForm = () => {
   const [store] = useStoreContext<State, Actions>();
-  const { getValue, setValue, getError, setError, errors } = useFormContext();
+  const {
+    getValue,
+    setValue,
+    getError,
+    setError,
+    errors,
+    isTouched,
+    setTouched,
+  } = useFormContext();
   const { t } = useFusionAccessTranslations();
   const fileSystemName = getValue("name");
   const fileSystemNameErrorMessage = getError("name");
@@ -139,8 +144,11 @@ const FileSystemCreateForm = () => {
     [availableLuns, setValue]
   );
 
-  const validateNameField = useCallback(() => {
-    if (NAME_FIELD_VALIDATION_REGEX.test(getValue("name"))) {
+  useEffect(() => {
+    if (!isTouched("name")) {
+      return;
+    }
+    if (NAME_FIELD_VALIDATION_REGEX.test(fileSystemName)) {
       setError("name", undefined);
     } else {
       setError(
@@ -150,14 +158,7 @@ const FileSystemCreateForm = () => {
         })
       );
     }
-  }, [getValue, setError, t]);
-
-  const handleNameChange = useCallback(
-    (_event: React.FormEvent<HTMLInputElement>, newName: string) => {
-      setValue("name", newName);
-    },
-    [setValue]
-  );
+  }, [fileSystemName, setError, isTouched, t]);
 
   const columns = useColumns();
 
@@ -169,7 +170,6 @@ const FileSystemCreateForm = () => {
           id="file-system-create-form"
           onSubmit={(e) => {
             e.preventDefault();
-            validateNameField();
           }}
         >
           <FormGroup isRequired label="Name" fieldId="name">
@@ -182,8 +182,10 @@ const FileSystemCreateForm = () => {
               value={fileSystemName}
               placeholder="file-system-1"
               validated={fileSystemNameErrorMessage ? "error" : "default"}
-              onChange={handleNameChange}
-              onBlur={validateNameField}
+              onChange={(_, newName) => {
+                setValue("name", newName);
+                setTouched("name", true);
+              }}
             />
             {fileSystemNameErrorMessage ? (
               <FormHelperText>
