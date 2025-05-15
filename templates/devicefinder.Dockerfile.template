@@ -13,7 +13,7 @@ FROM registry.redhat.io/ubi10-beta/ubi:latest
 ARG VERSION=1.0
 
 COPY --from=builder /workspace/_output/bin/devicefinder /usr/bin/
-
+RUN dnf install -y udev && dnf clean all
 ENTRYPOINT ["/usr/bin/devicefinder"]
 
 LABEL \
