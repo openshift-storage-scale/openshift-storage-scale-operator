@@ -44,6 +44,9 @@ type FusionAccessSpec struct {
 
 	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=3,xDescriptors={"urn:alm:descriptor:com.tectonic.ui:hidden"}
 	LocalVolumeDiscovery StorageDeviceDiscovery `json:"storagedevicediscovery,omitempty"`
+	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=4,xDescriptors={"urn:alm:descriptor:com.tectonic.ui:hidden"}
+	// +kubebuilder:validation:Format=uri
+	ExternalManifestURL string `json:"externalManifestURL,omitempty"`
 }
 type StorageDeviceDiscovery struct {
 	// +kubebuilder:default:=true

@@ -309,10 +309,16 @@ func (r *FusionAccessReconciler) Reconcile(
 	if err != nil {
 		return ctrl.Result{}, err
 	}
-	// Load and install manifests from ibm
+	// Load and install manifests from ibm (from the repo)
 	install_path, err := utils.GetInstallPath(string(fusionaccess.Spec.IbmCnsaVersion))
 	if err != nil {
 		return ctrl.Result{}, err
+	}
+
+	// Load and install manifests from external url if defined
+	if fusionaccess.Spec.ExternalManifestURL != "" {
+		// TODO add additional validation for external manifest/url before applying it blindly
+		install_path = fusionaccess.Spec.ExternalManifestURL
 	}
 
 	installManifest, err := manifestival.NewManifest(
