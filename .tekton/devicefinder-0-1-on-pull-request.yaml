@@ -35,6 +35,8 @@ spec:
     value: 5d
   - name: dockerfile
     value: devicefinder.Dockerfile
+  - name: prefetch-input
+    value: [{"type": "rpm", "path": "hack/"},]
   pipelineSpec:
     description: |
       This pipeline is ideal for building container images from a Containerfile while maintaining trust after pipeline customization.
@@ -206,6 +208,8 @@ spec:
       params:
       - name: input
         value: $(params.prefetch-input)
+      - name: dev-package-managers
+        value: "true"
       - name: SOURCE_ARTIFACT
         value: $(tasks.generate-dockerfile.results.SCRIPT_ARTIFACT)
       - name: ociStorage

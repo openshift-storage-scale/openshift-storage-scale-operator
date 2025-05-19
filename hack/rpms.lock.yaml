@@ -1,0 +1,106 @@
+---
+lockfileVersion: 1
+lockfileVendor: redhat
+arches:
+- arch: x86_64
+  packages:
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi10/10/x86_64/baseos/os/Packages/c/cryptsetup-libs-2.7.5-2.el10.x86_64.rpm
+    repoid: ubi-10-for-x86_64-baseos-rpms
+    size: 552188
+    checksum: sha256:0faaad16d8ff77144bd9bef889b4048491914ad75526987e6606b92f0a2f1589
+    name: cryptsetup-libs
+    evr: 2.7.5-2.el10
+    sourcerpm: cryptsetup-2.7.5-2.el10.src.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi10/10/x86_64/baseos/os/Packages/d/device-mapper-1.02.202-6.el10.x86_64.rpm
+    repoid: ubi-10-for-x86_64-baseos-rpms
+    size: 146542
+    checksum: sha256:e6b8993a58c3d814587df149a2f37aa28d862d8b501350b16eb93a274915f5ae
+    name: device-mapper
+    evr: 10:1.02.202-6.el10
+    sourcerpm: lvm2-2.03.28-6.el10.src.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi10/10/x86_64/baseos/os/Packages/d/device-mapper-libs-1.02.202-6.el10.x86_64.rpm
+    repoid: ubi-10-for-x86_64-baseos-rpms
+    size: 187853
+    checksum: sha256:1fc2ea3d5df59daae6333408c76fd685764c17b608cfb621d173865d1488ae5e
+    name: device-mapper-libs
+    evr: 10:1.02.202-6.el10
+    sourcerpm: lvm2-2.03.28-6.el10.src.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi10/10/x86_64/baseos/os/Packages/k/kbd-2.6.4-7.el10.x86_64.rpm
+    repoid: ubi-10-for-x86_64-baseos-rpms
+    size: 421026
+    checksum: sha256:7dd10412d5aa4602247175ed60ff4709b470272cf0d9d51aba59b1a56cbcf1e1
+    name: kbd
+    evr: 2.6.4-7.el10
+    sourcerpm: kbd-2.6.4-7.el10.src.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi10/10/x86_64/baseos/os/Packages/k/kbd-legacy-2.6.4-7.el10.noarch.rpm
+    repoid: ubi-10-for-x86_64-baseos-rpms
+    size: 610872
+    checksum: sha256:da78727e75401c470d9f123df02a3a6b7e8d75fc82662d04e2eb0bb726771259
+    name: kbd-legacy
+    evr: 2.6.4-7.el10
+    sourcerpm: kbd-2.6.4-7.el10.src.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi10/10/x86_64/baseos/os/Packages/k/kbd-misc-2.6.4-7.el10.noarch.rpm
+    repoid: ubi-10-for-x86_64-baseos-rpms
+    size: 1778264
+    checksum: sha256:fd0633cd6c97ab3f2f41ce98aefbe8e5bd058cc97516428730d420ded2fdc48d
+    name: kbd-misc
+    evr: 2.6.4-7.el10
+    sourcerpm: kbd-2.6.4-7.el10.src.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi10/10/x86_64/baseos/os/Packages/k/kmod-31-11.el10.x86_64.rpm
+    repoid: ubi-10-for-x86_64-baseos-rpms
+    size: 141571
+    checksum: sha256:b2235316f1a00139e4d28807a46f60535c1efc7a8f68f10f35901ca867829475
+    name: kmod
+    evr: 31-11.el10
+    sourcerpm: kmod-31-11.el10.src.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi10/10/x86_64/baseos/os/Packages/k/kmod-libs-31-11.el10.x86_64.rpm
+    repoid: ubi-10-for-x86_64-baseos-rpms
+    size: 71258
+    checksum: sha256:58266f4bacbd79b8d387c71729658da1f8312f6156d6a740729d231723841df4
+    name: kmod-libs
+    evr: 31-11.el10
+    sourcerpm: kmod-31-11.el10.src.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi10/10/x86_64/baseos/os/Packages/l/libcbor-0.11.0-3.el10.x86_64.rpm
+    repoid: ubi-10-for-x86_64-baseos-rpms
+    size: 37307
+    checksum: sha256:fdf8446ec31ab2efddc92e0164946192bcec3b8290a3a810aa01418cdc3522c8
+    name: libcbor
+    evr: 0.11.0-3.el10
+    sourcerpm: libcbor-0.11.0-3.el10.src.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi10/10/x86_64/baseos/os/Packages/l/libfido2-1.14.0-7.el10.x86_64.rpm
+    repoid: ubi-10-for-x86_64-baseos-rpms
+    size: 102913
+    checksum: sha256:132ad4a76f742a97a670255869b9422e38dfa5a6885c474963242d4a0c50a088
+    name: libfido2
+    evr: 1.14.0-7.el10
+    sourcerpm: libfido2-1.14.0-7.el10.src.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi10/10/x86_64/baseos/os/Packages/s/systemd-257-9.el10_0.1.x86_64.rpm
+    repoid: ubi-10-for-x86_64-baseos-rpms
+    size: 6001865
+    checksum: sha256:cd45bb96e6110902490146c1023ca8581f0154d16887208ee2e9bcc7bee74ea4
+    name: systemd
+    evr: 257-9.el10_0.1
+    sourcerpm: systemd-257-9.el10_0.1.src.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi10/10/x86_64/baseos/os/Packages/s/systemd-libs-257-9.el10_0.1.x86_64.rpm
+    repoid: ubi-10-for-x86_64-baseos-rpms
+    size: 842246
+    checksum: sha256:ad8f1ec19ac1b7f67bd90923bb579756a825e1fa05cc82c273ddba7e5614b4f8
+    name: systemd-libs
+    evr: 257-9.el10_0.1
+    sourcerpm: systemd-257-9.el10_0.1.src.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi10/10/x86_64/baseos/os/Packages/s/systemd-pam-257-9.el10_0.1.x86_64.rpm
+    repoid: ubi-10-for-x86_64-baseos-rpms
+    size: 309684
+    checksum: sha256:a11992b1f952b75baec3b97e873fac2bbcb7e213c0f71038c6f665bd338b15a9
+    name: systemd-pam
+    evr: 257-9.el10_0.1
+    sourcerpm: systemd-257-9.el10_0.1.src.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi10/10/x86_64/baseos/os/Packages/s/systemd-udev-257-9.el10_0.1.x86_64.rpm
+    repoid: ubi-10-for-x86_64-baseos-rpms
+    size: 2332687
+    checksum: sha256:810ced5d4166a50036c283b26b8d2b0f219bd20981a59283421c4ddf7a584a26
+    name: systemd-udev
+    evr: 257-9.el10_0.1
+    sourcerpm: systemd-257-9.el10_0.1.src.rpm
+  source: []
+  module_metadata: []
