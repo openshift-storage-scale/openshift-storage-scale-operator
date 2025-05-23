@@ -39,6 +39,9 @@ spec:
           spec:
             description: FusionAccessSpec defines the desired state of FusionAccess
             properties:
+              externalManifestURL:
+                format: uri
+                type: string
               ibm_cnsa_version:
                 description: Version of IBMs installation manifests found at https://github.com/IBM/ibm-spectrum-scale-container-native
                 enum:
