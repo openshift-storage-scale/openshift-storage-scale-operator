@@ -1,0 +1,5 @@
+packages: [systemd-udev]
+contentOrigin:
+  repofiles:
+    - location: ./ubi.repo
+arches: [x86_64]
