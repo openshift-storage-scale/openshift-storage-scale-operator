@@ -4,9 +4,12 @@ set -e -o pipefail
 VERSION=$(cat VERSION.txt)
 
 make USE_IMAGE_DIGESTS="" bundle generate manifests docker-build docker-push \
-    bundle-build bundle-push catalog-build catalog-push \
+    bundle-build bundle-push \
     console-build console-push devicefinder-docker-build devicefinder-docker-push \
     must-gather-docker-build must-gather-docker-push
+
+export BUNDLE_IMGS=$(skopeo list-tags docker://quay.io/openshift-storage-scale/openshift-fusion-access-bundle | jq -r '[.Tags[] | select(test("^([0-9]+)\\.([0-9]+)\\.([0-9]+)($|-).*"))| "quay.io/openshift-storage-scale/openshift-fusion-access-bundle:\(.)"] | join(",")')
+make catalog-build catalog-push
 
 podman tag quay.io/openshift-storage-scale/openshift-fusion-access-catalog:${VERSION} quay.io/openshift-storage-scale/openshift-fusion-access-catalog:latest
 podman push quay.io/openshift-storage-scale/openshift-fusion-access-catalog:latest
